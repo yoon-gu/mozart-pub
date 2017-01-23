@@ -15,7 +15,7 @@ setup(	name='mozart', version='0.0',
 			'numpy',
 		],
 		package_data={
-			'' : ['*.so']
+			'' : ['*.so', 'samples/*/*.bin']
 		},
 		include_package_data=True,
 		distclass=BinaryDistribution,

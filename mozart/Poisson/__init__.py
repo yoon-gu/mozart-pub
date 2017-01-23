@@ -2,5 +2,5 @@
 Here is Docstring.
 """
 
-__all__ = ["greeting"]
-from .two_dim_tri import greeting
+__all__ = ["greeting", "sample"]
+from .two_dim_tri import *
