@@ -13,8 +13,10 @@ setup(	name='mozart', version='0.0',
 		packages=find_packages(),
 		install_requires=[
 			'numpy',
-			'scipy',
 		],
+		package_data={
+			'' : ['*.so']
+		},
 		include_package_data=True,
 		distclass=BinaryDistribution,
 		zip_safe=False)
