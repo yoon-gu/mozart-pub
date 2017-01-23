@@ -1,0 +1,23 @@
+language: python
+
+python:
+  - "2.7"
+  - "3.3"
+  - "3.4"
+  - "3.5"
+  
+os:
+  - linux
+  # - osx # Travis does not support Python in OS X
+
+# command to install dependencies
+install: 
+  - pip install -q -U pip setuptools nose coveralls
+
+# command to run tests
+script: 
+  - nosetests --with-coverage --cover-package=mozart
+
+after_success:
+  - bash <(curl -s https://codecov.io/bash)
+  - coveralls
