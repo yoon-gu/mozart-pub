@@ -30,5 +30,5 @@ __author__ = ("Yoon-gu Hwang <yz0624@gmail.com>",
 	"Dong-Wook Shin <dwshin.yonsei@gmail.com>", 
 	"Ji-Yeon Suh <suh91919@naver.com>")
 
-__all__ = ["Poisson"]
-from Poisson.two_dim_tri import *
+__all__ = ["greeting"]
+from .Poisson import *
