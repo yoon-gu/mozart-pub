@@ -11,13 +11,9 @@ setup(	name='mozart', version='0.0',
 		author_email='yz0624@gmail.com',
 		license='MIT',
 		packages=find_packages(),
-		setup_requires=[
-			'numpy',
-			'scipy',
-			],
 		install_requires=[
-			'numpy',
 			'scipy',
+			'numpy',
 			'matplotlib',
 		],
 		package_data={
