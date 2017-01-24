@@ -20,7 +20,3 @@ class TestStocMethods(unittest.TestCase):
 		import mozart as mz
 		authors = ('Yoon-gu Hwang <yz0624@gmail.com>', 'Dong-Wook Shin <dwshin.yonsei@gmail.com>', 'Ji-Yeon Suh <suh91919@naver.com>')
 		self.assertEqual(mz.__author__, authors)
-
-	def test_sample(self):
-		import mozart as mz
-		mz.sample()
