@@ -10,7 +10,7 @@ os:
 
 # command to install dependencies
 install: 
-  - pip install -q -U pip setuptools nose coveralls
+  - pip install -q -U pip setuptools nose coveralls matplotlib scipy
 
 # command to run tests
 script: 

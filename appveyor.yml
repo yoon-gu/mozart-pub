@@ -14,7 +14,7 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
-  - "%PYTHON%/Scripts/pip.exe install nose numpy coverage"
+  - "%PYTHON%/Scripts/pip.exe install nose numpy coverage matplotlib scipy"
 
 test_script:
   - "%PYTHON%/Scripts/nosetests"
