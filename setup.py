@@ -14,7 +14,7 @@ setup(	name='mozart', version='0.0',
 		install_requires=[
 			'numpy',
 			'scipy',
-			'matplotlib'
+			'matplotlib',
 		],
 		package_data={
 			'' : ['*.so', 'samples/*/*.bin']
