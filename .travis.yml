@@ -10,8 +10,9 @@ os:
 
 # command to install dependencies
 install: 
-  - pip install --only-binary=numpy,scipy numpy scipy
   - pip install -q -U pip setuptools nose coveralls matplotlib
+  - pip install --upgrade pip setuptools wheel
+  - pip install --only-binary=numpy,scipy numpy scipy
 
 # command to run tests
 script: 
