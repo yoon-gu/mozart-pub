@@ -14,9 +14,7 @@ init:
   - "ECHO %PYTHON% %PYTHON_VERSION% %PYTHON_ARCH%"
 
 install:
-  - "%PYTHON%/Scripts/pip.exe install --upgrade pip setuptools wheel"
-  - "%PYTHON%/Scripts/pip.exe install --only-binary=numpy,scipy numpy scipy"
-  - "%PYTHON%/Scripts/pip.exe install nose coverage matplotlib"
+  - "%PYTHON%/Scripts/pip.exe install nose coverage numpy"
 
 test_script:
   - "%PYTHON%/Scripts/nosetests"
