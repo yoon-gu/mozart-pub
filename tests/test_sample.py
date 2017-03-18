@@ -16,4 +16,10 @@ class TestStocMethods(unittest.TestCase):
 	def test_poisson_square_2d(self):
 		from mozart.mesh.rectangle import unit_square
 		unit_square(0.1)
+		from mozart.poisson.solve.one_dim import one
+		from mozart.poisson.solve.two_dim import two
+		from mozart.poisson.solve.three_dim import three
+		one(None, None, None, None)
+		two(None, None, None, None)
+		three(None, None, None, None)
 		self.assertTrue(True)
