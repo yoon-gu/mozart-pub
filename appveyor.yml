@@ -15,6 +15,7 @@ init:
 
 install:
   - "%PYTHON%/Scripts/pip.exe install nose coverage numpy"
+  - "%PYTHON% setup.py install
 
 test_script:
   - "%PYTHON%/Scripts/nosetests"
