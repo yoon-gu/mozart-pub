@@ -5,7 +5,7 @@ def two_dim(c4n, n4e, n4sDb, f):
 	print("two_dim is called.")
 
 def three_dim(c4n, n4e, n4sDb, f):
-	print("two_dim is called.")
+	print("trhee_dim is called.")
 
 # def sample():
 # 	from os import listdir, path
