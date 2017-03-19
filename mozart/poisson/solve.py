@@ -1,16 +1,34 @@
+from sys import platform
+from os import path
+from ctypes import CDLL, c_double, c_void_p, c_int, c_bool
+import mozart as mz
+import numpy as np
+
+# OS Detection Code
+prefix = ""
+if platform == "linux" or platform == "linux32":
+	prefix = "linux"
+elif platform == "darwin":
+	prefix = "osx"
+elif platform == "win32":
+	prefix = "win64"
+
+dllpath = path.join(mz.__path__[0], [prefix, 'libmozart.so'].join("_"))
+
 def getMatrix1D(degree):
 	"""
 	Get FEM matrices on the reference domain
 
 	Paramter:
-		- `degree` : degree of polynomial
+		- degree : degree of polynomial
 
 	Returns:
-		1. `M_R` : 
-		1. `S_R` : 
-		1. `D_R` :  
+		- M_R : 
+		- S_R : 
+		- D_R :  
 
 	"""
+	print(dllpath)
 	M_R = None
 	S_R = None
 	D_R = None
