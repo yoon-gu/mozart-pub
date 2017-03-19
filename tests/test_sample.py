@@ -33,3 +33,21 @@ class TestStocMethods(unittest.TestCase):
 		for k in range(1,3):
 			getMatrix1D(k)
 		self.assertTrue(True)
+
+	def test_solve_onedim(self):
+		from mozart.poisson.solve import one_dim
+		one_dim(None, None, None, None)
+
+		self.assertTrue(True)
+
+	def test_solve_twodim(self):
+		from mozart.poisson.solve import two_dim
+		two_dim(None, None, None, None)
+
+		self.assertTrue(True)
+
+	def test_solve_threedim(self):
+		from mozart.poisson.solve import three_dim
+		three_dim(None, None, None, None)
+
+		self.assertTrue(True)
