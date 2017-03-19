@@ -1,18 +1,27 @@
 def getMatrix1D(degree):
 	"""
 	Get FEM matrices on the reference domain
+
+	Paramter:
+		- `degree` : degree of polynomial
+
+	Returns:
+		1. `M_R` : 
+		1. `S_R` : 
+		1. `D_R` :  
+
 	"""
 	M_R = None
 	S_R = None
 	D_R = None
 	if degree is 1:
-		M_R = [2 1; 1 2] / 3.
-		S_R = [1 -1; -1 1] / 2.
-		D_R = [-1 1; -1 1] / 2.
+		M_R = np.array([[ 2,  1], [ 1, 2]]) / 3.
+		S_R = np.array([[ 1, -1], [-1, 1]]) / 2.
+		D_R = np.array([[-1,  1], [-1, 1]]) / 2.
 	if degree is 2:
-		M_R = [4 2 -1; 2 16 2; -1 2 4] / 15.
-		S_R = [7 -8 1; -8 16 -8; 1 -8 7] / 6.
-		D_R = [-3 4 -1; -1 0 1; 1 -4 3] / 2.
+		M_R = np.array([[ 4,  2, -1], [ 2, 16,  2], [-1,  2, 4]]) / 15.
+		S_R = np.array([[ 7, -8,  1], [-8, 16, -8], [ 1, -8, 7]]) / 6.
+		D_R = np.array([[-3,  4, -1], [-1,  0,  1], [ 1, -4, 3]]) / 2.
 
 	return (M_R, S_R, D_R)
 
