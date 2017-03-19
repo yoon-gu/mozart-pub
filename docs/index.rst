@@ -6,6 +6,9 @@
 Welcome to Mozart's documentation!
 ==================================
 
+.. automodule:: mozart
+   :members:
+
 Contents:
 
 .. toctree::
