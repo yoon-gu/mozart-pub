@@ -1,0 +1,170 @@
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN"
+  "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+  <head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    
+    <title>Welcome to Mozart’s documentation! &#8212; Mozart 0.0 documentation</title>
+    
+    <link rel="stylesheet" href="_static/classic.css" type="text/css" />
+    <link rel="stylesheet" href="_static/pygments.css" type="text/css" />
+    
+    <script type="text/javascript">
+      var DOCUMENTATION_OPTIONS = {
+        URL_ROOT:    './',
+        VERSION:     '0.0',
+        COLLAPSE_INDEX: false,
+        FILE_SUFFIX: '.html',
+        HAS_SOURCE:  true
+      };
+    </script>
+    <script type="text/javascript" src="_static/jquery.js"></script>
+    <script type="text/javascript" src="_static/underscore.js"></script>
+    <script type="text/javascript" src="_static/doctools.js"></script>
+    <script type="text/javascript" src="https://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML"></script>
+    <link rel="index" title="Index" href="genindex.html" />
+    <link rel="search" title="Search" href="search.html" />
+    <link rel="top" title="Mozart 0.0 documentation" href="#" /> 
+  </head>
+  <body role="document">
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             accesskey="I">index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">Mozart 0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          <div class="body" role="main">
+            
+  <div class="section" id="module-mozart">
+<span id="welcome-to-mozart-s-documentation"></span><h1>Welcome to Mozart&#8217;s documentation!<a class="headerlink" href="#module-mozart" title="Permalink to this headline">¶</a></h1>
+<div class="section" id="mozart">
+<h2>Mozart<a class="headerlink" href="#mozart" title="Permalink to this headline">¶</a></h2>
+<p><code class="docutils literal"><span class="pre">mozart</span></code> is a software package written in <code class="docutils literal"><span class="pre">Python</span></code> for PDE Solver.</p>
+<div class="section" id="example">
+<h3>Example<a class="headerlink" href="#example" title="Permalink to this headline">¶</a></h3>
+<p>Examples can be given using either the <code class="docutils literal"><span class="pre">Example</span></code> or <code class="docutils literal"><span class="pre">Examples</span></code>
+sections. Sections support any reStructuredText formatting, including
+literal blocks.</p>
+<blockquote>
+<div>$ python example_numpy.py</div></blockquote>
+<p>Section breaks are created with two blank lines. Section breaks are also
+implicitly created anytime a new section starts. Section bodies <em>may</em> be
+indented.</p>
+</div>
+<div class="section" id="notes">
+<h3>Notes<a class="headerlink" href="#notes" title="Permalink to this headline">¶</a></h3>
+<blockquote>
+<div>This is an example of an indented section. It&#8217;s like any other section,
+but the body is indented to help it stand out from surrounding text.</div></blockquote>
+<p>If a section is indented, then a section break is created simply by
+resuming unindented text.</p>
+</div>
+</div>
+<span class="target" id="module-mozart.mesh.rectangle"></span><dl class="function">
+<dt id="mozart.mesh.rectangle.unit_interval">
+<code class="descclassname">mozart.mesh.rectangle.</code><code class="descname">unit_interval</code><span class="sig-paren">(</span><em>N</em><span class="sig-paren">)</span><a class="reference internal" href="_modules/mozart/mesh/rectangle.html#unit_interval"><span class="viewcode-link">[source]</span></a><a class="headerlink" href="#mozart.mesh.rectangle.unit_interval" title="Permalink to this definition">¶</a></dt>
+<dd><p>Computes the coordinates of nodes and elements.</p>
+<dl class="docutils">
+<dt>N</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">int</span><dd>Dictionary of index sizes</dd>
+</dl>
+<dl class="docutils">
+<dt>c4n</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">float array</span><dd>The resulting product.</dd>
+<dt>n4e</dt>
+ <span class="classifier-delimiter">:</span> <span class="classifier">int array</span><dd>The resulting product.</dd>
+</dl>
+<div class="highlight-default"><div class="highlight"><pre><span></span><span class="gp">&gt;&gt;&gt; </span><span class="n">c4n</span><span class="p">,</span> <span class="n">n4e</span> <span class="o">=</span> <span class="n">unit_interval</span><span class="p">(</span><span class="mi">4</span><span class="p">)</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">c4n</span> 
+<span class="go">array([ 0.        ,  0.33333333,  0.66666667,  1.        ])</span>
+<span class="gp">&gt;&gt;&gt; </span><span class="n">n4e</span>
+<span class="go">array([[0, 1],</span>
+<span class="go">   [1, 2],</span>
+<span class="go">   [2, 3]])</span>
+</pre></div>
+</div>
+</dd></dl>
+
+<p>Contents:</p>
+<div class="toctree-wrapper compound">
+</div>
+</div>
+<div class="section" id="indices-and-tables">
+<h1>Indices and tables<a class="headerlink" href="#indices-and-tables" title="Permalink to this headline">¶</a></h1>
+<ul class="simple">
+<li><a class="reference internal" href="genindex.html"><span class="std std-ref">Index</span></a></li>
+<li><a class="reference internal" href="py-modindex.html"><span class="std std-ref">Module Index</span></a></li>
+<li><a class="reference internal" href="search.html"><span class="std std-ref">Search Page</span></a></li>
+</ul>
+</div>
+
+
+          </div>
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="main navigation">
+        <div class="sphinxsidebarwrapper">
+  <h3><a href="#">Table Of Contents</a></h3>
+  <ul>
+<li><a class="reference internal" href="#">Welcome to Mozart&#8217;s documentation!</a><ul>
+<li><a class="reference internal" href="#mozart">Mozart</a><ul>
+<li><a class="reference internal" href="#example">Example</a></li>
+<li><a class="reference internal" href="#notes">Notes</a></li>
+</ul>
+</li>
+</ul>
+</li>
+<li><a class="reference internal" href="#indices-and-tables">Indices and tables</a></li>
+</ul>
+
+  <div role="note" aria-label="source link">
+    <h3>This Page</h3>
+    <ul class="this-page-menu">
+      <li><a href="_sources/index.txt"
+            rel="nofollow">Show Source</a></li>
+    </ul>
+   </div>
+<div id="searchbox" style="display: none" role="search">
+  <h3>Quick search</h3>
+    <form class="search" action="search.html" method="get">
+      <div><input type="text" name="q" /></div>
+      <div><input type="submit" value="Go" /></div>
+      <input type="hidden" name="check_keywords" value="yes" />
+      <input type="hidden" name="area" value="default" />
+    </form>
+</div>
+<script type="text/javascript">$('#searchbox').show(0);</script>
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="related" role="navigation" aria-label="related navigation">
+      <h3>Navigation</h3>
+      <ul>
+        <li class="right" style="margin-right: 10px">
+          <a href="genindex.html" title="General Index"
+             >index</a></li>
+        <li class="right" >
+          <a href="py-modindex.html" title="Python Module Index"
+             >modules</a> |</li>
+        <li class="nav-item nav-item-0"><a href="#">Mozart 0.0 documentation</a> &#187;</li> 
+      </ul>
+    </div>
+    <div class="footer" role="contentinfo">
+        &#169; Copyright 2017, Yoon-gu Hwang, Dong-wook Shin, and Ji-yeon Suh.
+      Created using <a href="http://sphinx-doc.org/">Sphinx</a> 1.4.8.
+    </div>
+  </body>
+</html>
