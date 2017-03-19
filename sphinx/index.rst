@@ -9,6 +9,10 @@ Welcome to Mozart's documentation!
 .. automodule:: mozart
    :members:
 
+.. automodule:: mozart.mesh.rectangle
+   :members:
+
+
 Contents:
 
 .. toctree::
