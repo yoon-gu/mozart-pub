@@ -1,5 +1,6 @@
 import unittest
-
+import numpy as np
+from numpy import linalg as LA
 class TestStocMethods(unittest.TestCase):
 
 	def test_test(self):
@@ -13,6 +14,15 @@ class TestStocMethods(unittest.TestCase):
 		import mozart as mz
 		authors = ('Yoon-gu Hwang <yz0624@gmail.com>', 'Dong-Wook Shin <dwshin.yonsei@gmail.com>', 'Ji-Yeon Suh <suh91919@gmail.com>')
 		self.assertEqual(mz.__author__, authors)
+	def test_1d_uniform_mesh(self):
+		from mozart.mesh.rectangle import unit_interval
+		N = 4
+		c4n, n4e = unit_interval(N)
+		diff_c4n = c4n - np.linspace(0,1,N)
+		diff_n4e = n4e - np.array([[0,1], [1, 2], [2,3]])
+		self.assertTrue(LA.norm(diff_c4n) < 1E-8)
+		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
+
 	def test_poisson_square_2d(self):
 		from mozart.mesh.rectangle import unit_square
 		unit_square(0.1)
