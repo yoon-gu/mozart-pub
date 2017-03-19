@@ -4,13 +4,13 @@ def unit_interval(N):
 	Computes the coordinates of nodes and elements.
 	
 	Parameters:
-		1. `N` : int
+		1. N : int
 			Dictionary of index sizes
 
 	Returns:
-		1. `c4n` : float array
+		1. c4n : float array
 			The resulting product.
-		1. `n4e` : int array
+		1. n4e : int array
 			The resulting product.
 
 	Examples:
