@@ -6,3 +6,6 @@
 [![Coverage Status](https://coveralls.io/repos/github/yoon-gu/Mozart/badge.svg)](https://coveralls.io/github/yoon-gu/Mozart)
 
 # Mozart
+## Intallation
+- run `pip install git+https://github.com/yoon-gu/Mozart.git`
+- document : http://mozart.readthedocs.io/en/latest/
