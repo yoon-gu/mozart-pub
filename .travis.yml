@@ -10,7 +10,7 @@ os:
 
 # command to install dependencies
 install: 
-  - pip install -q -U pip setuptools nose coveralls matplotlib
+  - pip install -q -U pip setuptools nose coveralls
   - pip install --upgrade pip setuptools wheel
   - pip install --only-binary=numpy,scipy numpy scipy
 
