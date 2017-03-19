@@ -13,7 +13,7 @@ elif platform == "darwin":
 elif platform == "win32":
 	prefix = "win64"
 
-dllpath = path.join(mz.__path__[0], [prefix, 'libmozart.so'].join("_"))
+dllpath = path.join(mz.__path__[0], prefix + '_' + 'libmozart.so')
 
 def getMatrix1D(degree):
 	"""
@@ -28,7 +28,6 @@ def getMatrix1D(degree):
 		- D_R :  
 
 	"""
-	print(dllpath)
 	M_R = None
 	S_R = None
 	D_R = None
