@@ -1,3 +1,21 @@
+def getMatrix1D(degree):
+	"""
+	Get FEM matrices on the reference domain
+	"""
+	M_R = None
+	S_R = None
+	D_R = None
+	if degree is 1:
+		M_R = [2 1; 1 2] / 3.
+		S_R = [1 -1; -1 1] / 2.
+		D_R = [-1 1; -1 1] / 2.
+	if degree is 2:
+		M_R = [4 2 -1; 2 16 2; -1 2 4] / 15.
+		S_R = [7 -8 1; -8 16 -8; 1 -8 7] / 6.
+		D_R = [-3 4 -1; -1 0 1; 1 -4 3] / 2.
+
+	return (M_R, S_R, D_R)
+
 def one_dim(c4n, n4e, n4sDb, f):
 	print("one_dim is called.")
 
@@ -62,9 +80,9 @@ def three_dim(c4n, n4e, n4sDb, f):
 
 # 	Poison_2D = lib['Poisson_2D_Triangle'] # need the extern!!
 # 	Poison_2D.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
-# 						c_void_p, 
+# 						c_void_p,
 # 						c_void_p, c_void_p, c_void_p, c_void_p, c_int,
-# 						c_void_p, 
+# 						c_void_p,
 # 						c_void_p, c_void_p, c_void_p, c_void_p,)
 # 	Poison_2D.restype = None
 # 	Poison_2D(c_void_p(n4e.ctypes.data), c_void_p(ind4e.ctypes.data),
@@ -74,7 +92,7 @@ def three_dim(c4n, n4e, n4sDb, f):
 # 		c_void_p(Srs_R.ctypes.data),
 # 		c_void_p(Ssr_R.ctypes.data),
 # 		c_void_p(Sss_R.ctypes.data),
-# 		c_int(nrLocal), 
+# 		c_int(nrLocal),
 # 		c_void_p(f.ctypes.data),
 # 		c_void_p(I.ctypes.data),
 # 		c_void_p(J.ctypes.data),
@@ -116,6 +134,6 @@ def three_dim(c4n, n4e, n4sDb, f):
 # 	# for k in range(0, nrNodes):
 # 	# 	data_str += "{0} {1} {2}\n".format(coord_x[k], coord_y[k], u[k])
 
-# 	# np.savetxt(os.join(os.getcwd(), 'sample.dat'), (n4e+1).reshape((nrElems, 3)), 
+# 	# np.savetxt(os.join(os.getcwd(), 'sample.dat'), (n4e+1).reshape((nrElems, 3)),
 # 	# 	fmt='%d',
 # 	# 	header=header_str + data_str, comments="")
