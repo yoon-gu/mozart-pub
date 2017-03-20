@@ -14,6 +14,7 @@ Contents
    getstarted
    mesh
    poisson
+   stokes
 
 
 Indices and tables
