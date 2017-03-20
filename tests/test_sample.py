@@ -35,8 +35,16 @@ class TestStocMethods(unittest.TestCase):
 		self.assertTrue(True)
 
 	def test_solve_onedim(self):
+		from mozart.mesh.rectangle import unit_interval
+		N = 3
+		c4n, n4e = unit_interval(N)
+		n4Db = [0, N-1]
+		f = lambda x: np.ones_like(x)
+		u_D = lambda x: np.zeros_like(x)
 		from mozart.poisson.solve import one_dim
-		one_dim(None, None, None, None)
+		x = one_dim(c4n, n4e, n4Db, f, u_D)
+		diff_x = x - np.array([0., 0.125, 0.])
+		self.assertTrue(LA.norm(diff_x) < 1E-8)
 
 		self.assertTrue(True)
 

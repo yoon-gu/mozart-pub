@@ -23,7 +23,7 @@ def unit_interval(N):
 		   [2, 3]])
 	"""
 	c4n = np.linspace(0, 1, N)
-	n4e = np.array([[item,item+1] for item in range(0,N-1)])
+	n4e = np.array([[item,item+1] for item in range(0,N-1)], dtype=np.int32)
 	return (c4n, n4e)
 
 def unit_square(h):

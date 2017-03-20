@@ -14,6 +14,7 @@ elif platform == "win32":
 	prefix = "win64"
 
 dllpath = path.join(mz.__path__[0], prefix + '_' + 'libmozart.so')
+lib = CDLL(dllpath)
 
 def getMatrix1D(degree):
 	"""
@@ -42,8 +43,46 @@ def getMatrix1D(degree):
 
 	return (M_R, S_R, D_R)
 
-def one_dim(c4n, n4e, n4sDb, f):
-	print("one_dim is called.")
+def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
+	from mozart.poisson.solve import getMatrix1D
+	M_R, S_R, D_R = getMatrix1D(degree)
+	fval = f(c4n[n4e].flatten())
+	nrNodes = int(c4n.shape[0])
+	nrElems = int(n4e.shape[0])
+	nrLocal = int(M_R.shape[0])
+
+	I = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.int32)
+	J = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.int32)
+	Alocal = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.float64)
+
+	b = np.zeros(nrNodes)
+	Poison_1D = lib['Poisson_1D'] # need the extern!!
+	Poison_1D.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
+	                    c_void_p, c_void_p, c_int,
+	                    c_void_p, c_void_p, c_void_p, c_void_p, c_void_p,)
+	Poison_1D.restype = None
+	Poison_1D(c_void_p(n4e.ctypes.data), c_void_p(n4e.ctypes.data),
+	    c_void_p(c4n.ctypes.data), c_int(nrElems),
+	    c_void_p(M_R.ctypes.data),
+	    c_void_p(S_R.ctypes.data),
+	    c_int(nrLocal),
+	    c_void_p(fval.ctypes.data),
+	    c_void_p(I.ctypes.data),
+	    c_void_p(J.ctypes.data),
+	    c_void_p(Alocal.ctypes.data),
+	    c_void_p(b.ctypes.data))
+	from scipy.sparse import coo_matrix
+	from scipy.sparse.linalg import spsolve
+	STIMA_COO = coo_matrix((Alocal, (I, J)), shape=(nrNodes, nrNodes))
+	STIMA_CSR = STIMA_COO.tocsr()
+
+	dof = np.setdiff1d(range(0,nrNodes), n4Db)
+
+	# print STIMA_CSR
+
+	x = np.zeros(nrNodes)
+	x[dof] = spsolve(STIMA_CSR[dof, :].tocsc()[:, dof].tocsr(), b[dof])
+	return x
 
 def two_dim(c4n, n4e, n4sDb, f):
 	print("two_dim is called.")
@@ -56,7 +95,6 @@ def sample():
 	from scipy.sparse import coo_matrix
 	from scipy.sparse.linalg import spsolve
 
-	lib = CDLL(dllpath)
 	folder = path.join(mz.__path__[0], 'samples', 'benchmark01')
 	c4n_path = [file for file in listdir(folder) if 'c4n' in file][0]
 	n4e_path = [file for file in listdir(folder) if 'n4e' in file][0]
