@@ -57,6 +57,17 @@ def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 
 	Returns:
 		- ``x`` (``float64 array``) : solution
+
+	Example:
+		>>> N = 3
+		>>> c4n, n4e = unit_interval(N)
+		>>> n4Db = [0, N-1]
+		>>> f = lambda x: np.ones_like(x)
+		>>> u_D = lambda x: np.zeros_like(x)
+		>>> from mozart.poisson.solve import one_dim
+		>>> x = one_dim(c4n, n4e, n4Db, f, u_D)
+		>>> print(x)
+		array([ 0.   ,  0.125,  0.   ])
 	"""
 	from mozart.poisson.solve import getMatrix1D
 	M_R, S_R, D_R = getMatrix1D(degree)
@@ -91,8 +102,6 @@ def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 	STIMA_CSR = STIMA_COO.tocsr()
 
 	dof = np.setdiff1d(range(0,nrNodes), n4Db)
-
-	# print STIMA_CSR
 
 	x = np.zeros(nrNodes)
 	x[dof] = spsolve(STIMA_CSR[dof, :].tocsc()[:, dof].tocsr(), b[dof])
