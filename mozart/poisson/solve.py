@@ -44,6 +44,20 @@ def getMatrix1D(degree):
 	return (M_R, S_R, D_R)
 
 def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
+	"""
+	Computes the coordinates of nodes and elements.
+	
+	Parameters:
+		- ``c4n``(``float64 array``)
+		- ``n4e``(``int32 array``)
+		- ``n4Db``(``int32 array``)
+		- ``f``(``lambda``)
+		- ``u_D``(``lambda``)
+		- ``degree``(``int32``)
+
+	Returns:
+		- ``x`` (``float64 array``) : solution
+	"""
 	from mozart.poisson.solve import getMatrix1D
 	M_R, S_R, D_R = getMatrix1D(degree)
 	fval = f(c4n[n4e].flatten())
