@@ -3,14 +3,14 @@ def unit_interval(N):
 	"""
 	Computes the coordinates of nodes and elements.
 	
-	Parameters:
+	Parameters
 		- ``N`` (``int``) : Number of nodes
 
-	Returns:
+	Returns
 		- ``c4n`` (``float array``) : coordinates of nodes
 		- ``n4e`` (``int array``) : elements
 
-	Example:
+	Example
 		>>> c4n, n4e = unit_interval(4)
 		>>> c4n 
 		array([ 0.        ,  0.33333333,  0.66666667,  1.        ])

@@ -20,10 +20,10 @@ def getMatrix1D(degree):
 	"""
 	Get FEM matrices on the reference domain
 
-	Paramters:
+	Paramters
 		- ``degree`` : degree of polynomial
 
-	Returns:
+	Returns
 		- ``M_R`` : 
 		- ``S_R`` : 
 		- ``D_R`` :  
@@ -47,7 +47,7 @@ def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 	"""
 	Computes the coordinates of nodes and elements.
 	
-	Parameters:
+	Parameters
 		- ``c4n`` (``float64 array``) : coordinates
 		- ``n4e`` (``int32 array``) : nodes for elements
 		- ``n4Db`` (``int32 array``) : Dirichlet boundary nodes
@@ -55,10 +55,10 @@ def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 		- ``u_D`` (``lambda``) : Dirichlet boundary condition
 		- ``degree`` (``int32``) : Polynomial degree
 
-	Returns:
+	Returns
 		- ``x`` (``float64 array``) : solution
 
-	Example:
+	Example
 		>>> N = 3
 		>>> c4n, n4e = unit_interval(N)
 		>>> n4Db = [0, N-1]

@@ -1,5 +1,3 @@
-Methods
--------
 .. automodule:: mozart.poisson
    :members:
 
