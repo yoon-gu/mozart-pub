@@ -5,26 +5,19 @@
 
 Welcome to Mozart's documentation!
 ==================================
-Contents:
-
-.. automodule:: mozart
-   :members:
-
-Methods
-========
-.. automodule:: mozart.mesh.rectangle
-   :members:
-
-.. automodule:: mozart.poisson.solve
-   :members:
-
+Contents
+--------
 
 .. toctree::
    :maxdepth: 2
 
+   getstarted
+   mesh
+   poisson
+
 
 Indices and tables
-==================
+------------------
 
 * :ref:`genindex`
 * :ref:`modindex`
