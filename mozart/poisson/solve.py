@@ -19,7 +19,7 @@ def getMatrix1D(degree):
 	"""
 	Get FEM matrices on the reference domain
 
-	Paramter:
+	Paramters:
 		- degree : degree of polynomial
 
 	Returns:
