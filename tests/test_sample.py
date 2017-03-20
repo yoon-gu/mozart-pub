@@ -51,3 +51,8 @@ class TestStocMethods(unittest.TestCase):
 		three_dim(None, None, None, None)
 
 		self.assertTrue(True)
+
+	def test_benchmark01_sample(self):
+		from mozart.poisson.solve import sample
+		sample()
+		self.assertTrue(True)
