@@ -1,7 +1,7 @@
 import unittest
 import numpy as np
 from numpy import linalg as LA
-class TestStocMethods(unittest.TestCase):
+class TestMethods(unittest.TestCase):
 
 	def test_test(self):
 		self.assertTrue(True)
