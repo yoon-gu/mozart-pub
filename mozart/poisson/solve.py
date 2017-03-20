@@ -5,7 +5,7 @@ import mozart as mz
 import numpy as np
 
 # OS Detection Code
-prefix = ""
+prefix = "linux"
 if platform == "linux" or platform == "linux32":
 	prefix = "linux"
 elif platform == "darwin":
