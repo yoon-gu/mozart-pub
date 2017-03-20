@@ -1,5 +1,10 @@
 """
-Here is Docstring.
+Poisson Equation
+================
+
+.. math::
+	-\\nabla ^2 u = f(x)
+
 """
 
 # __all__ = ["mesh_square_2D"]

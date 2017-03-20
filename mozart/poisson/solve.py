@@ -48,12 +48,12 @@ def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 	Computes the coordinates of nodes and elements.
 	
 	Parameters:
-		- ``c4n`` (``float64 array``)
-		- ``n4e`` (``int32 array``)
-		- ``n4Db`` (``int32 array``)
-		- ``f`` (``lambda``)
-		- ``u_D`` (``lambda``)
-		- ``degree`` (``int32``)
+		- ``c4n`` (``float64 array``) : coordinates
+		- ``n4e`` (``int32 array``) : nodes for elements
+		- ``n4Db`` (``int32 array``) : Dirichlet boundary nodes
+		- ``f`` (``lambda``) : source term 
+		- ``u_D`` (``lambda``) : Dirichlet boundary condition
+		- ``degree`` (``int32``) : Polynomial degree
 
 	Returns:
 		- ``x`` (``float64 array``) : solution
