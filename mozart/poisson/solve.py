@@ -38,7 +38,7 @@ def getMatrix1D(degree):
 	S_R = np.dot(np.dot(np.transpose(D_R),M_R),D_R)
 	return (M_R, S_R, D_R)
 
-def nJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
+def nJacobiP(x, alpha=0, beta=0, degree=0):
 	"""
 	Evaluate normalized Jacobi polynomial of type alpha, beta > -1 at point x for order n
 	(the special case of alpha = beta = 0, knows as the normalized Legendre polynomial)
@@ -77,7 +77,7 @@ def nJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
 	P = Pn[degree,:]
 	return P
 
-def DnJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
+def DnJacobiP(x, alpha=0, beta=0, degree=0):
 	"""
 	Evaluate the derivative of the normalized Jacobi polynomial of type alpha, beta > -1 at point x for order n
 
