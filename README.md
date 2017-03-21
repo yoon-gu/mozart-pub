@@ -20,6 +20,7 @@
 	1. `Example`
 	1. For example
 		```python
+		def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 		"""
 		Computes the coordinates of nodes and elements.
 		
