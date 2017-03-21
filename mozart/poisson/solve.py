@@ -184,7 +184,7 @@ def nJacobiGL(alpha=0, beta=0, degree=0):
 
 def VandermondeM1D(degree,r):
 	"""
-	Initialize the 1D Vandermonde matrix, V_{i,j} = phi_j(r_i)
+	Initialize the 1D Vandermonde matrix, :math:`V_{i,j} = \\phi_j(r_i)`
 
 	Paramters
 		- ``degree`` (``int32``) : Polynomial degree
