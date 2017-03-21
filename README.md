@@ -50,7 +50,7 @@
 1. Add test code for your code.
 	- Without this, you will have failure for automation test system(`cdoecov`).
 	- run `cd /path/to/Mozart/`
-	- run `nosetest`
+	- run `nosetests`
 1. Check documentation by running 
 	1. `cd /path/to/Mozart/`
 	1. `python setup.py install`
