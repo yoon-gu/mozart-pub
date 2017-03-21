@@ -34,6 +34,13 @@ class TestMethods(unittest.TestCase):
 			getMatrix1D(k)
 		self.assertTrue(True)
 
+	def test_nJacobiP(self):
+		from mozart.poisson.solve import nJacobiP
+		for k in range(1,5):
+			x = np.linspace(-1,1,k+1)
+			nJacobiP(x,0,0,k)
+		self.assertTrue(True)
+
 	def test_solve_onedim(self):
 		from mozart.mesh.rectangle import unit_interval
 		N = 3
