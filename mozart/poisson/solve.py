@@ -88,8 +88,7 @@ def DnJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
 		- ``degree`` (``int32``) : Polynomial degree
 
 	Returns
-		- ``dP`` (``float64 array``) : the value of the derivative of the normalized Jacobi polynomial at x
-									   according to alpha, beta, degree
+		- ``dP`` (``float64 array``) : the value of the derivative of the normalized Jacobi polynomial at x according to alpha, beta, degree
 	
 	Example
 		>>> N = 2
@@ -201,9 +200,9 @@ def VandermondeM1D(degree,r):
 		>>> V1D = VandermondeM1D(N,r)
 		>>> print(V1D)
 		array([[ 0.70710678, -1.22474487,  1.58113883, -1.87082869],
-       [ 0.70710678, -0.40824829, -0.52704628,  0.76218947],
-       [ 0.70710678,  0.40824829, -0.52704628, -0.76218947],
-       [ 0.70710678,  1.22474487,  1.58113883,  1.87082869]])
+		[ 0.70710678, -0.40824829, -0.52704628,  0.76218947],
+		[ 0.70710678,  0.40824829, -0.52704628, -0.76218947],
+		[ 0.70710678,  1.22474487,  1.58113883,  1.87082869]])
 	"""
 	V1D = np.zeros((r.size,degree+1),float)
 	for j in range(0,degree+1):
@@ -228,9 +227,9 @@ def DVandermondeM1D(degree, r):
 		>>> DVr = DVandermondeM1D(N,r)
 		>>> print(DVr)
 		array([[  0.        ,   1.22474487,  -4.74341649,  11.22497216],
-       [  0.        ,   1.22474487,  -1.58113883,  -1.24721913],
-       [  0.        ,   1.22474487,   1.58113883,  -1.24721913],
-       [  0.        ,   1.22474487,   4.74341649,  11.22497216]])
+		[  0.        ,   1.22474487,  -1.58113883,  -1.24721913],
+		[  0.        ,   1.22474487,   1.58113883,  -1.24721913],
+		[  0.        ,   1.22474487,   4.74341649,  11.22497216]])
 	"""
 	DVr = np.zeros((r.size,degree+1), float)
 	for j in range(0,degree+1):
@@ -255,9 +254,9 @@ def Dmatrix1D(degree, r, V):
 		>>> Dr = Dmatirx1D(N,r)
 		>>> print(Dr)
 		array([[-2.75,  4.5 , -2.25,  0.5 ],
-       [-0.5 , -0.75,  1.5 , -0.25],
-       [ 0.25, -1.5 ,  0.75,  0.5 ],
-       [-0.5 ,  2.25, -4.5 ,  2.75]])
+		[-0.5 , -0.75,  1.5 , -0.25],
+		[ 0.25, -1.5 ,  0.75,  0.5 ],
+		[-0.5 ,  2.25, -4.5 ,  2.75]])
 	"""
 	Vr = DVandermondeM1D(degree, r)
 	Dr = np.linalg.solve(np.transpose(V),np.transpose(Vr))
