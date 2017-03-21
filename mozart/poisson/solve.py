@@ -107,9 +107,9 @@ def DnJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
 	length = x.size
 	dP = np.zeros(length,float)
 	if degree == 0:
-		dP[:] = 0;
+		dP[:] = 0
 	else:
-		dP[:] = np.sqrt(degree*(degree+alpha+beta+1))*nJacobiP(x,alpha+1,beta+1,degree-1);
+		dP[:] = np.sqrt(degree*(degree+alpha+beta+1))*nJacobiP(x,alpha+1,beta+1,degree-1)
 	return dP
 
 def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):

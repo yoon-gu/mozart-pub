@@ -41,6 +41,8 @@ class TestMethods(unittest.TestCase):
 		diff_P = P - 0.707106781186548 * np.ones(5,float)
 		P2 = nJacobiP(x,0,0,1)
 		diff_P2 = P2 - 1.224744871391589*x
+		P3 = nJacobiP(x,0,0,2)
+		diff_P3 = P3 - np.array([1.581138830084190, -0.197642353760524, -0.790569415042095, -0.197642353760524, 1.581138830084190])
 		self.assertTrue(LA.norm(diff_P) < 1E-8)
 		self.assertTrue(LA.norm(diff_P2) < 1E-8)
 
