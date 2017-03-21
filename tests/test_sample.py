@@ -47,9 +47,9 @@ class TestMethods(unittest.TestCase):
 	def test_DnJacobiP(self):
 		from mozart.poisson.solve import DnJacobiP
 		x = np.linspace(-1,1,5)
-		dP = nJacobiP(x,0,0,0)
+		dP = DnJacobiP(x,0,0,0)
 		diff_dP = dP - np.zeros(5,float)
-		dP2 = nJacobiP(x,0,0,1)
+		dP2 = DnJacobiP(x,0,0,1)
 		diff_dP2 = dP2 - 1.224744871391589*np.ones(5,float)
 		self.assertTrue(LA.norm(diff_dP) < 1E-8)
 		self.assertTrue(LA.norm(diff_dP2) < 1E-8)
