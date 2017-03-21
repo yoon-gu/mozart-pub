@@ -72,12 +72,12 @@ def nJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
 		P = Pn
 	else:
 		Pn[1,:] = np.multiply(Pn[0,:]*np.sqrt((alpha+beta+3.0)/((alpha+1)*(beta+1))),((alpha+beta+2)*x+(alpha-beta)))/2
-		a_n = 2.0/(2+alpha+beta)*np.sqrt((alpha+1)*(beta+1)/(alpha+beta+3));
+		a_n = 2.0/(2+alpha+beta)*np.sqrt((alpha+1)*(beta+1)/(alpha+beta+3))
 		for n in range(2,degree+1):
 			anew=2.0/(2*n+alpha+beta)*np.sqrt(n*(n+alpha+beta)*(n+alpha)*(n+beta)/((2*n+alpha+beta-1)*(2*n+alpha+beta+1)))
 			b_n=-(alpha**2-beta**2)/((2*(n-1)+alpha+beta)*(2*(n-1)+alpha+beta+2.0))
-			Pn[n,:]=(np.multiply((x-b_n),Pn[n-1,:])-a_n*Pn[n-2,:])/anew;
-			a_n=anew;
+			Pn[n,:]=(np.multiply((x-b_n),Pn[n-1,:])-a_n*Pn[n-2,:])/anew
+			a_n=anew
 
 	P = Pn[degree,:]
 	return P
