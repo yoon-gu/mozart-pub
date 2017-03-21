@@ -66,15 +66,15 @@ def nJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
 		array([ 1.58113883, -0.79056942,  1.58113883])	
 	"""
 	Pn = np.zeros((degree+1,x.size),float)
-	Pn[0,:] = np.sqrt(2**(-alpha-beta-1) * np.math.gamma(alpha+beta+2) / ((np.math.gamma(alpha + 1) * np.math.gamma(beta + 1))))
+	Pn[0,:] = np.sqrt(2.0**(-alpha-beta-1) * np.math.gamma(alpha+beta+2) / ((np.math.gamma(alpha + 1) * np.math.gamma(beta + 1))))
 
 	if degree == 0:
 		P = Pn
 	else:
 		Pn[1,:] = np.multiply(Pn[0,:]*np.sqrt((alpha+beta+3.0)/((alpha+1)*(beta+1))),((alpha+beta+2)*x+(alpha-beta)))/2
-		a_n = 2.0/(2+alpha+beta)*np.sqrt((alpha+1)*(beta+1)/(alpha+beta+3))
+		a_n = 2.0/(2+alpha+beta)*np.sqrt((alpha+1.0)*(beta+1)/(alpha+beta+3))
 		for n in range(2,degree+1):
-			anew=2.0/(2*n+alpha+beta)*np.sqrt(n*(n+alpha+beta)*(n+alpha)*(n+beta)/((2*n+alpha+beta-1)*(2*n+alpha+beta+1)))
+			anew=2.0/(2*n+alpha+beta)*np.sqrt(n*(n+alpha+beta)*(n+alpha)*(n+beta)/((2*n+alpha+beta-1.0)*(2*n+alpha+beta+1.0)))
 			b_n=-(alpha**2-beta**2)/((2*(n-1)+alpha+beta)*(2*(n-1)+alpha+beta+2.0))
 			Pn[n,:]=(np.multiply((x-b_n),Pn[n-1,:])-a_n*Pn[n-2,:])/anew
 			a_n=anew
@@ -109,7 +109,7 @@ def DnJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
 	if degree == 0:
 		dP[:] = 0
 	else:
-		dP[:] = np.sqrt(degree*(degree+alpha+beta+1))*nJacobiP(x,alpha+1,beta+1,degree-1)
+		dP[:] = np.sqrt(degree*(degree+alpha+beta+1.0))*nJacobiP(x,alpha+1,beta+1,degree-1)
 	return dP
 
 def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
