@@ -242,6 +242,33 @@ def DVandermondeM1D(degree, r):
 		DVr[:,j] = DnJacobiP(r,0,0,j)
 	return DVr
 
+def Dmatrix1D(degree, r, V):
+	"""
+	Initialize the derivative of modal basis (i) at (r) at order degree
+
+	Paramters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : points
+
+	Returns
+		- ``DVr`` (``float64 array``) : Differentiate Vandermonde matrix
+	
+	Example
+		>>> N = 3
+		>>> from mozart.poisson.solve import Dmatrix1D
+		>>> r = np.linspace(-1,1,N+1)
+		>>> Dr = Dmatirx1D(N,r)
+		>>> print(Dr)
+		array([[-2.75,  4.5 , -2.25,  0.5 ],
+       [-0.5 , -0.75,  1.5 , -0.25],
+       [ 0.25, -1.5 ,  0.75,  0.5 ],
+       [-0.5 ,  2.25, -4.5 ,  2.75]])
+	"""
+	Vr = DVandermondeM1D(degree, r)
+	Dr = np.linalg.solve(np.transpose(V),np.transpose(Vr))
+	Dr = np.transpose(Dr)
+	return Dr
+
 def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 	"""
 	Computes the coordinates of nodes and elements.
