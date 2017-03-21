@@ -111,7 +111,7 @@ def DnJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
 		dP[:] = np.sqrt(degree*(degree+alpha+beta+1.0))*nJacobiP(x,alpha+1,beta+1,degree-1)
 	return dP
 
-def nJacobiGQ(alpha=0, beta=0, N=0):
+def nJacobiGQ(alpha=0, beta=0, degree=0):
 	"""
 	Compute the degree-th order Gauss quadrature points x and weights w
 	associated with the nomalized Jacobi polynomial of type alpha, beta > -1
@@ -134,19 +134,19 @@ def nJacobiGQ(alpha=0, beta=0, N=0):
 		>>> print(w)
 		array([ 0.55555556,  0.88888889,  0.55555556])
 	"""
-	if N == 0:
+	if degree == 0:
 		x = -(alpha - beta)/(alpha + beta + 2.0)
 		w = 2
 	else:
 		if alpha + beta < 10*np.finfo(float).eps:
-			tmp = np.zeros(N+1)
-			tmp[1:] = -(alpha**2-beta**2)/((2*np.arange(1,N+1)+alpha+beta+2)*(2*np.arange(1,N+1)+alpha+beta))/2
-			J = np.diag(tmp) + np.diag(2/(2*np.arange(1,N+1)+alpha+beta)*np.sqrt(np.arange(1,N+1)*(np.arange(1,N+1)+alpha+beta)* \
-					(np.arange(1,N+1)+alpha)*(np.arange(1,N+1)+beta)/(2*np.arange(1,N+1)+alpha+beta-1)/(2*np.arange(1,N+1)+alpha+beta+1)),1)
+			tmp = np.zeros(degree+1)
+			tmp[1:] = -(alpha**2-beta**2)/((2*np.arange(1,degree+1)+alpha+beta+2)*(2*np.arange(1,degree+1)+alpha+beta))/2
+			J = np.diag(tmp) + np.diag(2/(2*np.arange(1,degree+1)+alpha+beta)*np.sqrt(np.arange(1,degree+1)*(np.arange(1,degree+1)+alpha+beta)* \
+					(np.arange(1,degree+1)+alpha)*(np.arange(1,degree+1)+beta)/(2*np.arange(1,degree+1)+alpha+beta-1)/(2*np.arange(1,degree+1)+alpha+beta+1)),1)
 		else:
-			J = np.diag(-(alpha**2-beta**2)/((2*np.arange(0,N+1)+alpha+beta+2)*(2*np.arange(0,N+1)+alpha+beta))/2)+ \
-					np.diag(2/(2*np.arange(1,N+1)+alpha+beta)*np.sqrt(np.arange(1,N+1)*(np.arange(1,N+1)+alpha+beta)* \
-					(np.arange(1,N+1)+alpha)*(np.arange(1,N+1)+beta)/(2*np.arange(1,N+1)+alpha+beta-1)/(2*np.arange(1,N+1)+alpha+beta+1)),1)
+			J = np.diag(-(alpha**2-beta**2)/((2*np.arange(0,degree+1)+alpha+beta+2)*(2*np.arange(0,degree+1)+alpha+beta))/2)+ \
+					np.diag(2/(2*np.arange(1,degree+1)+alpha+beta)*np.sqrt(np.arange(1,degree+1)*(np.arange(1,degree+1)+alpha+beta)* \
+					(np.arange(1,degree+1)+alpha)*(np.arange(1,degree+1)+beta)/(2*np.arange(1,degree+1)+alpha+beta-1)/(2*np.arange(1,degree+1)+alpha+beta+1)),1)
 		
 		J = J + np.transpose(J)
 
@@ -157,6 +157,36 @@ def nJacobiGQ(alpha=0, beta=0, N=0):
 		x = x[ind]
 		w = w[ind]
 	return (x, w)
+
+def nJacobiGL(alpha=0, beta=0, degree=0):
+	"""
+	Compute the degree-th order Gauss Lobatto quadrature points x
+	associated with the nomalized Jacobi polynomial of type alpha, beta > -1
+
+	Paramters
+		- ``alpha`` (``int32``) : superscript alpha of normalized Jacobi polynomial
+		- ``beta`` (``int32``) : superscript beta of normalized Jacobi polynomial
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``x`` (``float64 array``) : Gauss Lobatto quadrature points
+	
+	Example
+		>>> N = 3
+		>>> from mozart.poisson.solve import nJacobiGL
+		>>> x = nJacobiGQ(0,0,N)
+		>>> print(x)
+		array([-1.       , -0.4472136,  0.4472136,  1.       ])
+	"""
+	if degree == 0:
+		x = 0
+	elif degree == 1:
+		x = np.array([-1, 1])
+	else:
+		xint, w = nJacobiGQ(alpha+1,beta+1,degree-2)
+		x = np.hstack((np.array([-1]),xint))
+		x = np.hstack((x,np.array([1])))	
+	return x
 
 def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 	"""
