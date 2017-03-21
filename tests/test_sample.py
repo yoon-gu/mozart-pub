@@ -47,6 +47,24 @@ class TestMethods(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_P2) < 1E-8)
 		self.assertTrue(LA.norm(diff_P3) < 1E-8)
 
+	def test_nJacobiGQ(self):
+		from mozart.poisson.solve import nJacobiGQ
+		x0, w0 = nJacobiGQ(0,0,0)
+		diff_x0 = x0 - 0.0
+		diff_w0 = w0 - 2.0
+		x1, w1 = nJacobiGQ(0,0,1)
+		diff_x1 = x1 - np.array([-np.sqrt(1.0/3.0), np.sqrt(1.0/3.0)])
+		diff_w1 = w1 - np.array([1.0, 1.0])
+		x2, w2 = nJacobiGQ(0,0,2)
+		diff_x2 = x2 - np.array([-np.sqrt(3.0/5.0), 0.0, np.sqrt(3.0/5.0)])
+		diff_w2 = w2 - np.array([5.0/9.0, 8.0/9.0, 5.0/9.0])
+		self.assertTrue(LA.norm(diff_x0) < 1E-8)
+		self.assertTrue(LA.norm(diff_w0) < 1E-8)
+		self.assertTrue(LA.norm(diff_x1) < 1E-8)
+		self.assertTrue(LA.norm(diff_w1) < 1E-8)
+		self.assertTrue(LA.norm(diff_x2) < 1E-8)
+		self.assertTrue(LA.norm(diff_w2) < 1E-8)
+
 	def test_DnJacobiP(self):
 		from mozart.poisson.solve import DnJacobiP
 		x = np.linspace(-1,1,5)

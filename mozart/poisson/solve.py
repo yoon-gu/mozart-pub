@@ -72,7 +72,7 @@ def nJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
 		P = Pn
 	else:
 		Pn[1,:] = np.multiply(Pn[0,:]*np.sqrt((alpha+beta+3.0)/((alpha+1)*(beta+1))),((alpha+beta+2)*x+(alpha-beta)))/2
-		a_n = 2.0/(2+alpha+beta)*np.sqrt((alpha+1.0)*(beta+1)/(alpha+beta+3))
+		a_n = 2.0/(2+alpha+beta)*np.sqrt((alpha+1.0)*(beta+1.0)/(alpha+beta+3.0))
 		for n in range(2,degree+1):
 			anew=2.0/(2*n+alpha+beta)*np.sqrt(n*(n+alpha+beta)*(n+alpha)*(n+beta)/((2*n+alpha+beta-1.0)*(2*n+alpha+beta+1.0)))
 			b_n=-(alpha**2-beta**2)/((2*(n-1)+alpha+beta)*(2*(n-1)+alpha+beta+2.0))
@@ -104,13 +104,59 @@ def DnJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
 		>>> print(dP)
 		array([-4.74341649,  0.        ,  4.74341649])	
 	"""
-	length = x.size
-	dP = np.zeros(length,float)
+	dP = np.zeros(x.size,float)
 	if degree == 0:
 		dP[:] = 0
 	else:
 		dP[:] = np.sqrt(degree*(degree+alpha+beta+1.0))*nJacobiP(x,alpha+1,beta+1,degree-1)
 	return dP
+
+def nJacobiGQ(alpha=0, beta=0, N=0):
+	"""
+	Compute the degree-th order Gauss quadrature points x and weights w
+	associated with the nomalized Jacobi polynomial of type alpha, beta > -1
+
+	Paramters
+		- ``alpha`` (``int32``) : superscript alpha of normalized Jacobi polynomial
+		- ``beta`` (``int32``) : superscript beta of normalized Jacobi polynomial
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``x`` (``float64 array``) : Gauss quadrature points
+		- ``w`` (``float64 array``) : Gauss quadrature weights
+	
+	Example
+		>>> N = 2
+		>>> from mozart.poisson.solve import nJacobiGQ
+		>>> x, w = nJacobiGQ(0,0,N)
+		>>> print(x)
+		array([ -7.74596669e-01,  -4.78946310e-17,   7.74596669e-01])
+		>>> print(w)
+		array([ 0.55555556,  0.88888889,  0.55555556])
+	"""
+	if N == 0:
+		x = -(alpha - beta)/(alpha + beta + 2.0)
+		w = 2
+	else:
+		if alpha + beta < 10*np.finfo(float).eps:
+			tmp = np.zeros(N+1)
+			tmp[1:] = -(alpha**2-beta**2)/((2*np.arange(1,N+1)+alpha+beta+2)*(2*np.arange(1,N+1)+alpha+beta))/2
+			J = np.diag(tmp) + np.diag(2/(2*np.arange(1,N+1)+alpha+beta)*np.sqrt(np.arange(1,N+1)*(np.arange(1,N+1)+alpha+beta)* \
+					(np.arange(1,N+1)+alpha)*(np.arange(1,N+1)+beta)/(2*np.arange(1,N+1)+alpha+beta-1)/(2*np.arange(1,N+1)+alpha+beta+1)),1)
+		else:
+			J = np.diag(-(alpha**2-beta**2)/((2*np.arange(0,N+1)+alpha+beta+2)*(2*np.arange(0,N+1)+alpha+beta))/2)+ \
+					np.diag(2/(2*np.arange(1,N+1)+alpha+beta)*np.sqrt(np.arange(1,N+1)*(np.arange(1,N+1)+alpha+beta)* \
+					(np.arange(1,N+1)+alpha)*(np.arange(1,N+1)+beta)/(2*np.arange(1,N+1)+alpha+beta-1)/(2*np.arange(1,N+1)+alpha+beta+1)),1)
+		
+		J = J + np.transpose(J)
+
+		x, V = np.linalg.eig(J)
+		w = np.transpose(V[0])**2 * 2**(alpha + beta + 1) / (alpha + beta + 1) * np.math.gamma(alpha + 1)  * \
+			np.math.gamma(beta + 1) / np.math.gamma(alpha + beta + 1)
+		ind = np.argsort(x)
+		x = x[ind]
+		w = w[ind]
+	return (x, w)
 
 def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 	"""
