@@ -188,6 +188,33 @@ def nJacobiGL(alpha=0, beta=0, degree=0):
 		x = np.hstack((x,np.array([1])))	
 	return x
 
+def VandermondeM1D(degree,r):
+	"""
+	Initialize the 1D Vandermonde matrix, V_{i,j} = phi_j(r_i)
+
+	Paramters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : points
+
+	Returns
+		- ``V1D`` (``float64 array``) : 1D Vandermonde matrix
+	
+	Example
+		>>> N = 3
+		>>> from mozart.poisson.solve import VandermondeM1D
+		>>> r = np.linspace(-1,1,N+1)
+		>>> V1D = VandermondeM1D(N,r)
+		>>> print(V1D)
+		array([[ 0.70710678, -1.22474487,  1.58113883, -1.87082869],
+       [ 0.70710678, -0.40824829, -0.52704628,  0.76218947],
+       [ 0.70710678,  0.40824829, -0.52704628, -0.76218947],
+       [ 0.70710678,  1.22474487,  1.58113883,  1.87082869]])
+	"""
+	V1D = np.zeros((r.size,degree+1),float)
+	for j in range(0,degree+1):
+		V1D[:,j] = nJacobiP(r,0,0,j)
+	return V1D
+
 def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 	"""
 	Computes the coordinates of nodes and elements.
