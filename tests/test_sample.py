@@ -36,17 +36,23 @@ class TestMethods(unittest.TestCase):
 
 	def test_nJacobiP(self):
 		from mozart.poisson.solve import nJacobiP
-		for k in range(1,5):
-			x = np.linspace(-1,1,k+1)
-			nJacobiP(x,0,0,k)
-		self.assertTrue(True)
+		x = np.linspace(-1,1,5)
+		P = nJacobiP(x,0,0,0)
+		diff_P = P - 0.707106781186548 * np.ones(5,float)
+		P2 = nJacobiP(x,0,0,1)
+		diff_P2 = P2 - 1.224744871391589*x
+		self.assertTrue(LA.norm(diff_P) < 1E-8)
+		self.assertTrue(LA.norm(diff_P2) < 1E-8)
 
 	def test_DnJacobiP(self):
 		from mozart.poisson.solve import DnJacobiP
-		for k in range(1,5):
-			x = np.linspace(-1,1,k+1)
-			DnJacobiP(x,0,0,k)
-		self.assertTrue(True)
+		x = np.linspace(-1,1,5)
+		dP = nJacobiP(x,0,0,0)
+		diff_dP = dP - np.zeros(5,float)
+		dP2 = nJacobiP(x,0,0,1)
+		diff_dP2 = dP2 - 1.224744871391589*np.ones(5,float)
+		self.assertTrue(LA.norm(diff_dP) < 1E-8)
+		self.assertTrue(LA.norm(diff_dP2) < 1E-8)
 
 	def test_solve_onedim(self):
 		from mozart.mesh.rectangle import unit_interval
