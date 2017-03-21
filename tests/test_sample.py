@@ -45,6 +45,7 @@ class TestMethods(unittest.TestCase):
 		diff_P3 = P3 - np.array([1.581138830084190, -0.197642353760524, -0.790569415042095, -0.197642353760524, 1.581138830084190])
 		self.assertTrue(LA.norm(diff_P) < 1E-8)
 		self.assertTrue(LA.norm(diff_P2) < 1E-8)
+		self.assertTrue(LA.norm(diff_P3) < 1E-8)
 
 	def test_DnJacobiP(self):
 		from mozart.poisson.solve import DnJacobiP
