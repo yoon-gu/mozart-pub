@@ -94,6 +94,13 @@ class TestMethods(unittest.TestCase):
 		diff_V1D = V1D - np.array([[0.707106781186548, -1.224744871391589], [0.707106781186548, 1.224744871391589]])
 		self.assertTrue(LA.norm(diff_V1D) < 1E-8)
 
+	def test_DVandermondeM1D(self):
+		from mozart.poisson.solve import DVandermondeM1D
+		r = np.array([-1.0, 1.0])
+		DVr = DVandermondeM1D(1,r)
+		diff_DVr = DVr - np.array([[0.0, 1.224744871391589], [0.0, 1.224744871391589]])
+		self.assertTrue(LA.norm(diff_DVr) < 1E-8)
+
 	def test_solve_onedim(self):
 		from mozart.mesh.rectangle import unit_interval
 		N = 3
