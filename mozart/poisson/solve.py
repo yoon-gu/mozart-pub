@@ -155,7 +155,7 @@ def nJacobiGQ(alpha=0, beta=0, degree=0):
 def nJacobiGL(alpha=0, beta=0, degree=0):
 	"""
 	Compute the degree-th order Gauss Lobatto quadrature points x
-	associated with the nomalized Jacobi polynomial of type alpha, beta > -1
+	associated with the nomalized Jacobi polynomial of type :math:`\\alpha, \\beta > -1`
 
 	Paramters
 		- ``alpha`` (``int32``) : superscript alpha of normalized Jacobi polynomial
