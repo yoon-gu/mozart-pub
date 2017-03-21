@@ -135,19 +135,19 @@ def nJacobiGQ(alpha=0, beta=0, degree=0):
 	else:
 		if alpha + beta < 10*np.finfo(float).eps:
 			tmp = np.zeros(degree+1)
-			tmp[1:] = -(alpha**2-beta**2)/((2*np.arange(1,degree+1)+alpha+beta+2)*(2*np.arange(1,degree+1)+alpha+beta))/2
-			J = np.diag(tmp) + np.diag(2/(2*np.arange(1,degree+1)+alpha+beta)*np.sqrt(np.arange(1,degree+1)*(np.arange(1,degree+1)+alpha+beta)* \
-					(np.arange(1,degree+1)+alpha)*(np.arange(1,degree+1)+beta)/(2*np.arange(1,degree+1)+alpha+beta-1)/(2*np.arange(1,degree+1)+alpha+beta+1)),1)
+			tmp[1:] = -(alpha**2-beta**2)/((2.0*np.arange(1,degree+1)+alpha+beta+2.0)*(2.0*np.arange(1,degree+1)+alpha+beta))/2.0
+			J = np.diag(tmp) + np.diag(2.0/(2.0*np.arange(1,degree+1)+alpha+beta)*np.sqrt(np.arange(1,degree+1)*(np.arange(1,degree+1)+alpha+beta)* \
+					(np.arange(1,degree+1)+alpha)*(np.arange(1,degree+1)+beta)/(2.0*np.arange(1,degree+1)+alpha+beta-1.0)/(2.0*np.arange(1,degree+1)+alpha+beta+1.0)),1)
 		else:
-			J = np.diag(-(alpha**2-beta**2)/((2*np.arange(0,degree+1)+alpha+beta+2)*(2*np.arange(0,degree+1)+alpha+beta))/2)+ \
-					np.diag(2/(2*np.arange(1,degree+1)+alpha+beta)*np.sqrt(np.arange(1,degree+1)*(np.arange(1,degree+1)+alpha+beta)* \
-					(np.arange(1,degree+1)+alpha)*(np.arange(1,degree+1)+beta)/(2*np.arange(1,degree+1)+alpha+beta-1)/(2*np.arange(1,degree+1)+alpha+beta+1)),1)
+			J = np.diag(-(alpha**2-beta**2)/((2.0*np.arange(0,degree+1)+alpha+beta+2.0)*(2.0*np.arange(0,degree+1)+alpha+beta))/2.0)+ \
+					np.diag(2.0/(2.0*np.arange(1,degree+1)+alpha+beta)*np.sqrt(np.arange(1,degree+1)*(np.arange(1,degree+1)+alpha+beta)* \
+					(np.arange(1,degree+1)+alpha)*(np.arange(1,degree+1)+beta)/(2.0*np.arange(1,degree+1)+alpha+beta-1.0)/(2.0*np.arange(1,degree+1)+alpha+beta+1.0)),1)
 		
 		J = J + np.transpose(J)
 
 		x, V = np.linalg.eig(J)
-		w = np.transpose(V[0])**2 * 2**(alpha + beta + 1) / (alpha + beta + 1) * np.math.gamma(alpha + 1)  * \
-			np.math.gamma(beta + 1) / np.math.gamma(alpha + beta + 1)
+		w = np.transpose(V[0])**2 * 2**(alpha + beta + 1) / (alpha + beta + 1.0) * np.math.gamma(alpha + 1.0)  * \
+			np.math.gamma(beta + 1.0) / np.math.gamma(alpha + beta + 1.0)
 		ind = np.argsort(x)
 		x = x[ind]
 		w = w[ind]
