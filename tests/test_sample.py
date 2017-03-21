@@ -30,9 +30,20 @@ class TestMethods(unittest.TestCase):
 
 	def test_getPoissonMatrix1D(self):
 		from mozart.poisson.solve import getMatrix1D
-		for k in range(1,3):
-			getMatrix1D(k)
-		self.assertTrue(True)
+		M1, S1, D1 = getMatrix1D(1)
+		diff_M1 = M1 - np.array([[ 2,  1], [ 1, 2]]) / 3.
+		diff_S1 = S1 - np.array([[ 1, -1], [-1, 1]]) / 2.
+		diff_D1 = D1 - np.array([[-1,  1], [-1, 1]]) / 2.
+		M2, S2, D2 = getMatrix1D(2)
+		diff_M2 = M2 - np.array([[ 4,  2, -1], [ 2, 16,  2], [-1,  2, 4]]) / 15.
+		diff_S2 = S2 - np.array([[ 7, -8,  1], [-8, 16, -8], [ 1, -8, 7]]) / 6.
+		diff_D2 = D2 - np.array([[-3,  4, -1], [-1,  0,  1], [ 1, -4, 3]]) / 2.
+		self.assertTrue(LA.norm(diff_M1) < 1E-8)
+		self.assertTrue(LA.norm(diff_S1) < 1E-8)
+		self.assertTrue(LA.norm(diff_D1) < 1E-8)
+		self.assertTrue(LA.norm(diff_M2) < 1E-8)
+		self.assertTrue(LA.norm(diff_S2) < 1E-8)
+		self.assertTrue(LA.norm(diff_D2) < 1E-8)
 
 	def test_nJacobiP(self):
 		from mozart.poisson.solve import nJacobiP

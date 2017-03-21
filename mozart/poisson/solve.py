@@ -18,29 +18,24 @@ lib = CDLL(dllpath)
 
 def getMatrix1D(degree):
 	"""
-	Get FEM matrices on the reference domain
+	Get FEM matrices on the reference domain I = [-1, 1]
 
 	Paramters
-		- ``degree`` : degree of polynomial
+		- ``degree`` (``int32``) : degree of polynomial
 
 	Returns
-		- ``M_R`` : 
-		- ``S_R`` : 
-		- ``D_R`` :  
+		- ``M_R`` (``float64 array``) : Mass matrix on the reference domain
+		- ``S_R`` (``float64 array``) : Stiffness matrix on the reference domain
+		- ``D_R`` (``float64 array``) : Differentiation matrix on the reference domain
 
 	"""
-	M_R = None
-	S_R = None
-	D_R = None
-	if degree is 1:
-		M_R = np.array([[ 2,  1], [ 1, 2]]) / 3.
-		S_R = np.array([[ 1, -1], [-1, 1]]) / 2.
-		D_R = np.array([[-1,  1], [-1, 1]]) / 2.
-	if degree is 2:
-		M_R = np.array([[ 4,  2, -1], [ 2, 16,  2], [-1,  2, 4]]) / 15.
-		S_R = np.array([[ 7, -8,  1], [-8, 16, -8], [ 1, -8, 7]]) / 6.
-		D_R = np.array([[-3,  4, -1], [-1,  0,  1], [ 1, -4, 3]]) / 2.
 
+	r = np.linspace(-1, 1, degree+1)
+	V = VandermondeM1D(degree, r)
+	invV = np.linalg.inv(V)
+	M_R = np.dot(np.transpose(invV),invV)
+	D_R = Dmatrix1D(degree, r, V)
+	S_R = np.dot(np.dot(np.transpose(D_R),M_R),D_R)
 	return (M_R, S_R, D_R)
 
 def nJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
