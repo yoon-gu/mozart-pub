@@ -82,6 +82,36 @@ def nJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
 	P = Pn[degree,:]
 	return P
 
+def DnJacobiP(x=np.array([0]), alpha=0, beta=0, degree=0):
+	"""
+	Evaluate the derivative of the normalized Jacobi polynomial of type alpha, beta > -1 at point x for order n
+
+	Paramters
+		- ``x`` (``float64 array``) : variable x
+		- ``alpha`` (``int32``) : superscript alpha of normalized Jacobi polynomial
+		- ``beta`` (``int32``) : superscript beta of normalized Jacobi polynomial
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``dP`` (``float64 array``) : the value of the derivative of the normalized Jacobi polynomial at x
+									   according to alpha, beta, degree
+	
+	Example
+		>>> N = 2
+		>>> x = np.array([-1, 0, 1])
+		>>> from mozart.poisson.solve import DnJacobiP
+		>>> dP = DnJacobiP(x,0,0,N)
+		>>> print(dP)
+		array([-4.74341649,  0.        ,  4.74341649])	
+	"""
+	length = x.size
+	dP = np.zeros(length,float)
+	if degree == 0:
+		dP[:] = 0;
+	else:
+		dP[:] = np.sqrt(degree*(degree+alpha+beta+1))*nJacobiP(x,alpha+1,beta+1,degree-1);
+	return dP
+
 def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 	"""
 	Computes the coordinates of nodes and elements.
