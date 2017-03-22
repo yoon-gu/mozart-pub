@@ -138,6 +138,19 @@ class TestMethods(unittest.TestCase):
 		diff_Dr = Dr - np.array([[-0.5, 0.5], [-0.5, 0.5]])
 		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
 
+	def test_solve_onedim_p(self):
+		from mozart.mesh.rectangle import interval
+		N = 3
+		c4n, n4e, n4db, ind4e = interval(0, 1, 4, N)
+		f = lambda x: np.ones_like(x)
+		u_D = lambda x: np.zeros_like(x)
+		from mozart.poisson.solve import one_dim_p
+		x = one_dim_p(c4n, n4e, n4db, ind4e, f, u_D, N)
+		diff_x = x - np.array([                 0,   0.038194444444444,   0.069444444444444,   0.093749999999999,   0.111111111111110,
+		   0.121527777777777,   0.124999999999999,   0.121527777777777,   0.111111111111110,   0.093749999999999,   0.069444444444444,
+		   0.038194444444444,                   0])
+		self.assertTrue(LA.norm(diff_x) < 1E-8)
+
 	def test_solve_onedim(self):
 		from mozart.mesh.rectangle import unit_interval
 		N = 3
