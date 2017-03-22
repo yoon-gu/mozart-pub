@@ -300,16 +300,16 @@ def one_dim_p(c4n,n4e,n4db,ind4e,f,u_D,degree):
 	from mozart.poisson.solve import getMatrix1D
 	M_R, S_R, D_R = getMatrix1D(degree)
 	for j in range(0,nrElems):
-		Jacobi = (c4n[n4e[j,1]] - c4n[n4e[j,0]])/2
-		Alocal[np.arange(j*(nrLocal*nrLocal),(j+1)*(nrLocal*nrLocal),1)] = np.concatenate(S_R, axis=None)/Jacobi
+		Jacobi = (c4n[n4e[j,1]] - c4n[n4e[j,0]])/2.0
+		Alocal[np.arange(j*(nrLocal*nrLocal),(j+1)*(nrLocal*nrLocal),1)] = S_R.flatten()/Jacobi
 		b[ind4e[j]] += Jacobi * np.dot(M_R, f(c4n[ind4e[j]].flatten()))
 
 	import numpy.matlib
 	J = np.matlib.repmat(ind4e,1,nrLocal)
-	J = np.concatenate(J, axis=None)
-	I = np.concatenate(ind4e, axis=None)
+	J = J.flatten()
+	I = ind4e.flatten()
 	I = np.transpose(np.matlib.repmat(I,nrLocal,1))
-	I = np.concatenate(I, axis=None)
+	I = I.flatten()
 
 	from scipy.sparse import coo_matrix
 	from scipy.sparse.linalg import spsolve
