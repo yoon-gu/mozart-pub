@@ -264,6 +264,33 @@ def Dmatrix1D(degree, r, V):
 	return Dr
 
 def one_dim_p(c4n,n4e,n4db,ind4e,f,u_D,degree):
+	"""
+	Computes the coordinates of nodes and elements.
+	
+	Parameters
+		- ``c4n`` (``float64 array``) : coordinates for nodes
+		- ``n4e`` (``int32 array``) : nodes for elements
+		- ``n4db`` (``int32 array``) : nodes for Dirichlet boundary
+		- ``ind4e`` (``int32 array``) : indices for elements 
+		- ``f`` (``lambda``) : source term 
+		- ``u_D`` (``lambda``) : Dirichlet boundary condition
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``x`` (``float64 array``) : solution
+
+	Example
+		>>> N = 2
+		>>> from mozart.mesh.rectangle import interval 
+		>>> c4n, n4e, n4db, ind4e = interval(0, 1, 4, 2)
+		>>> f = lambda x: np.ones_like(x)
+		>>> u_D = lambda x: np.zeros_like(x)
+		>>> from mozart.poisson.solve import one_dim_p
+		>>> x = one_dim_p(c4n, n4e, n4db, ind4e, f, u_D, N)
+		>>> x
+		array([ 0.       ,  0.0546875,  0.09375  ,  0.1171875,  0.125    ,
+    	    0.1171875,  0.09375  ,  0.0546875,  0.       ])
+	"""
 	nrLocal = degree + 1
 	nrElems = n4e.shape[0]
 	nrNodes = c4n.shape[0]
