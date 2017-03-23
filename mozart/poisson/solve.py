@@ -289,7 +289,7 @@ def one_dim_p(c4n,n4e,n4db,ind4e,f,u_D,degree):
 		>>> x = one_dim_p(c4n, n4e, n4db, ind4e, f, u_D, N)
 		>>> x
 		array([ 0.       ,  0.0546875,  0.09375  ,  0.1171875,  0.125    ,
-    	    0.1171875,  0.09375  ,  0.0546875,  0.       ])
+		   0.1171875,  0.09375  ,  0.0546875,  0.       ])
 	"""
 	nrLocal = degree + 1
 	nrElems = n4e.shape[0]
