@@ -86,12 +86,17 @@ class TestMethods(unittest.TestCase):
 		x2, w2 = nJacobiGQ(0,0,2)
 		diff_x2 = x2 - np.array([-np.sqrt(3.0/5.0), 0.0, np.sqrt(3.0/5.0)])
 		diff_w2 = w2 - np.array([5.0/9.0, 8.0/9.0, 5.0/9.0])
+		x3, w3 = nJacobiGQ(1,1,1)
+		diff_x3 = x3 - np.array([-0.447213595499958,   0.447213595499958])
+		diff_w3 = w3 - np.array([0.666666666666667,   0.666666666666667])
 		self.assertTrue(LA.norm(diff_x0) < 1E-8)
 		self.assertTrue(LA.norm(diff_w0) < 1E-8)
 		self.assertTrue(LA.norm(diff_x1) < 1E-8)
 		self.assertTrue(LA.norm(diff_w1) < 1E-8)
 		self.assertTrue(LA.norm(diff_x2) < 1E-8)
 		self.assertTrue(LA.norm(diff_w2) < 1E-8)
+		self.assertTrue(LA.norm(diff_x3) < 1E-8)
+		self.assertTrue(LA.norm(diff_w3) < 1E-8)
 
 	def test_nJacobiGL(self):
 		from mozart.poisson.solve import nJacobiGL
