@@ -48,7 +48,7 @@
 		"""
 		```
 1. Add test code for your code.
-	- Without this, you will have failure for automation test system(`cdoecov`).
+	- Without this, you will have failure for automation test system(`codecov`).
 	- run `cd /path/to/Mozart/`
 	- run `nosetests`
 1. Check documentation by running 
