@@ -3,17 +3,8 @@ from os import path
 from ctypes import CDLL, c_double, c_void_p, c_int, c_bool
 import mozart as mz
 import numpy as np
-
-# OS Detection Code
-prefix = "linux"
-if platform == "linux" or platform == "linux32":
-	prefix = "linux"
-elif platform == "darwin":
-	prefix = "osx"
-elif platform == "win32":
-	prefix = "win64"
-
-dllpath = path.join(mz.__path__[0], prefix + '_' + 'libmozart.so')
+from mozart.common.etc import prefix_by_os
+dllpath = path.join(mz.__path__[0], prefix_by_os(platform) + '_' + 'libmozart.so')
 lib = CDLL(dllpath)
 
 def getMatrix1D(degree):

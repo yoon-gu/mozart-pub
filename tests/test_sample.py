@@ -211,3 +211,14 @@ class TestMethods(unittest.TestCase):
 		from mozart.poisson.solve import sample
 		sample()
 		self.assertTrue(True)
+
+class TestMethods(unittest.TestCase):
+	def test_prefix_by_os(self):
+		answer_sheet ={"linux" : "linux", "linux32" : "linux", 
+			"darwin" : "osx", "win32" : "win64"}
+
+		from mozart.common.etc import prefix_by_os
+		for case, answer in answer_sheet.items():
+			res = prefix_by_os(case)
+			print(case, answer, res)
+			self.assertEqual(res, answer)
