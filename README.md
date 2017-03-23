@@ -13,7 +13,7 @@
 ## Contribution
 1. Fork
 1. Write code
-1. Add `docstring` for documentation. It should contain the following three things:
+1. Add `docstring` for documentation. It should contain the following four things:
 	1. Description of a function
 	1. `Parameters`
 	1. `Returns` 
