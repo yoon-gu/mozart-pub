@@ -151,6 +151,31 @@ class TestMethods(unittest.TestCase):
 		   0.038194444444444,                   0])
 		self.assertTrue(LA.norm(diff_x) < 1E-8)
 
+	def test_computeError_onedim(self):
+		from mozart.mesh.rectangle import interval
+		from mozart.poisson.solve import one_dim_p
+		from mozart.poisson.solve import computeError_one_dim
+		N = 2
+		iter = 4
+		f = lambda x: np.pi ** 2 * np.sin(np.pi * x)
+		u_D = lambda x: np.zeros_like(x)
+		exact_u = lambda x: np.sin(np.pi * x)
+		exact_ux = lambda x: np.pi * np.cos(np.pi * x)
+		L2error = np.zeros(iter, dtype = np.float64)
+		sH1error = np.zeros(iter, dtype = np.float64)
+		h = np.zeros(iter, dtype = np.float64)
+		for j in range(0,iter):
+			c4n, n4e, n4db, ind4e = interval(0,1,2**(j+1),N)
+			x = one_dim_p(c4n, n4e, n4db, ind4e, f, u_D, N)
+			L2error[j], sH1error[j] = computeError_one_dim(c4n, n4e, ind4e, exact_u, exact_ux, x, N, N+3)
+			h[j] = 1 / 2.0**(j+1)
+		rateL2=(np.log(L2error[1:])-np.log(L2error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
+		rateH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
+		self.assertTrue(np.abs(rateL2[-1]) > N+0.9)
+		self.assertTrue(np.abs(rateH1[-1]) > N-0.1)
+
+
+
 	def test_solve_onedim(self):
 		from mozart.mesh.rectangle import unit_interval
 		N = 3

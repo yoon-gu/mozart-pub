@@ -321,6 +321,74 @@ def one_dim_p(c4n,n4e,n4db,ind4e,f,u_D,degree):
 	x[dof] = spsolve(STIMA_CSR[dof, :].tocsc()[:, dof].tocsr(), b[dof])
 	return x
 
+def computeError_one_dim(c4n, n4e, ind4e, exact_u, exact_ux, approx_u, degree, degree_i):
+	"""
+	Computes L^2-error and semi H^1-error between exact solution and approximate solution.
+	
+	Parameters
+		- ``c4n`` (``float64 array``) : coordinates for nodes
+		- ``n4e`` (``int32 array``) : nodes for elements
+		- ``ind4e`` (``int32 array``) : indices for elements
+		- ``exact_u`` (``lambda``) : exact solution
+		- ``exact_ux`` (``lambda``) : derivative of exact solution 
+		- ``approx_u`` (``float64 array``) : approximate solution
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``degree_i`` (``int32``) : Polynomial degree for interpolation
+
+	Returns
+		- ``L2error`` (``float64``) : L^2 error between exact solution and approximate solution.
+		- ``sH1error`` (``float64``) : semi H^1 error between exact solution and approximate solution.
+
+	Example
+		>>> N = 2
+		>>> from mozart.mesh.rectangle import interval 
+		>>> c4n, n4e, n4db, ind4e = interval(0, 1, 4, 2)
+		>>> f = lambda x: np.pi ** 2 * np.sin(np.pi * x)
+		>>> u_D = lambda x: np.zeros_like(x)
+		>>> from mozart.poisson.solve import one_dim_p
+		>>> x = one_dim_p(c4n, n4e, n4db, ind4e, f, u_D, N)
+		>>> from mozart.poisson.solution import computeError_one_dim
+		>>> exact_u = lambda x: np.sin(np.pi * x)
+		>>> exact_ux = lambda x: np.pi * np.cos(np.pi * x)
+		>>> L2error, sH1error = computeError_one_dim(c4n, n4e, ind4e, exact_u, exact_ux, x, N, N+3)
+		>>> L2error
+		0.0020225729623142077
+		>>> sH1error
+		0.05062779815975444
+	"""
+	L2error = 0
+	sH1error = 0
+
+	r = np.linspace(-1, 1, degree + 1)
+	V = VandermondeM1D(degree, r)
+	Dr = Dmatrix1D(degree, r, V)
+
+	r_i = np.linspace(-1, 1, degree_i + 1)
+	V_i = VandermondeM1D(degree_i, r_i)
+	invV_i = np.linalg.inv(V_i)
+	M_R = np.dot(np.transpose(invV_i), invV_i)
+	PM = VandermondeM1D(degree, r_i)
+	interpM = np.transpose(np.linalg.solve(np.transpose(V), np.transpose(PM)))
+
+	for j in range(0,n4e.shape[0]):
+		Jacobi = (c4n[n4e[j,1]] - c4n[n4e[j,0]])/2.0
+		approx_u_i = np.dot(interpM, approx_u[ind4e[j]])
+		Dapprox_u = np.dot(Dr, approx_u[ind4e[j]]) / Jacobi
+		Dapprox_u_i = np.dot(interpM, Dapprox_u)
+
+		nodes = (1-r_i)/2*c4n[n4e[j,0]]+(1+r_i)/2*c4n[n4e[j,1]]
+		diff_u = exact_u(nodes) - approx_u_i
+		diff_Du = exact_ux(nodes) - Dapprox_u_i
+		L2error += Jacobi*np.dot(np.dot(np.transpose(diff_u),M_R),diff_u)
+		sH1error += Jacobi*np.dot(np.dot(np.transpose(diff_Du),M_R),diff_Du)
+
+	L2error = np.sqrt(L2error)
+	sH1error = np.sqrt(sH1error)
+	return (L2error, sH1error)
+
+
+
+
 def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 	"""
 	Computes the coordinates of nodes and elements.
