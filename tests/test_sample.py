@@ -212,7 +212,7 @@ class TestMethods(unittest.TestCase):
 		sample()
 		self.assertTrue(True)
 
-class TestMethods(unittest.TestCase):
+class TestCommonModuleMethods(unittest.TestCase):
 	def test_prefix_by_os(self):
 		answer_sheet ={"linux" : "linux", "linux32" : "linux", 
 			"darwin" : "osx", "win32" : "win64"}
