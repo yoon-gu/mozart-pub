@@ -29,6 +29,32 @@ def getMatrix1D(degree):
 	S_R = np.dot(np.dot(np.transpose(D_R),M_R),D_R)
 	return (M_R, S_R, D_R)
 
+def getMatrix2D_rec(degree):
+	"""
+	Get FEM matrices on the reference domain I = [-1, 1]x[-1, 1]
+
+	Paramters
+		- ``degree`` (``int32``) : degree of polynomial
+
+	Returns
+		- ``M_R`` (``float64 array``) : Mass matrix on the reference domain
+		- ``Srr_R`` (``float64 array``) : Stiffness matrix w.r.t. rr on the reference domain
+		- ``Sss_R`` (``float64 array``) : Stiffness matrix w.r.t. ss on the reference domain
+		- ``Dr_R`` (``float64 array``) : Differentiation matrix w.r.t. r on the reference domain  
+		- ``Ds_R`` (``float64 array``) : Differentiation matrix w.r.t. s on the reference domain
+
+	"""
+
+	r = np.linspace(-1, 1, degree+1)
+	V = VandermondeM1D(degree, r)
+	invV = np.linalg.inv(V)
+	M_R = np.kron(np.dot(np.transpose(invV),invV),np.dot(np.transpose(invV),invV))
+	Dr_R = np.kron(np.eye(r.size),Dmatrix1D(degree, r, V))
+	Ds_R = np.kron(Dmatrix1D(degree, r, V),np,eye(r.size))
+	Srr_R = np.dot(np.dot(np.transpose(Dr_R),M_R),Dr_R)
+	Sss_R = np.dot(np.dot(np.transpose(Ds_R),M_R),Ds_R)
+	return (M_R, Srr_R, Sss_R, Dr_R, Ds_R)
+
 def nJacobiP(x, alpha=0, beta=0, degree=0):
 	"""
 	Evaluate normalized Jacobi polynomial of type alpha, beta > -1 at point x for order n
@@ -444,8 +470,144 @@ def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
 	x[dof] = spsolve(STIMA_CSR[dof, :].tocsc()[:, dof].tocsr(), b[dof])
 	return x
 
-def two_dim(c4n, n4e, n4sDb, f):
-	print("two_dim is called.")
+def two_dim_rec_p(c4n, n4e, ind4e, n4Db, f, u_D, degree = 1):
+	"""
+	Computes the coordinates of nodes and elements.
+	
+	Parameters
+		- ``c4n`` (``float64 array``) : coordinates for nodes
+		- ``n4e`` (``int32 array``) : nodes for elements
+		- ``ind4e`` (``int32 array``) : indices for elements 
+		- ``n4Db`` (``int32 array``) : nodes for Dirichlet boundary
+		- ``f`` (``lambda``) : source term 
+		- ``u_D`` (``lambda``) : Dirichlet boundary condition
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``x`` (``float64 array``) : solution
+
+	Example
+		On the unit square [0,1]x[0,1]
+		>>> N = 2 
+		the number of elements along axis
+		>>> degree = 1
+		>>> print(c4n)
+		array([[0.0, 0.5, 1.0, 0.0, 0.5, 1.0, 0.0, 0.5, 1.0],
+			   [0.0, 0.0, 0.0, 0.5, 0.5, 0.5, 1.0, 1.0, 1.0]])
+		>>> print(n4e)
+		array([[0, 1, 3, 4], [1, 2, 4, 5], [4, 5, 7, 8], [3, 4, 6, 7]])
+		>>> print(ind4e)
+		array([[0, 1, 3, 4], [1, 2, 4, 5], [4, 5, 7, 8], [3, 4, 6, 7]])
+		>>> print(n4Db) 
+		array([0, 1, 2, 3, 5, 6, 7, 8])
+		>>> f = lambda x y: np.ones_like(x)
+		>>> u_D = lambda x: np.zeros_like(x)
+		>>> from mozart.poisson.solve import two_dim_rec_p
+		>>> x = two_dim_rec(c4n, n4e, ind4e, n4Db, f, u_D, degree = 1)
+		>>> print(x)
+		array([])
+	"""
+	nrLocal = (degree + 1)**2
+	nrElems = n4e.shape[1]
+	nrNodes = c4n.shape[1]
+	Alocal = np.zeros((nrLocal*nrLocal*nrElems), dtype = np.float64)
+	b = np.zeros(nrNodes, dtype = np.float64)
+	fval = f(c4n[0,ind4e].c4n[1,ind4e])
+
+	from mozart.poisson.solve import getMatrix2D_rec
+	M_R, Srr_R, Sss_R, Dr_R, Ds_R = getMatrix2D_rec(degree)
+	
+	for j in range(0,nrElems):
+		xr = (c4n[0,n4e[1,j]] - c4n[0,n4e[0,j]])/2.0
+		ys = (c4n[1,n4e[1,j]] - c4n[1,n4e[0,j]])/2.0
+		Jacobi = xr*ys
+		rx = ys/Jacobi
+		sy = xr/Jacobi
+
+		Alocal[np.arange(j*(nrLocal*nrLocal),(j+1)*(nrLocal*nrLocal),1)] = Jacobi*((rx**2)*Srr_R + (sy**2)*Sss_R)
+		b[ind4e[:,j]] += Jacobi*np.dot(M_R,fval[:,j])
+
+	import numpy.matlib
+	I = np.matlib.repmat(ind4e,nrLocal,1)
+	I = I.flatten()
+	J = np.matlib.repmat(ind4e.flatten(),nrLocal,1)
+	J = np.transpose(J).flatten()
+
+	from scipy.sparse import coo_matrix
+	from scipy.sparse.linalg import spsolve
+	STIMA_COO = coo_matrix((Alocal,(I,J)), shape = (nrNodes,nrNodes))
+	STIMA_CSR = STIMA_COO.tocsr()
+
+	dof = np.setdiff1d(range(0,nrNodes), n4Db)
+
+	x = np.zeros(nrNodes)
+	x[dof] = spsolve(STIMA_CSR[dof,:].tocsc()[:,dof].tocsr(),b[dof])
+	return x
+
+def two_dim_rec(c4n, n4e, ind4e, n4Db, f, u_D, degree = 1):
+	"""
+	Computes the coordinates of nodes and elements.
+	
+	Parameters
+		- ``c4n`` (``float64 array``) : coordinates for nodes
+		- ``n4e`` (``int32 array``) : nodes for elements
+		- ``ind4e`` (``int32 array``) : indices for elements 
+		- ``n4Db`` (``int32 array``) : nodes for Dirichlet boundary
+		- ``f`` (``lambda``) : source term 
+		- ``u_D`` (``lambda``) : Dirichlet boundary condition
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``x`` (``float64 array``) : solution
+
+	Example
+	"""
+
+	nrLocal = (degree + 1)**2
+	nrElems = n4e.shape[1]
+	nrNodes = c4n.shape[1]
+	Alocal = np.zeros((nrLocal*nrLocal*nrElems), dtype = np.float64)
+	b = np.zeros(nrNodes, dtype = np.float64)
+	fval = f(c4n[0,ind4e].c4n[1,ind4e])
+	fval = np.transpose(fval).flatten()
+
+	from mozart.poisson.solve import getMatrix2D_rec
+	M_R, Srr_R, Sss_R, Dr_R, Ds_R = getMatrix2D_rec(degree)
+
+	I = np.zeros((nrLocal*nrLocal*nrElems), dtype = np.int32)
+	J = np.zeros((nrLocal*nrLocal*nrElems), dtype = np.int32)
+	Alocal = np.zeros((nrLocal*nrLocal*nrElems), dtype = np.float64)
+	b = np.zeros(nrNodes)
+
+	Poisson_2D_Rectangle = lib['Poisson_2D_Rectangle']
+	Poisson_2D_Rectangle.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
+	                    			 c_void_p, c_void_p, c_void_p, c_int,
+	                    			 c_void_p, c_void_p, c_void_p, c_void_p, c_void_p,)
+	Poison_2D_Rectangle.restype = None
+	Poison_2D_Rectangle(c_void_p(n4e.ctypes.data), 
+						c_void_p(ind4e.ctypes.data),
+						c_void_p(c4n.ctypes.data), 
+						c_int(nrElems),
+						c_void_p(M_R.ctypes.data), 
+						c_void_p(Srr_R.ctypes.data),
+						c_void_p(Sss_R.ctypes.data), 
+						c_int(nrLocal),
+						c_void_p(fval.ctypes.data),
+						c_void_p(I.ctypes.data),
+						c_void_p(J.ctypes.data),
+						c_void_p(Alocal.ctypes.data),
+						c_void_p(b.ctypes.data))
+
+	from scipy.sparse import coo_matrix
+	from scipy.sparse.linalg import spsolve
+	STIMA_COO = coo_matrix((Alocal,(I,J)), shape = (nrNodes,nrNodes))
+	STIMA_CSR = STIMA_COO.tocsr()
+
+	dof = np.setdiff1d(range(0,nrNodes), n4Db)
+
+	x = np.zeros(nrNodes)
+	x[dof] = spsolve(STIMA_CSR[dof,:].tocsc()[:,dof].tocsr(),b[dof])
+	return x
 
 def three_dim(c4n, n4e, n4sDb, f):
 	print("trhee_dim is called.")
