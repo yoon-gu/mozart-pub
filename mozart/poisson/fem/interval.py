@@ -44,7 +44,7 @@ def VandermondeM1D(degree,r):
 	
 	Example
 		>>> N = 3
-		>>> from mozart.poisson.solve import VandermondeM1D
+		>>> from mozart.poisson.fem.interval import VandermondeM1D
 		>>> r = np.linspace(-1,1,N+1)
 		>>> V1D = VandermondeM1D(N,r)
 		>>> print(V1D)
@@ -71,7 +71,7 @@ def DVandermondeM1D(degree, r):
 	
 	Example
 		>>> N = 3
-		>>> from mozart.poisson.solve import VandermondeM1D
+		>>> from mozart.poisson.fem.interval import VandermondeM1D
 		>>> r = np.linspace(-1,1,N+1)
 		>>> DVr = DVandermondeM1D(N,r)
 		>>> print(DVr)
@@ -98,7 +98,7 @@ def Dmatrix1D(degree, r, V):
 	
 	Example
 		>>> N = 3
-		>>> from mozart.poisson.solve import Dmatrix1D
+		>>> from mozart.poisson.fem.interval import Dmatrix1D
 		>>> r = np.linspace(-1,1,N+1)
 		>>> Dr = Dmatirx1D(N,r)
 		>>> print(Dr)
@@ -134,8 +134,8 @@ def solve_p(c4n,n4e,n4db,ind4e,f,u_D,degree):
 		>>> c4n, n4e, n4db, ind4e = interval(0, 1, 4, 2)
 		>>> f = lambda x: np.ones_like(x)
 		>>> u_D = lambda x: np.zeros_like(x)
-		>>> from mozart.poisson.solve import one_dim_p
-		>>> x = one_dim_p(c4n, n4e, n4db, ind4e, f, u_D, N)
+		>>> from mozart.poisson.fem.interval import solve_p
+		>>> x = solve_p(c4n, n4e, n4db, ind4e, f, u_D, N)
 		>>> x
 		array([ 0.       ,  0.0546875,  0.09375  ,  0.1171875,  0.125    ,
 		   0.1171875,  0.09375  ,  0.0546875,  0.       ])
@@ -193,12 +193,12 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, approx_u, degree, degree_i)
 		>>> c4n, n4e, n4db, ind4e = interval(0, 1, 4, 2)
 		>>> f = lambda x: np.pi ** 2 * np.sin(np.pi * x)
 		>>> u_D = lambda x: np.zeros_like(x)
-		>>> from mozart.poisson.solve import one_dim_p
-		>>> x = one_dim_p(c4n, n4e, n4db, ind4e, f, u_D, N)
-		>>> from mozart.poisson.solution import computeError_one_dim
+		>>> from mozart.poisson.fem.interval import solve_p
+		>>> x = solve_p(c4n, n4e, n4db, ind4e, f, u_D, N)
+		>>> from mozart.poisson.fem.interval import computeError
 		>>> exact_u = lambda x: np.sin(np.pi * x)
 		>>> exact_ux = lambda x: np.pi * np.cos(np.pi * x)
-		>>> L2error, sH1error = computeError_one_dim(c4n, n4e, ind4e, exact_u, exact_ux, x, N, N+3)
+		>>> L2error, sH1error = computeError(c4n, n4e, ind4e, exact_u, exact_ux, x, N, N+3)
 		>>> L2error
 		0.0020225729623142077
 		>>> sH1error
@@ -255,8 +255,8 @@ def solve(c4n, n4e, n4Db, f, u_D, degree = 1):
 		>>> n4Db = [0, N-1]
 		>>> f = lambda x: np.ones_like(x)
 		>>> u_D = lambda x: np.zeros_like(x)
-		>>> from mozart.poisson.solve import one_dim
-		>>> x = one_dim(c4n, n4e, n4Db, f, u_D)
+		>>> from mozart.poisson.fem.interval import solve
+		>>> x = solve(c4n, n4e, n4Db, f, u_D)
 		>>> print(x)
 		array([ 0.   ,  0.125,  0.   ])
 	"""
