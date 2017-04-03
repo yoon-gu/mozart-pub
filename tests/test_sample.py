@@ -16,7 +16,7 @@ class TestBasic(unittest.TestCase):
 
 class TestFemCommon(unittest.TestCase):
 	def test_nJacobiP(self):
-		from mozart.poisson.solve import nJacobiP
+		from mozart.poisson.fem.common import nJacobiP
 		x = np.linspace(-1,1,5)
 		P = nJacobiP(x,0,0,0)
 		diff_P = P - 0.707106781186548 * np.ones(5,float)
@@ -29,7 +29,7 @@ class TestFemCommon(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_P3) < 1E-8)
 
 	def test_nJacobiGQ(self):
-		from mozart.poisson.solve import nJacobiGQ
+		from mozart.poisson.fem.common import nJacobiGQ
 		x0, w0 = nJacobiGQ(0,0,0)
 		diff_x0 = x0 - 0.0
 		diff_w0 = w0 - 2.0
@@ -52,7 +52,7 @@ class TestFemCommon(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_w3) < 1E-8)
 
 	def test_nJacobiGL(self):
-		from mozart.poisson.solve import nJacobiGL
+		from mozart.poisson.fem.common import nJacobiGL
 		x0 = nJacobiGL(0,0,0)
 		diff_x0 = x0 - 0.0;
 		x1 = nJacobiGL(0,0,1)
@@ -64,7 +64,7 @@ class TestFemCommon(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_x2) < 1E-8)
 
 	def test_DnJacobiP(self):
-		from mozart.poisson.solve import DnJacobiP
+		from mozart.poisson.fem.common import DnJacobiP
 		x = np.linspace(-1,1,5)
 		dP = DnJacobiP(x,0,0,0)
 		diff_dP = dP - np.zeros(5,float)
@@ -100,7 +100,7 @@ class TestFemInterval(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_ind4e) < 1E-8)
 
 	def test_getPoissonMatrix1D(self):
-		from mozart.poisson.solve import getMatrix1D
+		from mozart.poisson.fem.interval import getMatrix1D
 		M1, S1, D1 = getMatrix1D(1)
 		diff_M1 = M1 - np.array([[ 2,  1], [ 1, 2]]) / 3.
 		diff_S1 = S1 - np.array([[ 1, -1], [-1, 1]]) / 2.
@@ -117,22 +117,22 @@ class TestFemInterval(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_D2) < 1E-8)
 
 	def test_VandermondeM1D(self):
-		from mozart.poisson.solve import VandermondeM1D
+		from mozart.poisson.fem.interval import VandermondeM1D
 		r = np.array([-1.0, 1.0])
 		V1D = VandermondeM1D(1,r)
 		diff_V1D = V1D - np.array([[0.707106781186548, -1.224744871391589], [0.707106781186548, 1.224744871391589]])
 		self.assertTrue(LA.norm(diff_V1D) < 1E-8)
 
 	def test_DVandermondeM1D(self):
-		from mozart.poisson.solve import DVandermondeM1D
+		from mozart.poisson.fem.interval import DVandermondeM1D
 		r = np.array([-1.0, 1.0])
 		DVr = DVandermondeM1D(1,r)
 		diff_DVr = DVr - np.array([[0.0, 1.224744871391589], [0.0, 1.224744871391589]])
 		self.assertTrue(LA.norm(diff_DVr) < 1E-8)
 
 	def test_Dmatrix1D(self):
-		from mozart.poisson.solve import Dmatrix1D
-		from mozart.poisson.solve import VandermondeM1D
+		from mozart.poisson.fem.interval import Dmatrix1D
+		from mozart.poisson.fem.interval import VandermondeM1D
 		r = np.array([-1.0, 1.0])
 		V = VandermondeM1D(1,r)
 		Dr = Dmatrix1D(1,r,V)
@@ -145,7 +145,7 @@ class TestFemInterval(unittest.TestCase):
 		c4n, n4e, n4db, ind4e = interval(0, 1, 4, N)
 		f = lambda x: np.ones_like(x)
 		u_D = lambda x: np.zeros_like(x)
-		from mozart.poisson.solve import one_dim_p
+		from mozart.poisson.fem.interval import one_dim_p
 		x = one_dim_p(c4n, n4e, n4db, ind4e, f, u_D, N)
 		diff_x = x - np.array([                 0,   0.038194444444444,   0.069444444444444,   0.093749999999999,   0.111111111111110,
 		   0.121527777777777,   0.124999999999999,   0.121527777777777,   0.111111111111110,   0.093749999999999,   0.069444444444444,
@@ -154,8 +154,8 @@ class TestFemInterval(unittest.TestCase):
 
 	def test_computeError_onedim(self):
 		from mozart.mesh.rectangle import interval
-		from mozart.poisson.solve import one_dim_p
-		from mozart.poisson.solve import computeError_one_dim
+		from mozart.poisson.fem.interval import one_dim_p
+		from mozart.poisson.fem.interval import computeError_one_dim
 		N = 2
 		iter = 4
 		f = lambda x: np.pi ** 2 * np.sin(np.pi * x)
@@ -182,8 +182,8 @@ class TestFemInterval(unittest.TestCase):
 		n4Db = [0, N-1]
 		f = lambda x: np.ones_like(x)
 		u_D = lambda x: np.zeros_like(x)
-		from mozart.poisson.solve import one_dim
-		x = one_dim(c4n, n4e, n4Db, f, u_D)
+		from mozart.poisson.fem.interval import solve
+		x = solve(c4n, n4e, n4Db, f, u_D)
 		diff_x = x - np.array([0., 0.125, 0.])
 		self.assertTrue(LA.norm(diff_x) < 1E-8)
 
