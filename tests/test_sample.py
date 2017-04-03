@@ -195,12 +195,6 @@ class TestFemRectangle(unittest.TestCase):
 		unit_square(0.1)
 		self.assertTrue(True)
 
-	def test_solve_twodim(self):
-		from mozart.poisson.solve import two_dim
-		two_dim(None, None, None, None)
-
-		self.assertTrue(True)
-
 class TestCommonModuleMethods(unittest.TestCase):
 	def test_prefix_by_os(self):
 		answer_sheet ={"linux" : "linux", "linux32" : "linux", 

@@ -7,12 +7,6 @@ from mozart.common.etc import prefix_by_os
 dllpath = path.join(mz.__path__[0], prefix_by_os(platform) + '_' + 'libmozart.so')
 lib = CDLL(dllpath)
 
-def two_dim(c4n, n4e, n4sDb, f):
-	print("two_dim is called.")
-
-def three_dim(c4n, n4e, n4sDb, f):
-	print("trhee_dim is called.")
-
 def sample():
 	from os import listdir
 	from scipy.sparse import coo_matrix
