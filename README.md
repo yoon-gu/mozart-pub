@@ -13,6 +13,12 @@
 ## Contribution
 1. Fork
 1. Write code
+
+	for each element there are three key functions
+	1. function to have `matrices` corresponding the `element` and `degree` : `getMatrices(...)`
+	1. function to solve `pde` : `solve(...)`
+	1. function to compute `error` : `computeError(...)`
+
 1. Add `docstring` for documentation. It should contain the following four things:
 	1. Description of a function
 	1. `Parameters`
