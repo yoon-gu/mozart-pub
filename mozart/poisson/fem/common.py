@@ -24,7 +24,7 @@ def nJacobiP(x, alpha=0, beta=0, degree=0):
 	Example
 		>>> N = 2
 		>>> x = np.array([-1, 0, 1])
-		>>> from mozart.poisson.solve import nJacobiP
+		>>> from mozart.poisson.fem.common import nJacobiP
 		>>> P = nJacobiP(x,0,0,N)
 		>>> print(P)
 		array([ 1.58113883, -0.79056942,  1.58113883])	
@@ -62,7 +62,7 @@ def DnJacobiP(x, alpha=0, beta=0, degree=0):
 	Example
 		>>> N = 2
 		>>> x = np.array([-1, 0, 1])
-		>>> from mozart.poisson.solve import DnJacobiP
+		>>> from mozart.poisson.fem.common import DnJacobiP
 		>>> dP = DnJacobiP(x,0,0,N)
 		>>> print(dP)
 		array([-4.74341649,  0.        ,  4.74341649])	
@@ -90,7 +90,7 @@ def nJacobiGQ(alpha=0, beta=0, degree=0):
 	
 	Example
 		>>> N = 2
-		>>> from mozart.poisson.solve import nJacobiGQ
+		>>> from mozart.poisson.fem.common import nJacobiGQ
 		>>> x, w = nJacobiGQ(0,0,N)
 		>>> print(x)
 		array([ -7.74596669e-01,  -4.78946310e-17,   7.74596669e-01])
@@ -136,7 +136,7 @@ def nJacobiGL(alpha=0, beta=0, degree=0):
 	
 	Example
 		>>> N = 3
-		>>> from mozart.poisson.solve import nJacobiGL
+		>>> from mozart.poisson.fem.common import nJacobiGL
 		>>> x = nJacobiGQ(0,0,N)
 		>>> print(x)
 		array([-1.       , -0.4472136,  0.4472136,  1.       ])
