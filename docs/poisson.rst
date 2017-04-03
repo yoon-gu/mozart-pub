@@ -7,8 +7,8 @@ Poisson Equation
 	 u = 0 & \text{ on } \partial\Omega
 	\end{cases}
 
-.. automodule:: mozart.poisson
-   :members:
+1 Dimensional Case
+------------------
 
-.. automodule:: mozart.poisson.solve
+.. automodule:: mozart.poisson.fem.interval
    :members:
