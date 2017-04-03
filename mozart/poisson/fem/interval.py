@@ -112,7 +112,7 @@ def Dmatrix1D(degree, r, V):
 	Dr = np.transpose(Dr)
 	return Dr
 
-def one_dim_p(c4n,n4e,n4db,ind4e,f,u_D,degree):
+def solve_p(c4n,n4e,n4db,ind4e,f,u_D,degree):
 	"""
 	Computes the coordinates of nodes and elements.
 	
@@ -169,7 +169,7 @@ def one_dim_p(c4n,n4e,n4db,ind4e,f,u_D,degree):
 	x[dof] = spsolve(STIMA_CSR[dof, :].tocsc()[:, dof].tocsr(), b[dof])
 	return x
 
-def computeError_one_dim(c4n, n4e, ind4e, exact_u, exact_ux, approx_u, degree, degree_i):
+def computeError(c4n, n4e, ind4e, exact_u, exact_ux, approx_u, degree, degree_i):
 	"""
 	Computes L^2-error and semi H^1-error between exact solution and approximate solution.
 	
@@ -234,10 +234,7 @@ def computeError_one_dim(c4n, n4e, ind4e, exact_u, exact_ux, approx_u, degree, d
 	sH1error = np.sqrt(sH1error)
 	return (L2error, sH1error)
 
-
-
-
-def one_dim(c4n, n4e, n4Db, f, u_D, degree = 1):
+def solve(c4n, n4e, n4Db, f, u_D, degree = 1):
 	"""
 	Computes the coordinates of nodes and elements.
 	

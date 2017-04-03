@@ -139,23 +139,23 @@ class TestFemInterval(unittest.TestCase):
 		diff_Dr = Dr - np.array([[-0.5, 0.5], [-0.5, 0.5]])
 		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
 
-	def test_solve_onedim_p(self):
+	def test_solve_p(self):
 		from mozart.mesh.rectangle import interval
 		N = 3
 		c4n, n4e, n4db, ind4e = interval(0, 1, 4, N)
 		f = lambda x: np.ones_like(x)
 		u_D = lambda x: np.zeros_like(x)
-		from mozart.poisson.fem.interval import one_dim_p
-		x = one_dim_p(c4n, n4e, n4db, ind4e, f, u_D, N)
+		from mozart.poisson.fem.interval import solve_p
+		x = solve_p(c4n, n4e, n4db, ind4e, f, u_D, N)
 		diff_x = x - np.array([                 0,   0.038194444444444,   0.069444444444444,   0.093749999999999,   0.111111111111110,
 		   0.121527777777777,   0.124999999999999,   0.121527777777777,   0.111111111111110,   0.093749999999999,   0.069444444444444,
 		   0.038194444444444,                   0])
 		self.assertTrue(LA.norm(diff_x) < 1E-8)
 
-	def test_computeError_onedim(self):
+	def test_computeError(self):
 		from mozart.mesh.rectangle import interval
-		from mozart.poisson.fem.interval import one_dim_p
-		from mozart.poisson.fem.interval import computeError_one_dim
+		from mozart.poisson.fem.interval import solve_p
+		from mozart.poisson.fem.interval import computeError
 		N = 2
 		iter = 4
 		f = lambda x: np.pi ** 2 * np.sin(np.pi * x)
@@ -167,15 +167,15 @@ class TestFemInterval(unittest.TestCase):
 		h = np.zeros(iter, dtype = np.float64)
 		for j in range(0,iter):
 			c4n, n4e, n4db, ind4e = interval(0,1,2**(j+1),N)
-			x = one_dim_p(c4n, n4e, n4db, ind4e, f, u_D, N)
-			L2error[j], sH1error[j] = computeError_one_dim(c4n, n4e, ind4e, exact_u, exact_ux, x, N, N+3)
+			x = solve_p(c4n, n4e, n4db, ind4e, f, u_D, N)
+			L2error[j], sH1error[j] = computeError(c4n, n4e, ind4e, exact_u, exact_ux, x, N, N+3)
 			h[j] = 1 / 2.0**(j+1)
 		rateL2=(np.log(L2error[1:])-np.log(L2error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
 		rateH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
 		self.assertTrue(np.abs(rateL2[-1]) > N+0.9)
 		self.assertTrue(np.abs(rateH1[-1]) > N-0.1)
 
-	def test_solve_onedim(self):
+	def test_solve(self):
 		from mozart.mesh.rectangle import unit_interval
 		N = 3
 		c4n, n4e = unit_interval(N)
