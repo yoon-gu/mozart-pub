@@ -74,21 +74,9 @@ class TestFemCommon(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_dP2) < 1E-8)
 
 class TestFemInterval(unittest.TestCase):
-	def test_1d_uniform_mesh(self):
-		from mozart.mesh.rectangle import unit_interval
-		N = 4
-		c4n, n4e = unit_interval(N)
-		diff_c4n = c4n - np.linspace(0,1,N)
-		diff_n4e = n4e - np.array([[0,1], [1, 2], [2,3]])
-		self.assertTrue(LA.norm(diff_c4n) < 1E-8)
-		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
-
 	def test_1d_uniform_interval(self):
 		from mozart.mesh.rectangle import interval
-		a=0
-		b=1
-		M=4
-		N=2
+		a, b, M, N = (0, 1, 4, 2)
 		c4n, n4e, n4db, ind4e = interval(a,b,M,N)
 		diff_c4n = c4n - np.linspace(a,b,M*N+1)
 		diff_n4e = n4e - np.array([[0,2], [2,4], [4,6], [6,8]])
@@ -139,14 +127,14 @@ class TestFemInterval(unittest.TestCase):
 		diff_Dr = Dr - np.array([[-0.5, 0.5], [-0.5, 0.5]])
 		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
 
-	def test_solve_p(self):
+	def test_solve(self):
 		from mozart.mesh.rectangle import interval
 		N = 3
 		c4n, n4e, n4db, ind4e = interval(0, 1, 4, N)
 		f = lambda x: np.ones_like(x)
 		u_D = lambda x: np.zeros_like(x)
-		from mozart.poisson.fem.interval import solve_p
-		x = solve_p(c4n, n4e, n4db, ind4e, f, u_D, N)
+		from mozart.poisson.fem.interval import solve
+		x = solve(c4n, n4e, n4db, ind4e, f, u_D, N)
 		diff_x = x - np.array([                 0,   0.038194444444444,   0.069444444444444,   0.093749999999999,   0.111111111111110,
 		   0.121527777777777,   0.124999999999999,   0.121527777777777,   0.111111111111110,   0.093749999999999,   0.069444444444444,
 		   0.038194444444444,                   0])
@@ -154,7 +142,7 @@ class TestFemInterval(unittest.TestCase):
 
 	def test_computeError(self):
 		from mozart.mesh.rectangle import interval
-		from mozart.poisson.fem.interval import solve_p
+		from mozart.poisson.fem.interval import solve
 		from mozart.poisson.fem.interval import computeError
 		N = 2
 		iter = 4
@@ -167,33 +155,13 @@ class TestFemInterval(unittest.TestCase):
 		h = np.zeros(iter, dtype = np.float64)
 		for j in range(0,iter):
 			c4n, n4e, n4db, ind4e = interval(0,1,2**(j+1),N)
-			x = solve_p(c4n, n4e, n4db, ind4e, f, u_D, N)
+			x = solve(c4n, n4e, n4db, ind4e, f, u_D, N)
 			L2error[j], sH1error[j] = computeError(c4n, n4e, ind4e, exact_u, exact_ux, x, N, N+3)
 			h[j] = 1 / 2.0**(j+1)
 		rateL2=(np.log(L2error[1:])-np.log(L2error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
 		rateH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
 		self.assertTrue(np.abs(rateL2[-1]) > N+0.9)
 		self.assertTrue(np.abs(rateH1[-1]) > N-0.1)
-
-	def test_solve(self):
-		from mozart.mesh.rectangle import unit_interval
-		N = 3
-		c4n, n4e = unit_interval(N)
-		n4Db = [0, N-1]
-		f = lambda x: np.ones_like(x)
-		u_D = lambda x: np.zeros_like(x)
-		from mozart.poisson.fem.interval import solve
-		x = solve(c4n, n4e, n4Db, f, u_D)
-		diff_x = x - np.array([0., 0.125, 0.])
-		self.assertTrue(LA.norm(diff_x) < 1E-8)
-
-		self.assertTrue(True)
-
-class TestFemRectangle(unittest.TestCase):
-	def test_poisson_square_2d(self):
-		from mozart.mesh.rectangle import unit_square
-		unit_square(0.1)
-		self.assertTrue(True)
 
 class TestCommonModuleMethods(unittest.TestCase):
 	def test_prefix_by_os(self):
@@ -207,6 +175,6 @@ class TestCommonModuleMethods(unittest.TestCase):
 			self.assertEqual(res, answer)
 
 	def test_benchmark01_sample(self):
-		from mozart.poisson.solve import sample
+		from mozart.poisson.fem.triangle import sample
 		sample()
 		self.assertTrue(True)

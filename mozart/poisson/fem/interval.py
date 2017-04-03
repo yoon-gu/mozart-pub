@@ -112,7 +112,7 @@ def Dmatrix1D(degree, r, V):
 	Dr = np.transpose(Dr)
 	return Dr
 
-def solve_p(c4n,n4e,n4db,ind4e,f,u_D,degree):
+def solve(c4n,n4e,n4db,ind4e,f,u_D,degree):
 	"""
 	Computes the coordinates of nodes and elements.
 	
@@ -134,30 +134,38 @@ def solve_p(c4n,n4e,n4db,ind4e,f,u_D,degree):
 		>>> c4n, n4e, n4db, ind4e = interval(0, 1, 4, 2)
 		>>> f = lambda x: np.ones_like(x)
 		>>> u_D = lambda x: np.zeros_like(x)
-		>>> from mozart.poisson.fem.interval import solve_p
-		>>> x = solve_p(c4n, n4e, n4db, ind4e, f, u_D, N)
+		>>> from mozart.poisson.fem.interval import solve
+		>>> x = solve(c4n, n4e, n4db, ind4e, f, u_D, N)
 		>>> x
 		array([ 0.       ,  0.0546875,  0.09375  ,  0.1171875,  0.125    ,
 		   0.1171875,  0.09375  ,  0.0546875,  0.       ])
 	"""
-	nrLocal = degree + 1
-	nrElems = n4e.shape[0]
-	nrNodes = c4n.shape[0]
-	Alocal = np.zeros((nrLocal * nrLocal * nrElems), dtype=np.float64)
-	b = np.zeros(nrNodes, dtype=np.float64)
-
 	M_R, S_R, D_R = getMatrix1D(degree)
-	for j in range(0,nrElems):
-		Jacobi = (c4n[n4e[j,1]] - c4n[n4e[j,0]])/2.0
-		Alocal[np.arange(j*(nrLocal*nrLocal),(j+1)*(nrLocal*nrLocal),1)] = S_R.flatten()/Jacobi
-		b[ind4e[j]] += Jacobi * np.dot(M_R, f(c4n[ind4e[j]].flatten()))
+	fval = f(c4n[ind4e].flatten())
+	nrNodes = int(c4n.shape[0])
+	nrElems = int(n4e.shape[0])
+	nrLocal = int(M_R.shape[0])
 
-	import numpy.matlib
-	J = np.matlib.repmat(ind4e,1,nrLocal)
-	J = J.flatten()
-	I = ind4e.flatten()
-	I = np.transpose(np.matlib.repmat(I,nrLocal,1))
-	I = I.flatten()
+	I = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.int32)
+	J = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.int32)
+	Alocal = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.float64)
+
+	b = np.zeros(nrNodes)
+	Poison_1D = lib['Poisson_1D'] # need the extern!!
+	Poison_1D.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
+	                    c_void_p, c_void_p, c_int,
+	                    c_void_p, c_void_p, c_void_p, c_void_p, c_void_p,)
+	Poison_1D.restype = None
+	Poison_1D(c_void_p(n4e.ctypes.data), c_void_p(ind4e.ctypes.data),
+	    c_void_p(c4n.ctypes.data), c_int(nrElems),
+	    c_void_p(M_R.ctypes.data),
+	    c_void_p(S_R.ctypes.data),
+	    c_int(nrLocal),
+	    c_void_p(fval.ctypes.data),
+	    c_void_p(I.ctypes.data),
+	    c_void_p(J.ctypes.data),
+	    c_void_p(Alocal.ctypes.data),
+	    c_void_p(b.ctypes.data))
 
 	from scipy.sparse import coo_matrix
 	from scipy.sparse.linalg import spsolve
@@ -165,9 +173,11 @@ def solve_p(c4n,n4e,n4db,ind4e,f,u_D,degree):
 	STIMA_CSR = STIMA_COO.tocsr()
 
 	dof = np.setdiff1d(range(0,nrNodes), n4db)
+
 	x = np.zeros(nrNodes)
 	x[dof] = spsolve(STIMA_CSR[dof, :].tocsc()[:, dof].tocsr(), b[dof])
 	return x
+
 
 def computeError(c4n, n4e, ind4e, exact_u, exact_ux, approx_u, degree, degree_i):
 	"""
@@ -233,66 +243,3 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, approx_u, degree, degree_i)
 	L2error = np.sqrt(L2error)
 	sH1error = np.sqrt(sH1error)
 	return (L2error, sH1error)
-
-def solve(c4n, n4e, n4Db, f, u_D, degree = 1):
-	"""
-	Computes the coordinates of nodes and elements.
-	
-	Parameters
-		- ``c4n`` (``float64 array``) : coordinates
-		- ``n4e`` (``int32 array``) : nodes for elements
-		- ``n4Db`` (``int32 array``) : Dirichlet boundary nodes
-		- ``f`` (``lambda``) : source term 
-		- ``u_D`` (``lambda``) : Dirichlet boundary condition
-		- ``degree`` (``int32``) : Polynomial degree
-
-	Returns
-		- ``x`` (``float64 array``) : solution
-
-	Example
-		>>> N = 3
-		>>> c4n, n4e = unit_interval(N)
-		>>> n4Db = [0, N-1]
-		>>> f = lambda x: np.ones_like(x)
-		>>> u_D = lambda x: np.zeros_like(x)
-		>>> from mozart.poisson.fem.interval import solve
-		>>> x = solve(c4n, n4e, n4Db, f, u_D)
-		>>> print(x)
-		array([ 0.   ,  0.125,  0.   ])
-	"""
-	M_R, S_R, D_R = getMatrix1D(degree)
-	fval = f(c4n[n4e].flatten())
-	nrNodes = int(c4n.shape[0])
-	nrElems = int(n4e.shape[0])
-	nrLocal = int(M_R.shape[0])
-
-	I = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.int32)
-	J = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.int32)
-	Alocal = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.float64)
-
-	b = np.zeros(nrNodes)
-	Poison_1D = lib['Poisson_1D'] # need the extern!!
-	Poison_1D.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
-	                    c_void_p, c_void_p, c_int,
-	                    c_void_p, c_void_p, c_void_p, c_void_p, c_void_p,)
-	Poison_1D.restype = None
-	Poison_1D(c_void_p(n4e.ctypes.data), c_void_p(n4e.ctypes.data),
-	    c_void_p(c4n.ctypes.data), c_int(nrElems),
-	    c_void_p(M_R.ctypes.data),
-	    c_void_p(S_R.ctypes.data),
-	    c_int(nrLocal),
-	    c_void_p(fval.ctypes.data),
-	    c_void_p(I.ctypes.data),
-	    c_void_p(J.ctypes.data),
-	    c_void_p(Alocal.ctypes.data),
-	    c_void_p(b.ctypes.data))
-	from scipy.sparse import coo_matrix
-	from scipy.sparse.linalg import spsolve
-	STIMA_COO = coo_matrix((Alocal, (I, J)), shape=(nrNodes, nrNodes))
-	STIMA_CSR = STIMA_COO.tocsr()
-
-	dof = np.setdiff1d(range(0,nrNodes), n4Db)
-
-	x = np.zeros(nrNodes)
-	x[dof] = spsolve(STIMA_CSR[dof, :].tocsc()[:, dof].tocsr(), b[dof])
-	return x
