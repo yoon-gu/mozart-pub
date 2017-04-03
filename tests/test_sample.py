@@ -1,8 +1,7 @@
 import unittest
 import numpy as np
 from numpy import linalg as LA
-class TestMethods(unittest.TestCase):
-
+class TestBasic(unittest.TestCase):
 	def test_test(self):
 		self.assertTrue(True)
 
@@ -15,53 +14,7 @@ class TestMethods(unittest.TestCase):
 		authors = ('Yoon-gu Hwang <yz0624@gmail.com>', 'Dong-Wook Shin <dwshin.yonsei@gmail.com>', 'Ji-Yeon Suh <suh91919@gmail.com>')
 		self.assertEqual(mz.__author__, authors)
 
-	def test_1d_uniform_mesh(self):
-		from mozart.mesh.rectangle import unit_interval
-		N = 4
-		c4n, n4e = unit_interval(N)
-		diff_c4n = c4n - np.linspace(0,1,N)
-		diff_n4e = n4e - np.array([[0,1], [1, 2], [2,3]])
-		self.assertTrue(LA.norm(diff_c4n) < 1E-8)
-		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
-
-	def test_1d_uniform_interval(self):
-		from mozart.mesh.rectangle import interval
-		a=0
-		b=1
-		M=4
-		N=2
-		c4n, n4e, n4db, ind4e = interval(a,b,M,N)
-		diff_c4n = c4n - np.linspace(a,b,M*N+1)
-		diff_n4e = n4e - np.array([[0,2], [2,4], [4,6], [6,8]])
-		diff_n4db = n4db - np.array([0, 8])
-		diff_ind4e = ind4e - np.array([[0,1,2], [2,3,4], [4,5,6], [6,7,8]])
-		self.assertTrue(LA.norm(diff_c4n) < 1E-8)
-		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
-		self.assertTrue(LA.norm(diff_n4db) < 1E-8)
-		self.assertTrue(LA.norm(diff_ind4e) < 1E-8)
-
-	def test_poisson_square_2d(self):
-		from mozart.mesh.rectangle import unit_square
-		unit_square(0.1)
-		self.assertTrue(True)
-
-	def test_getPoissonMatrix1D(self):
-		from mozart.poisson.solve import getMatrix1D
-		M1, S1, D1 = getMatrix1D(1)
-		diff_M1 = M1 - np.array([[ 2,  1], [ 1, 2]]) / 3.
-		diff_S1 = S1 - np.array([[ 1, -1], [-1, 1]]) / 2.
-		diff_D1 = D1 - np.array([[-1,  1], [-1, 1]]) / 2.
-		M2, S2, D2 = getMatrix1D(2)
-		diff_M2 = M2 - np.array([[ 4,  2, -1], [ 2, 16,  2], [-1,  2, 4]]) / 15.
-		diff_S2 = S2 - np.array([[ 7, -8,  1], [-8, 16, -8], [ 1, -8, 7]]) / 6.
-		diff_D2 = D2 - np.array([[-3,  4, -1], [-1,  0,  1], [ 1, -4, 3]]) / 2.
-		self.assertTrue(LA.norm(diff_M1) < 1E-8)
-		self.assertTrue(LA.norm(diff_S1) < 1E-8)
-		self.assertTrue(LA.norm(diff_D1) < 1E-8)
-		self.assertTrue(LA.norm(diff_M2) < 1E-8)
-		self.assertTrue(LA.norm(diff_S2) < 1E-8)
-		self.assertTrue(LA.norm(diff_D2) < 1E-8)
-
+class TestFemCommon(unittest.TestCase):
 	def test_nJacobiP(self):
 		from mozart.poisson.solve import nJacobiP
 		x = np.linspace(-1,1,5)
@@ -119,6 +72,49 @@ class TestMethods(unittest.TestCase):
 		diff_dP2 = dP2 - 1.224744871391589*np.ones(5,float)
 		self.assertTrue(LA.norm(diff_dP) < 1E-8)
 		self.assertTrue(LA.norm(diff_dP2) < 1E-8)
+
+class TestFemInterval(unittest.TestCase):
+	def test_1d_uniform_mesh(self):
+		from mozart.mesh.rectangle import unit_interval
+		N = 4
+		c4n, n4e = unit_interval(N)
+		diff_c4n = c4n - np.linspace(0,1,N)
+		diff_n4e = n4e - np.array([[0,1], [1, 2], [2,3]])
+		self.assertTrue(LA.norm(diff_c4n) < 1E-8)
+		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
+
+	def test_1d_uniform_interval(self):
+		from mozart.mesh.rectangle import interval
+		a=0
+		b=1
+		M=4
+		N=2
+		c4n, n4e, n4db, ind4e = interval(a,b,M,N)
+		diff_c4n = c4n - np.linspace(a,b,M*N+1)
+		diff_n4e = n4e - np.array([[0,2], [2,4], [4,6], [6,8]])
+		diff_n4db = n4db - np.array([0, 8])
+		diff_ind4e = ind4e - np.array([[0,1,2], [2,3,4], [4,5,6], [6,7,8]])
+		self.assertTrue(LA.norm(diff_c4n) < 1E-8)
+		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
+		self.assertTrue(LA.norm(diff_n4db) < 1E-8)
+		self.assertTrue(LA.norm(diff_ind4e) < 1E-8)
+
+	def test_getPoissonMatrix1D(self):
+		from mozart.poisson.solve import getMatrix1D
+		M1, S1, D1 = getMatrix1D(1)
+		diff_M1 = M1 - np.array([[ 2,  1], [ 1, 2]]) / 3.
+		diff_S1 = S1 - np.array([[ 1, -1], [-1, 1]]) / 2.
+		diff_D1 = D1 - np.array([[-1,  1], [-1, 1]]) / 2.
+		M2, S2, D2 = getMatrix1D(2)
+		diff_M2 = M2 - np.array([[ 4,  2, -1], [ 2, 16,  2], [-1,  2, 4]]) / 15.
+		diff_S2 = S2 - np.array([[ 7, -8,  1], [-8, 16, -8], [ 1, -8, 7]]) / 6.
+		diff_D2 = D2 - np.array([[-3,  4, -1], [-1,  0,  1], [ 1, -4, 3]]) / 2.
+		self.assertTrue(LA.norm(diff_M1) < 1E-8)
+		self.assertTrue(LA.norm(diff_S1) < 1E-8)
+		self.assertTrue(LA.norm(diff_D1) < 1E-8)
+		self.assertTrue(LA.norm(diff_M2) < 1E-8)
+		self.assertTrue(LA.norm(diff_S2) < 1E-8)
+		self.assertTrue(LA.norm(diff_D2) < 1E-8)
 
 	def test_VandermondeM1D(self):
 		from mozart.poisson.solve import VandermondeM1D
@@ -179,8 +175,6 @@ class TestMethods(unittest.TestCase):
 		self.assertTrue(np.abs(rateL2[-1]) > N+0.9)
 		self.assertTrue(np.abs(rateH1[-1]) > N-0.1)
 
-
-
 	def test_solve_onedim(self):
 		from mozart.mesh.rectangle import unit_interval
 		N = 3
@@ -195,21 +189,16 @@ class TestMethods(unittest.TestCase):
 
 		self.assertTrue(True)
 
+class TestFemRectangle(unittest.TestCase):
+	def test_poisson_square_2d(self):
+		from mozart.mesh.rectangle import unit_square
+		unit_square(0.1)
+		self.assertTrue(True)
+
 	def test_solve_twodim(self):
 		from mozart.poisson.solve import two_dim
 		two_dim(None, None, None, None)
 
-		self.assertTrue(True)
-
-	def test_solve_threedim(self):
-		from mozart.poisson.solve import three_dim
-		three_dim(None, None, None, None)
-
-		self.assertTrue(True)
-
-	def test_benchmark01_sample(self):
-		from mozart.poisson.solve import sample
-		sample()
 		self.assertTrue(True)
 
 class TestCommonModuleMethods(unittest.TestCase):
@@ -222,3 +211,8 @@ class TestCommonModuleMethods(unittest.TestCase):
 			res = prefix_by_os(case)
 			print(case, answer, res)
 			self.assertEqual(res, answer)
+
+	def test_benchmark01_sample(self):
+		from mozart.poisson.solve import sample
+		sample()
+		self.assertTrue(True)
