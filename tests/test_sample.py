@@ -163,6 +163,15 @@ class TestFemInterval(unittest.TestCase):
 		self.assertTrue(np.abs(rateL2[-1]) > N+0.9)
 		self.assertTrue(np.abs(rateH1[-1]) > N-0.1)
 
+class TestTecplot(unittest.TestCase):
+	def test_tecplot_triangle(self):
+		from mozart.common.etc import tecplot_triangle
+		c4n = np.array([[0.0, 0.0], [1.0, 0.0], [0.0, 1.0]])
+		n4e = np.array([[0, 1, 2]])
+		u = np.array([10, 20, 30])
+		tecplot_triangle('sample.dat', c4n, n4e, u)
+		self.assertTrue(True)
+
 class TestCommonModuleMethods(unittest.TestCase):
 	def test_prefix_by_os(self):
 		answer_sheet ={"linux" : "linux", "linux32" : "linux", 
