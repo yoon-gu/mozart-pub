@@ -60,6 +60,7 @@
 1. Check documentation by running 
 	1. `cd /path/to/Mozart/`
 	1. `pip uninstall mozart`
+	1. `python setup.py install`
 	1. `cd /path/to/Mozart/docs`
 	1. `make html`(UNIX) or `./make.bat html`(Windows)
 	1. Open `Mozart/docs/_build/index.html`
