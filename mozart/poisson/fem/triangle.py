@@ -76,7 +76,6 @@ def sample():
 		c_void_p(Alocal.ctypes.data),
 		c_void_p(b.ctypes.data))
 
-
 	STIMA_COO = coo_matrix((Alocal, (I, J)), shape=(nrNodes, nrNodes))
 	STIMA_CSR = STIMA_COO.tocsr()
 

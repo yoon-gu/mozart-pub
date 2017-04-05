@@ -40,7 +40,6 @@ def interval(a, b, M, degree):
 	ind4e = np.array([np.arange(degree*item,degree*item+degree+1,1) for item in range(0,M)], dtype=np.int32)
 	return (c4n, n4e, n4db, ind4e)
 
-
 def rectangle(x1, x2, y1, y2, Mx, My, degree):
 	"""
 	Generates mesh information on the rectangle [x1,x2]x[y1,y2].
@@ -83,7 +82,6 @@ def rectangle(x1, x2, y1, y2, Mx, My, degree):
 		ind4e[j*(degree+1)+np.arange(0,degree+1,1),:] = np.matlib.repmat(tmp1+j*(degree*Mx+1),degree+1,1) + np.transpose(np.matlib.repmat(np.arange(0,degree+1,1),Mx*My,1))
 
 	n4e = ind4e[[0,degree,(degree+1)**2-1,degree*(degree+1)],:]
-
 
 	btm = np.arange(0,Nx,1)
 	top = np.arange(Nx*(Ny-1),Nx*Ny,1)
