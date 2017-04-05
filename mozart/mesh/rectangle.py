@@ -1,5 +1,5 @@
 import numpy as np
-
+import numpy.matlib
 def interval(a, b, M, degree):
 	"""
 	Generates mesh information on an interval [a,b].
@@ -89,4 +89,4 @@ def rectangle(x1, x2, y1, y2, Mx, My, degree):
 	right = np.arange(Nx-1,Nx*Ny,Nx)
 	n4Db = np.unique(np.concatenate((btm,top,left,right)))
 
-	return (c4n, ind4e, n4e, n4Db)
+	return (c4n.transpose(), ind4e.transpose(), n4e.transpose(), n4Db.transpose())
