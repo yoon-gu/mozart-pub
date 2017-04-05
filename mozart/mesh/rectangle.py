@@ -61,9 +61,8 @@ def rectangle(x1, x2, y1, y2, Mx, My, degree):
 		- ``n4Db`` (``int array``) : nodes for Dirichlet boundary
 
 	Example
+		>>>
 	"""
-	import numpy as np
-	import numpy.matlib
 
 	Nx = degree*Mx + 1
 	Ny = degree*My + 1
