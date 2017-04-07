@@ -88,8 +88,7 @@ class TestFemCommon(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_DVr) < 1E-8)
 
 	def test_Dmatrix1D(self):
-		from mozart.poisson.fem.common import Dmatrix1D
-		from mozart.poisson.fem.common import VandermondeM1D
+		from mozart.poisson.fem.common import Dmatrix1D, VandermondeM1D
 		r = np.array([-1.0, 1.0])
 		V = VandermondeM1D(1,r)
 		Dr = Dmatrix1D(1,r,V)
@@ -110,8 +109,7 @@ class TestFemCommon(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_s) < 1E-8)
 
 	def test_rs2ab(self):
-		from mozart.poisson.fem.common import RefNodes_Tri
-		from mozart.poisson.fem.common import rs2ab
+		from mozart.poisson.fem.common import RefNodes_Tri, rs2ab
 		N = 3
 		r, s = RefNodes_Tri(N)
 		a, b = rs2ab(r,s)
@@ -129,8 +127,7 @@ class TestFemCommon(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_p) < 1E-8)
 
 	def test_Vandermonde2D(self):
-		from mozart.poisson.fem.common import RefNodes_Tri
-		from mozart.poisson.fem.common import Vandermonde2D
+		from mozart.poisson.fem.common import RefNodes_Tri, Vandermonde2D
 		N = 2
 		r, s = RefNodes_Tri(N)
 		V2D = Vandermonde2D(N,r,s)
@@ -141,6 +138,19 @@ class TestFemCommon(unittest.TestCase):
 			[ 0.707106781186548,   0.500000000000000,  -0.612372435695795,   0.866025403784439,   1.590990257669732,   0.684653196881458],
 			[ 0.707106781186548,   2.000000000000001,   3.674234614174769,                   0,                   0,                   0]])
 		self.assertTrue(LA.norm(diff_V2D) < 1E-8)
+
+	def test_GradSimplex2DP(self):
+		from mozart.poisson.fem.common import RefNodes_Tri, rs2ab, GradSimplex2DP
+		N = 2
+		r, s = RefNodes_Tri(N)
+		a, b = rs2ab(r,s)
+		dmodedr, dmodeds = GradSimplex2DP(a,b,1,1)
+		diff_dmodedr = dmodedr - np.array([-2.121320343559642, -2.121320343559642, -2.121320343559642,
+			 3.181980515339464,  3.181980515339464,  8.485281374238570])
+		diff_dmodeds = dmodeds - np.array([-6.363961030678929, -1.060660171779821,  4.242640687119286,
+			-1.060660171779822,  4.242640687119286,  4.242640687119285])
+		self.assertTrue(LA.norm(diff_dmodedr) < 1E-8)
+		self.assertTrue(LA.norm(diff_dmodeds) < 1E-8)
 
 class TestFemInterval(unittest.TestCase):
 	def test_1d_uniform_interval(self):
