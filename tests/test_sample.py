@@ -73,6 +73,138 @@ class TestFemCommon(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_dP) < 1E-8)
 		self.assertTrue(LA.norm(diff_dP2) < 1E-8)
 
+	def test_VandermondeM1D(self):
+		from mozart.poisson.fem.common import VandermondeM1D
+		r = np.array([-1.0, 1.0])
+		V1D = VandermondeM1D(1,r)
+		diff_V1D = V1D - np.array([[0.707106781186548, -1.224744871391589], [0.707106781186548, 1.224744871391589]])
+		self.assertTrue(LA.norm(diff_V1D) < 1E-8)
+
+	def test_DVandermondeM1D(self):
+		from mozart.poisson.fem.common import DVandermondeM1D
+		r = np.array([-1.0, 1.0])
+		DVr = DVandermondeM1D(1,r)
+		diff_DVr = DVr - np.array([[0.0, 1.224744871391589], [0.0, 1.224744871391589]])
+		self.assertTrue(LA.norm(diff_DVr) < 1E-8)
+
+	def test_Dmatrix1D(self):
+		from mozart.poisson.fem.common import Dmatrix1D, VandermondeM1D
+		r = np.array([-1.0, 1.0])
+		V = VandermondeM1D(1,r)
+		Dr = Dmatrix1D(1,r,V)
+		diff_Dr = Dr - np.array([[-0.5, 0.5], [-0.5, 0.5]])
+		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
+
+	def test_RefNodes_Tri(self):
+		from mozart.poisson.fem.common import RefNodes_Tri
+		N = 0
+		r0, s0 = RefNodes_Tri(N)
+		diff_r0 = r0 - np.array([-1.0/3])
+		diff_s0 = s0 - np.array([-1.0/3])
+		N = 3
+		r, s = RefNodes_Tri(N)
+		diff_r = r - np.array([-1, -1.0/3, 1.0/3, 1, -1, -1.0/3, 1.0/3, -1, -1.0/3, -1])
+		diff_s = s - np.array([-1, -1, -1, -1, -1.0/3, -1.0/3, -1.0/3, 1.0/3, 1.0/3, 1])
+		self.assertTrue(LA.norm(diff_r) < 1E-8)
+		self.assertTrue(LA.norm(diff_s) < 1E-8)
+
+	def test_rs2ab(self):
+		from mozart.poisson.fem.common import RefNodes_Tri, rs2ab
+		N = 3
+		r, s = RefNodes_Tri(N)
+		a, b = rs2ab(r,s)
+		diff_a = a - np.array([-1, -1.0/3, 1.0/3, 1, -1, 0, 1, -1, 1, -1])
+		diff_b = b - np.array([-1, -1, -1, -1, -1.0/3, -1.0/3, -1.0/3, 1.0/3, 1.0/3, 1])
+		self.assertTrue(LA.norm(diff_a) < 1E-8)
+		self.assertTrue(LA.norm(diff_b) < 1E-8)
+
+	def test_Simplex2DP(self):
+		from mozart.poisson.fem.common import Simplex2DP
+		a = np.array([0,1])
+		b = np.array([2,3])
+		p = Simplex2DP(a,b,0,0)
+		diff_p = p - np.array([ 0.70710678, 0.70710678])
+		self.assertTrue(LA.norm(diff_p) < 1E-8)
+
+	def test_Vandermonde2D(self):
+		from mozart.poisson.fem.common import RefNodes_Tri, Vandermonde2D
+		N = 2
+		r, s = RefNodes_Tri(N)
+		V2D = Vandermonde2D(N,r,s)
+		diff_V2D = V2D - np.array([[ 0.707106781186548,  -1.              ,   1.224744871391590,  -1.732050807568878,   2.121320343559643,   2.738612787525831],
+			[ 0.707106781186548,  -1.              ,   1.224744871391590,                   0,                   0,  -1.369306393762915],
+			[ 0.707106781186548,  -1.              ,   1.224744871391590,   1.732050807568878,  -2.121320343559643,   2.738612787525831],
+			[ 0.707106781186548,   0.500000000000000,  -0.612372435695795,  -0.866025403784439,  -1.590990257669732,   0.684653196881458],
+			[ 0.707106781186548,   0.500000000000000,  -0.612372435695795,   0.866025403784439,   1.590990257669732,   0.684653196881458],
+			[ 0.707106781186548,   2.000000000000001,   3.674234614174769,                   0,                   0,                   0]])
+		self.assertTrue(LA.norm(diff_V2D) < 1E-8)
+
+	def test_GradSimplex2DP(self):
+		from mozart.poisson.fem.common import RefNodes_Tri, rs2ab, GradSimplex2DP
+		N = 2
+		r, s = RefNodes_Tri(N)
+		a, b = rs2ab(r,s)
+		dmodedr, dmodeds = GradSimplex2DP(a,b,1,1)
+		diff_dmodedr = dmodedr - np.array([-2.121320343559642, -2.121320343559642, -2.121320343559642,
+			 3.181980515339464,  3.181980515339464,  8.485281374238570])
+		diff_dmodeds = dmodeds - np.array([-6.363961030678929, -1.060660171779821,  4.242640687119286,
+			-1.060660171779822,  4.242640687119286,  4.242640687119285])
+		self.assertTrue(LA.norm(diff_dmodedr) < 1E-8)
+		self.assertTrue(LA.norm(diff_dmodeds) < 1E-8)
+
+	def test_GradVandermonde2D(self):
+		from mozart.poisson.fem.common import RefNodes_Tri, GradVandermonde2D
+		N = 2
+		r, s = RefNodes_Tri(N)
+		V2Dr, V2Ds = GradVandermonde2D(N,r,s)
+		diff_V2Dr = V2Dr - np.array([[ 0.                 ,  0.                 ,  0.                 ,
+		      1.732050807568877, -2.121320343559642, -8.215838362577491],
+		    [ 0.               ,  0.               ,  0.               ,
+		      1.732050807568877, -2.121320343559642,  0.               ],
+		    [ 0.               ,  0.               ,  0.               ,
+		      1.732050807568877, -2.121320343559642,  8.215838362577491],
+		    [ 0.               ,  0.               ,  0.               ,
+		      1.732050807568877,  3.181980515339464, -4.107919181288746],
+		    [ 0.               ,  0.               ,  0.               ,
+		      1.732050807568877,  3.181980515339464,  4.107919181288746],
+		    [ 0.               ,  0.               ,  0.               ,
+		      1.732050807568877,  8.485281374238570,  0.               ]])
+		diff_V2Ds = V2Ds - np.array([[0.               ,  1.5              , -4.898979485566358,
+			  0.866025403784439, -6.363961030678929, -2.738612787525831],
+			[ 0.               ,  1.5              , -4.898979485566358,
+			  0.866025403784439, -1.060660171779821,  1.369306393762915],
+			[ 0.               ,  1.500000000000000, -4.898979485566358,
+			  0.866025403784439,  4.242640687119286,  5.477225575051659],
+			[ 0.               ,  1.500000000000000,  1.224744871391589,
+			  0.866025403784439, -1.060660171779822, -1.369306393762915],
+			[ 0.               ,  1.500000000000000,  1.224744871391589,
+			  0.866025403784439,  4.242640687119286,  2.738612787525830],
+			[ 0.               ,  1.500000000000000,  7.348469228349536,
+			  0.866025403784439,  4.242640687119285,  0.               ]])
+		self.assertTrue(LA.norm(diff_V2Dr) < 1E-8)
+		self.assertTrue(LA.norm(diff_V2Ds) < 1E-8)
+
+	def test_Dmatrices2D(self):
+		from mozart.poisson.fem.common import RefNodes_Tri, Vandermonde2D, Dmatrices2D
+		N = 2
+		r, s = RefNodes_Tri(N)
+		V = Vandermonde2D(N,r,s)
+		Dr, Ds = Dmatrices2D(N,r,s,V)
+		diff_Dr = Dr - np.array([[-1.5,  2., -0.5,  0.,  0.,  0.],
+		    [-0.5,  0.,  0.5,  0.,  0.,  0.],
+		    [ 0.5, -2.,  1.5,  0.,  0.,  0.],
+		    [-0.5,  1., -0.5, -1.,  1.,  0.],
+		    [ 0.5, -1.,  0.5, -1.,  1.,  0.],
+		    [ 0.5,  0., -0.5, -2.,  2.,  0.]])            
+		diff_Ds = Ds - np.array([[-1.5,  0.,  0.,  2.,  0.,  -0.5],
+			[-0.5, -1.,  0.,  1.,  1., -0.5],
+			[ 0.5, -2.,  0.,  0.,  2., -0.5],
+			[-0.5,  0.,  0.,  0.,  0.,  0.5],
+			[ 0.5, -1.,  0., -1.,  1.,  0.5],
+			[ 0.5,  0.,  0., -2.,  0.,  1.5]])
+		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
+		self.assertTrue(LA.norm(diff_Ds) < 1E-8)
+
 class TestFemInterval(unittest.TestCase):
 	def test_1d_uniform_interval(self):
 		from mozart.mesh.rectangle import interval
@@ -103,29 +235,6 @@ class TestFemInterval(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_M2) < 1E-8)
 		self.assertTrue(LA.norm(diff_S2) < 1E-8)
 		self.assertTrue(LA.norm(diff_D2) < 1E-8)
-
-	def test_VandermondeM1D(self):
-		from mozart.poisson.fem.interval import VandermondeM1D
-		r = np.array([-1.0, 1.0])
-		V1D = VandermondeM1D(1,r)
-		diff_V1D = V1D - np.array([[0.707106781186548, -1.224744871391589], [0.707106781186548, 1.224744871391589]])
-		self.assertTrue(LA.norm(diff_V1D) < 1E-8)
-
-	def test_DVandermondeM1D(self):
-		from mozart.poisson.fem.interval import DVandermondeM1D
-		r = np.array([-1.0, 1.0])
-		DVr = DVandermondeM1D(1,r)
-		diff_DVr = DVr - np.array([[0.0, 1.224744871391589], [0.0, 1.224744871391589]])
-		self.assertTrue(LA.norm(diff_DVr) < 1E-8)
-
-	def test_Dmatrix1D(self):
-		from mozart.poisson.fem.interval import Dmatrix1D
-		from mozart.poisson.fem.interval import VandermondeM1D
-		r = np.array([-1.0, 1.0])
-		V = VandermondeM1D(1,r)
-		Dr = Dmatrix1D(1,r,V)
-		diff_Dr = Dr - np.array([[-0.5, 0.5], [-0.5, 0.5]])
-		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
 
 	def test_solve(self):
 		from mozart.mesh.rectangle import interval
@@ -162,6 +271,26 @@ class TestFemInterval(unittest.TestCase):
 		rateH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
 		self.assertTrue(np.abs(rateL2[-1]) > N+0.9)
 		self.assertTrue(np.abs(rateH1[-1]) > N-0.1)
+
+class TestFemTriangle(unittest.TestCase):
+	def test_getMatrix2D(self):
+		from mozart.poisson.fem.triangle import getMatrix
+		N = 1
+		M_R, Srr_R, Srs_R, Ssr_R, Sss_R, Dr_R, Ds_R = getMatrix(N)
+		diff_M = M_R - np.array([[1.0/3, 1.0/6, 1.0/6,], [1.0/6, 1.0/3, 1.0/6], [1.0/6, 1.0/6, 1.0/3]], dtype = np.float64)
+		diff_Srr = Srr_R - np.array([[1.0/2, -1.0/2, 0.0], [-1.0/2, 1.0/2, 0.0], [0.0, 0.0, 0.0]], dtype = np.float64)
+		diff_Srs = Srs_R - np.array([[1.0/2, 0.0, -1.0/2], [-1.0/2, 0.0, 1.0/2], [0.0, 0.0, 0.0]], dtype = np.float64)
+		diff_Ssr = Ssr_R - np.array([[1.0/2, -1.0/2, 0.0], [0.0, 0.0, 0.0], [-1.0/2, 1.0/2, 0.0]], dtype = np.float64)
+		diff_Sss = Sss_R - np.array([[1.0/2, 0.0, -1.0/2], [0.0, 0.0, 0.0], [-1.0/2, 0.0, 1.0/2]], dtype = np.float64)
+		diff_Dr = Dr_R - np.array([[-1.0/2, 1.0/2, 0.0], [-1.0/2, 1.0/2, 0.0], [-1.0/2, 1.0/2, 0.0]], dtype = np.float64)
+		diff_Ds = Ds_R - np.array([[-1.0/2, 0.0, 1.0/2], [-1.0/2, 0.0, 1.0/2], [-1.0/2, 0.0, 1.0/2]], dtype = np.float64)
+		self.assertTrue(LA.norm(diff_M) < 1E-8)
+		self.assertTrue(LA.norm(diff_Srr) < 1E-8)
+		self.assertTrue(LA.norm(diff_Srs) < 1E-8)
+		self.assertTrue(LA.norm(diff_Ssr) < 1E-8)
+		self.assertTrue(LA.norm(diff_Sss) < 1E-8)
+		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
+		self.assertTrue(LA.norm(diff_Ds) < 1E-8)
 
 class TestTecplot(unittest.TestCase):
 	def test_tecplot_triangle(self):

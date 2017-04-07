@@ -150,3 +150,347 @@ def nJacobiGL(alpha=0, beta=0, degree=0):
 		x = np.hstack((np.array([-1]),xint))
 		x = np.hstack((x,np.array([1])))	
 	return x
+
+def VandermondeM1D(degree,r):
+	"""
+	Initialize the 1D Vandermonde matrix, :math:`V_{i,j} = \\phi_j(r_i)`
+
+	Paramters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : points
+
+	Returns
+		- ``V1D`` (``float64 array``) : 1D Vandermonde matrix
+	
+	Example
+		>>> N = 3
+		>>> from mozart.poisson.fem.interval import VandermondeM1D
+		>>> r = np.linspace(-1,1,N+1)
+		>>> V1D = VandermondeM1D(N,r)
+		>>> print(V1D)
+		array([[ 0.70710678, -1.22474487,  1.58113883, -1.87082869],
+		[ 0.70710678, -0.40824829, -0.52704628,  0.76218947],
+		[ 0.70710678,  0.40824829, -0.52704628, -0.76218947],
+		[ 0.70710678,  1.22474487,  1.58113883,  1.87082869]])
+	"""
+	V1D = np.zeros((r.size,degree+1),float)
+	for j in range(0,degree+1):
+		V1D[:,j] = nJacobiP(r,0,0,j)
+	return V1D
+
+def DVandermondeM1D(degree, r):
+	"""
+	Initialize the derivative of modal basis (i) at (r) at order degree
+
+	Paramters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : points
+
+	Returns
+		- ``DVr`` (``float64 array``) : Differentiate Vandermonde matrix
+	
+	Example
+		>>> N = 3
+		>>> from mozart.poisson.fem.interval import VandermondeM1D
+		>>> r = np.linspace(-1,1,N+1)
+		>>> DVr = DVandermondeM1D(N,r)
+		>>> print(DVr)
+		array([[  0.        ,   1.22474487,  -4.74341649,  11.22497216],
+		[  0.        ,   1.22474487,  -1.58113883,  -1.24721913],
+		[  0.        ,   1.22474487,   1.58113883,  -1.24721913],
+		[  0.        ,   1.22474487,   4.74341649,  11.22497216]])
+	"""
+	DVr = np.zeros((r.size,degree+1), float)
+	for j in range(0,degree+1):
+		DVr[:,j] = DnJacobiP(r,0,0,j)
+	return DVr
+
+def Dmatrix1D(degree, r, V):
+	"""
+	Initialize the derivative of modal basis (i) at (r) at order degree
+
+	Paramters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : points
+
+	Returns
+		- ``DVr`` (``float64 array``) : Differentiate Vandermonde matrix
+	
+	Example
+		>>> N = 3
+		>>> from mozart.poisson.fem.interval import Dmatrix1D
+		>>> r = np.linspace(-1,1,N+1)
+		>>> Dr = Dmatirx1D(N,r)
+		>>> print(Dr)
+		array([[-2.75,  4.5 , -2.25,  0.5 ],
+		[-0.5 , -0.75,  1.5 , -0.25],
+		[ 0.25, -1.5 ,  0.75,  0.5 ],
+		[-0.5 ,  2.25, -4.5 ,  2.75]])
+	"""
+	Vr = DVandermondeM1D(degree, r)
+	Dr = np.linalg.solve(np.transpose(V),np.transpose(Vr))
+	Dr = np.transpose(Dr)
+	return Dr
+
+def RefNodes_Tri(degree):
+	"""
+	Computes uniform nodes in the reference triangle for arbitrary polynomial degrees
+	
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+
+	Example
+		>>> N = 3
+		>>> r, s = RefNodes_Tri(N)
+		>>> r
+		array([-1.        , -0.33333333,  0.33333333,  1.        , -1.        ,
+		   -0.33333333,  0.33333333, -1.        , -0.33333333, -1.        ])
+		>>> s
+		array([-1.        , -1.        , -1.        , -1.        , -0.33333333,
+		   -0.33333333, -0.33333333,  0.33333333,  0.33333333,  1.        ])
+	"""
+	if degree == 0:
+		r = np.array([-1.0/3])
+		s = np.array([-1.0/3])
+	else:
+		nrLocal = int((degree + 1)*(degree + 2)/2)
+		x = np.linspace(-1, 1, degree + 1)
+		r = np.zeros(nrLocal, dtype = np.float64)
+		s = np.zeros(nrLocal, dtype = np.float64)
+		for j in range (0, degree+1):
+			r[int((degree + 1)*j - j*(j-1)/2) + np.arange(0,degree+1-j,1)] = x[np.arange(0,degree+1-j,1)]
+			s[int((degree + 1)*j - j*(j-1)/2) + np.arange(0,degree+1-j,1)] = x[j]
+	return (r,s)
+
+def rs2ab(r,s):
+	"""
+	Transfer from (r,s) to (a,b) coordinates in triangle
+	
+	Parameters
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+
+	Returns
+		- ``a`` (``float64 array``) : 2(1+r)/(1-s)-1
+		- ``b`` (``float64 array``) : s
+
+	Example
+		>>> N = 3
+		>>> r, s = RefNodes_Tri(N)
+		>>> a, b = rs2ab(r,s)
+		>>> a
+		array([ -1.00000000e+00,  -3.33333333e-01,   3.33333333e-01,
+		   1.00000000e+00,  -1.00000000e+00,  -1.11022302e-16,
+		   1.00000000e+00,  -1.00000000e+00,   1.00000000e+00,
+		   -1.00000000e+00])
+		>>> b
+		array([-1.        , -1.        , -1.        , -1.        , -0.33333333,
+		   -0.33333333, -0.33333333,  0.33333333,  0.33333333,  1.        ])
+	"""
+	Np = r.size
+	a = np.zeros(Np,float)
+
+	for n in range(0,Np):
+		if s[n] != 1:
+			a[n] = 2 * (1 + r[n])/(1 - s[n]) - 1
+		else:
+			a[n] = -1.
+
+	b = s
+	return (a,b)
+
+def Simplex2DP(a,b,i,j):
+	"""
+	Compute 2D orthonormal polynomial on simplex at (a, b) of order (i, j)
+	
+	Parameters
+		- ``a`` (``folat64 array``) : the value for the first normalized Jacobi polynomial in modal basis
+		- ``b`` (``float64 array``) : the value for the second normalized Jacobi polynomial in modal basis
+		- ``i`` (``int32``) : order of the the first normalized Jacobi polynomial in modal basis
+		- ``j`` (``int32``) : order of the the second normalized Jacobi polynomial in modal basis
+
+	Returns
+		- ``P`` (``float64 array``) : evaluated value
+
+	Example
+		>>> a = np.array([0, 1])
+		>>> b = np.array([2, 3])
+		>>> p = Simplex2DP(a, b, 0, 0)
+		>>> p
+		array([ 0.70710678,  0.70710678])
+	"""
+	h1 = nJacobiP(a,0,0,i)
+	h2 = nJacobiP(b,2*i+1,0,j)
+	P = np.sqrt(2.)*h1*h2*(1-b)**i
+	return P
+
+def Vandermonde2D(degree,r,s):
+	"""
+	Initialize the 2D Vandermonde Matrix, :math:`V_{i,j} = \\phi_j(r_i)`
+	
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+
+	Returns
+		- ``V2D`` (``float64 array``) : Vandermonde matrix in 2D
+
+	Example
+		>>> N = 2
+		>>> r, s = RefNodes_Tri(N)
+		>>> V2D = Vandermonde2D(N,r,s)
+		>>> V2D
+		array([[ 0.70710678, -1.        ,  1.22474487, -1.73205081,  2.12132034,  2.73861279],
+		   [ 0.70710678, -1.        ,  1.22474487,  0.        , -0.        , -1.36930639],
+		   [ 0.70710678, -1.        ,  1.22474487,  1.73205081, -2.12132034,  2.73861279],
+		   [ 0.70710678,  0.5       , -0.61237244, -0.8660254 , -1.59099026,  0.6846532 ],
+		   [ 0.70710678,  0.5       , -0.61237244,  0.8660254 ,  1.59099026,  0.6846532 ],
+		   [ 0.70710678,  2.        ,  3.67423461, -0.        , -0.        ,  0.        ]])
+	"""
+	V2D = np.zeros((r.size, int((degree+1) * (degree+2) / 2)), dtype = np.float64)
+	a, b = rs2ab(r, s)
+
+	sk = 0
+	for i in range(0, degree + 1):
+		for j in range(0, degree + 1 - i):
+			V2D[:, sk] = Simplex2DP(a,b,i,j)
+			sk = sk + 1
+	return V2D
+
+def GradSimplex2DP(a,b,id,jd):
+	"""
+	Return the derivatives of the modal basis (id,jd) on the 2D simplex at (a,b).
+	
+	Parameters
+		- ``a`` (``float64``) : 2(1+r)/(1-s) - 1
+		- ``b`` (``float64``) : s
+		- ``id`` (``int32``) : order of the the first normalized Jacobi polynomial in modal basis
+		- ``jd`` (``int32``) : order of the the second normalized Jacobi polynomial in modal basis
+
+	Returns
+		- ``dmodedr`` (``float64 array``) : derivative value of modal basis on the 2D simplex along r-direction
+		- ``dmodeds`` (``float64 array``) : derivative value of modal basis on the 2D simplex along s-direction
+
+	Example
+		>>> N = 2
+		>>> r, s = RefNodes_Tri(N)
+		>>> a, b = rs2ab(r,s)
+		>>> dmodedr, dmodeds = GradSimplex2DP(a,b,1,1)
+		>>> dmodedr
+		array([-2.12132034, -2.12132034, -2.12132034,  3.18198052,  3.18198052,  8.48528137])
+		>>> dmodeds
+		array([-6.36396103, -1.06066017,  4.24264069, -1.06066017,  4.24264069,  4.24264069])
+	"""
+	fa = nJacobiP(a, 0, 0, id)
+	dfa = DnJacobiP(a, 0, 0, id)
+	gb = nJacobiP(b, 2 * id + 1, 0, jd)
+	dgb = DnJacobiP(b, 2 * id + 1, 0, jd)
+
+	dmodedr = dfa * gb
+	if id > 0:
+		dmodedr = dmodedr * ((0.5 * (1 - b))**(id - 1))
+
+	dmodeds = dfa * (gb * (0.5 * (1 + a)))
+	if id > 0:
+		dmodeds = dmodeds * ((0.5 * (1 - b))**(id - 1))
+
+	tmp = dgb * ((0.5 * (1 - b))**id)
+
+	if id > 0:
+		tmp = tmp - 0.5 * id * gb * ((0.5 * (1 - b))**(id - 1))
+
+	dmodeds = dmodeds + fa * tmp
+	dmodedr = 2**(id + 0.5) * dmodedr
+	dmodeds = 2**(id + 0.5) * dmodeds
+	return (dmodedr, dmodeds)
+
+def GradVandermonde2D(degree,r,s):
+	"""
+	Initialize the gradient of the modal basis (i,j) at (r,s) at order N
+	
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+
+	Returns
+		- ``V2Dr`` (``float64 array``) : Gradient of Vandermonde matrix on the 2D simplex along r-direction
+		- ``V2Ds`` (``float64 array``) : Gradient of Vandermonde matrix on the 2D simplex along s-direction
+
+	Example
+		>>> N = 2
+		>>> r, s = RefNodes_Tri(N)
+		>>> V2Dr, V2Ds = GradVandermonde2D(degree,r,s)
+		>>> V2Dr
+		array([[ 0.        , -0.        ,  0.        ,  1.73205081, -2.12132034, -8.21583836],
+		   [ 0.        , -0.        ,  0.        ,  1.73205081, -2.12132034,  0.        ],
+		   [ 0.        , -0.        ,  0.        ,  1.73205081, -2.12132034,  8.21583836],
+		   [ 0.        ,  0.        , -0.        ,  1.73205081,  3.18198052, -4.10791918],
+		   [ 0.        ,  0.        , -0.        ,  1.73205081,  3.18198052,  4.10791918],
+		   [ 0.        ,  0.        ,  0.        ,  1.73205081,  8.48528137, -0.        ]])
+		>>> V2Ds
+		array([[ 0.        ,  1.5       , -4.89897949,  0.8660254 , -6.36396103, -2.73861279],
+		   [ 0.        ,  1.5       , -4.89897949,  0.8660254 , -1.06066017,  1.36930639],
+		   [ 0.        ,  1.5       , -4.89897949,  0.8660254 ,  4.24264069,  5.47722558],
+		   [ 0.        ,  1.5       ,  1.22474487,  0.8660254 , -1.06066017, -1.36930639],
+		   [ 0.        ,  1.5       ,  1.22474487,  0.8660254 ,  4.24264069,  2.73861279],
+		   [ 0.        ,  1.5       ,  7.34846923,  0.8660254 ,  4.24264069,  0.        ]])
+	"""
+	V2Dr = np.zeros((r.size, int((degree+1)*(degree+2)/2)), dtype = np.float64)
+	V2Ds = np.zeros((r.size, int((degree+1)*(degree+2)/2)), dtype = np.float64)
+
+	a, b = rs2ab(r,s)
+
+	sk = 0
+	for i in range(0,degree+1):
+		for j in range(0,degree+1-i):
+			V2Dr[:,sk], V2Ds[:,sk] = GradSimplex2DP(a,b,i,j)
+			sk += 1
+
+	return (V2Dr, V2Ds)
+
+def Dmatrices2D(degree,r,s,V):
+	"""
+	Initialize the (r,s) differentiation matrices on the simplex, evaluated at (r,s) at order N
+	
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+		- ``V`` (``float64 array``) : Vandermonde matrix in 2D
+
+	Returns
+		- ``Dr`` (``float64 array``) : differentiation matrix along r-direction
+		- ``Ds`` (``float64 array``) : differentiation matrix along s-direction
+
+	Example
+		>>> N = 2
+		>>> r, s = RefNodes_Tri(N)
+		>>> V = Vandermonde2D(N,r,s)
+		>>> Dr, Ds = Dmatrices2D(N,r,s,V)
+		>>> Dr
+		array([[-1.5,  2. , -0.5,  0. ,  0. ,  0. ],
+		   [-0.5,  0. ,  0.5,  0. ,  0. ,  0. ],
+		   [ 0.5, -2. ,  1.5,  0. ,  0. ,  0. ],
+		   [-0.5,  1. , -0.5, -1. ,  1. ,  0. ],
+		   [ 0.5, -1. ,  0.5, -1. ,  1. ,  0. ],
+		   [ 0.5,  0. , -0.5, -2. ,  2. ,  0. ]])
+		>>> Ds
+		array([[ -1.50000000e+00,   2.22044605e-16,   2.22044605e-16,   2.00000000e+00,  -4.44089210e-16,  -5.00000000e-01],
+		   [ -5.00000000e-01,  -1.00000000e+00,   2.77555756e-17,   1.00000000e+00,   1.00000000e+00,  -5.00000000e-01],
+		   [  5.00000000e-01,  -2.00000000e+00,  -2.22044605e-16,  -3.99042031e-16,   2.00000000e+00,  -5.00000000e-01],
+		   [ -5.00000000e-01,   1.38777878e-16,   1.38777878e-16,   4.42493564e-17,  -2.22044605e-16,   5.00000000e-01],
+		   [  5.00000000e-01,  -1.00000000e+00,   1.38777878e-17,  -1.00000000e+00,   1.00000000e+00,   5.00000000e-01],
+		   [  5.00000000e-01,   1.11022302e-16,   1.66533454e-16,  -2.00000000e+00,   0.00000000e+00,   1.50000000e+00]])
+	"""
+	Vr, Vs = GradVandermonde2D(degree, r, s)
+	invV = np.linalg.inv(V)
+	Dr = np.dot(Vr,invV)
+	Ds = np.dot(Vs,invV)
+
+	return (Dr, Ds)

@@ -7,6 +7,36 @@ from mozart.common.etc import prefix_by_os
 dllpath = path.join(mz.__path__[0], prefix_by_os(platform) + '_' + 'libmozart.so')
 lib = CDLL(dllpath)
 
+from mozart.poisson.fem.common import RefNodes_Tri, Vandermonde2D, Dmatrices2D
+
+def getMatrix(degree):
+	"""
+	Get FEM matrices on the reference triangle
+
+	Paramters
+		- ``degree`` (``int32``) : degree of polynomial
+
+	Returns
+		- ``M_R`` (``float64 array``) : Mass matrix on the reference triangle
+		- ``Srr_R`` (``float64 array``) : Stiffness matrix on the reference triangle (int_T \partial_r phi_i \partial_r phi_j dr)
+		- ``Srs_R`` (``float64 array``) : Stiffness matrix on the reference triangle (int_T \partial_r phi_i \partial_s phi_j dr)
+		- ``Ssr_R`` (``float64 array``) : Stiffness matrix on the reference triangle (int_T \partial_s phi_i \partial_r phi_j dr)
+		- ``Sss_R`` (``float64 array``) : Stiffness matrix on the reference triangle (int_T \partial_s phi_i \partial_s phi_j dr)
+		- ``Dr_R`` (``float64 array``) : Differentiation matrix along r-direction
+		- ``Ds_R`` (``float64 array``) : Differentiation matrix along s-direction
+	"""
+
+	r, s = RefNodes_Tri(degree)
+	V = Vandermonde2D(degree,r,s)
+	invV = np.linalg.inv(V)
+	M_R = np.dot(np.transpose(invV),invV)
+	Dr_R, Ds_R = Dmatrices2D(degree, r, s, V)
+	Srr_R = np.dot(np.dot(np.transpose(Dr_R),M_R),Dr_R)
+	Srs_R = np.dot(np.dot(np.transpose(Dr_R),M_R),Ds_R)
+	Ssr_R = np.dot(np.dot(np.transpose(Ds_R),M_R),Dr_R)
+	Sss_R = np.dot(np.dot(np.transpose(Ds_R),M_R),Ds_R)
+	return (M_R, Srr_R, Srs_R, Ssr_R, Sss_R, Dr_R, Ds_R)
+
 def sample():
 	from os import listdir
 	from scipy.sparse import coo_matrix
