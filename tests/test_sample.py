@@ -73,6 +73,29 @@ class TestFemCommon(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_dP) < 1E-8)
 		self.assertTrue(LA.norm(diff_dP2) < 1E-8)
 
+	def test_VandermondeM1D(self):
+		from mozart.poisson.fem.common import VandermondeM1D
+		r = np.array([-1.0, 1.0])
+		V1D = VandermondeM1D(1,r)
+		diff_V1D = V1D - np.array([[0.707106781186548, -1.224744871391589], [0.707106781186548, 1.224744871391589]])
+		self.assertTrue(LA.norm(diff_V1D) < 1E-8)
+
+	def test_DVandermondeM1D(self):
+		from mozart.poisson.fem.common import DVandermondeM1D
+		r = np.array([-1.0, 1.0])
+		DVr = DVandermondeM1D(1,r)
+		diff_DVr = DVr - np.array([[0.0, 1.224744871391589], [0.0, 1.224744871391589]])
+		self.assertTrue(LA.norm(diff_DVr) < 1E-8)
+
+	def test_Dmatrix1D(self):
+		from mozart.poisson.fem.common import Dmatrix1D
+		from mozart.poisson.fem.common import VandermondeM1D
+		r = np.array([-1.0, 1.0])
+		V = VandermondeM1D(1,r)
+		Dr = Dmatrix1D(1,r,V)
+		diff_Dr = Dr - np.array([[-0.5, 0.5], [-0.5, 0.5]])
+		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
+
 class TestFemInterval(unittest.TestCase):
 	def test_1d_uniform_interval(self):
 		from mozart.mesh.rectangle import interval
@@ -103,29 +126,6 @@ class TestFemInterval(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_M2) < 1E-8)
 		self.assertTrue(LA.norm(diff_S2) < 1E-8)
 		self.assertTrue(LA.norm(diff_D2) < 1E-8)
-
-	def test_VandermondeM1D(self):
-		from mozart.poisson.fem.interval import VandermondeM1D
-		r = np.array([-1.0, 1.0])
-		V1D = VandermondeM1D(1,r)
-		diff_V1D = V1D - np.array([[0.707106781186548, -1.224744871391589], [0.707106781186548, 1.224744871391589]])
-		self.assertTrue(LA.norm(diff_V1D) < 1E-8)
-
-	def test_DVandermondeM1D(self):
-		from mozart.poisson.fem.interval import DVandermondeM1D
-		r = np.array([-1.0, 1.0])
-		DVr = DVandermondeM1D(1,r)
-		diff_DVr = DVr - np.array([[0.0, 1.224744871391589], [0.0, 1.224744871391589]])
-		self.assertTrue(LA.norm(diff_DVr) < 1E-8)
-
-	def test_Dmatrix1D(self):
-		from mozart.poisson.fem.interval import Dmatrix1D
-		from mozart.poisson.fem.interval import VandermondeM1D
-		r = np.array([-1.0, 1.0])
-		V = VandermondeM1D(1,r)
-		Dr = Dmatrix1D(1,r,V)
-		diff_Dr = Dr - np.array([[-0.5, 0.5], [-0.5, 0.5]])
-		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
 
 	def test_solve(self):
 		from mozart.mesh.rectangle import interval
