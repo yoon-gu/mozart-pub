@@ -490,7 +490,7 @@ def Dmatrices2D(degree,r,s,V):
 	"""
 	Vr, Vs = GradVandermonde2D(degree, r, s)
 	invV = np.linalg.inv(V)
-	Dr = np.matmul(Vr,invV)
-	Ds = np.matmul(Vs,invV)
+	Dr = np.dot(Vr,invV)
+	Ds = np.dot(Vs,invV)
 
 	return (Dr, Ds)
