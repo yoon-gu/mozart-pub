@@ -231,3 +231,37 @@ def Dmatrix1D(degree, r, V):
 	Dr = np.linalg.solve(np.transpose(V),np.transpose(Vr))
 	Dr = np.transpose(Dr)
 	return Dr
+
+def RefNodes_Tri(degree):
+	"""
+	Computes uniform nodes in the reference triangle for arbitrary polynomial degrees
+	
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+
+	Example
+		>>> N = 3
+		>>> r, s = RefNodes_Tri(N)
+		>>> r
+		array([-1.        , -0.33333333,  0.33333333,  1.        , -1.        ,
+		   -0.33333333,  0.33333333, -1.        , -0.33333333, -1.        ])
+		>>> s
+		array([-1.        , -1.        , -1.        , -1.        , -0.33333333,
+		   -0.33333333, -0.33333333,  0.33333333,  0.33333333,  1.        ])
+	"""
+	if degree == 0:
+		r = np.array([-1.0/3])
+		s = np.array([-1.0/3])
+	else:
+		nrLocal = int((degree + 1)*(degree + 2)/2)
+		x = np.linspace(-1, 1, degree + 1)
+		r = np.zeros(nrLocal, dtype = np.float64)
+		s = np.zeros(nrLocal, dtype = np.float64)
+		for j in range (0, degree+1):
+			r[int((degree + 1)*j - j*(j-1)/2) + np.arange(0,degree+1-j,1)] = x[np.arange(0,degree+1-j,1)]
+			s[int((degree + 1)*j - j*(j-1)/2) + np.arange(0,degree+1-j,1)] = x[j]
+	return (r,s)
