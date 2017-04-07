@@ -7,7 +7,7 @@ from mozart.common.etc import prefix_by_os
 dllpath = path.join(mz.__path__[0], prefix_by_os(platform) + '_' + 'libmozart.so')
 lib = CDLL(dllpath)
 
-from mozart.poisson.fem.common import nJacobiP, DnJacobiP, VandermondeM1D, DVandermondeM1D, Dmatrix1D
+from mozart.poisson.fem.common import VandermondeM1D, Dmatrix1D
 
 def solve(c4n,n4e,n4db,ind4e,f,u_D,degree):
 	"""
