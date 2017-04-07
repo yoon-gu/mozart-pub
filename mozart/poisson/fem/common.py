@@ -361,3 +361,50 @@ def Vandermonde2D(degree,r,s):
 			V2D[:, sk] = Simplex2DP(a,b,i,j)
 			sk = sk + 1
 	return V2D
+
+def GradSimplex2DP(a,b,id,jd):
+	"""
+	Return the derivatives of the modal basis (id,jd) on the 2D simplex at (a,b).
+	
+	Parameters
+		- ``a`` (``float64``) : 2(1+r)/(1-s) - 1
+		- ``b`` (``float64``) : s
+		- ``id`` (``int32``) : order of the the first normalized Jacobi polynomial in modal basis
+		- ``jd`` (``int32``) : order of the the second normalized Jacobi polynomial in modal basis
+
+	Returns
+		- ``dmodedr`` (``float64 array``) : derivative value of modal basis on the 2D simplex along r-direction
+		- ``dmodeds`` (``float64 array``) : derivative value of modal basis on the 2D simplex along s-direction
+
+	Example
+		>>> N = 2
+		>>> r, s = RefNodes_Tri(N)
+		>>> a, b = rs2ab(r,s)
+		>>> dmodedr, dmodeds = GradSimplex2DP(a,b,1,1)
+		>>> dmodedr
+		array([-2.12132034, -2.12132034, -2.12132034,  3.18198052,  3.18198052,  8.48528137])
+		>>> dmodeds
+		array([-6.36396103, -1.06066017,  4.24264069, -1.06066017,  4.24264069,  4.24264069])
+	"""
+	fa = nJacobiP(a, 0, 0, id)
+	dfa = DnJacobiP(a, 0, 0, id)
+	gb = nJacobiP(b, 2 * id + 1, 0, jd)
+	dgb = DnJacobiP(b, 2 * id + 1, 0, jd)
+
+	dmodedr = dfa * gb
+	if id > 0:
+		dmodedr = dmodedr * ((0.5 * (1 - b))**(id - 1))
+
+	dmodeds = dfa * (gb * (0.5 * (1 + a)))
+	if id > 0:
+		dmodeds = dmodeds * ((0.5 * (1 - b))**(id - 1))
+
+	tmp = dgb * ((0.5 * (1 - b))**id)
+
+	if id > 0:
+		tmp = tmp - 0.5 * id * gb * ((0.5 * (1 - b))**(id - 1))
+
+	dmodeds = dmodeds + fa * tmp
+	dmodedr = 2**(id + 0.5) * dmodedr
+	dmodeds = 2**(id + 0.5) * dmodeds
+	return (dmodedr, dmodeds)
