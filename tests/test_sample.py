@@ -96,6 +96,19 @@ class TestFemCommon(unittest.TestCase):
 		diff_Dr = Dr - np.array([[-0.5, 0.5], [-0.5, 0.5]])
 		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
 
+	def test_RefNodes_Tri(self):
+		from mozart.poisson.fem.common import RefNodes_Tri
+		N = 0
+		r0, s0 = RefNodes_Tri(N)
+		diff_r0 = r0 - np.array([-1.0/3])
+		diff_s0 = s0 - np.array([-1.0/3])
+		N = 3
+		r, s = RefNodes_Tri(N)
+		diff_r = r - np.array([-1, -1.0/3, 1.0/3, 1, -1, -1.0/3, 1.0/3, -1, -1.0/3, -1])
+		diff_s = s - np.array([-1, -1, -1, -1, -1.0/3, -1.0/3, -1.0/3, 1.0/3, 1.0/3, 1])
+		self.assertTrue(LA.norm(diff_r) < 1E-8)
+		self.assertTrue(LA.norm(diff_s) < 1E-8)
+
 class TestFemInterval(unittest.TestCase):
 	def test_1d_uniform_interval(self):
 		from mozart.mesh.rectangle import interval
