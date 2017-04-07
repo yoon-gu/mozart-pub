@@ -128,6 +128,20 @@ class TestFemCommon(unittest.TestCase):
 		diff_p = p - np.array([ 0.70710678, 0.70710678])
 		self.assertTrue(LA.norm(diff_p) < 1E-8)
 
+	def test_Vandermonde2D(self):
+		from mozart.poisson.fem.common import RefNodes_Tri
+		from mozart.poisson.fem.common import Vandermonde2D
+		N = 2
+		r, s = RefNodes_Tri(N)
+		V2D = Vandermonde2D(N,r,s)
+		diff_V2D = V2D - np.array([[ 0.707106781186548,  -1.000000000000000,   1.224744871391590,  -1.732050807568878,   2.121320343559643,   2.738612787525831],
+			[ 0.707106781186548,  -1.000000000000000,   1.224744871391590,                   0,                   0,  -1.369306393762915],
+			[ 0.707106781186548,  -1.000000000000000,   1.224744871391590,   1.732050807568878,  -2.121320343559643,   2.738612787525831],
+			[ 0.707106781186548,   0.500000000000000,  -0.612372435695795,  -0.866025403784439,  -1.590990257669732,   0.684653196881458],
+			[ 0.707106781186548,   0.500000000000000,  -0.612372435695795,   0.866025403784439,   1.590990257669732,   0.684653196881458],
+			[ 0.707106781186548,   2.000000000000001,   3.674234614174769,                   0,                   0,                   0]])
+		self.assertTrue(LA.norm(diff_V2D) < 1E-8)
+
 class TestFemInterval(unittest.TestCase):
 	def test_1d_uniform_interval(self):
 		from mozart.mesh.rectangle import interval
