@@ -327,3 +327,37 @@ def Simplex2DP(a,b,i,j):
 	h2 = nJacobiP(b,2*i+1,0,j)
 	P = np.sqrt(2.)*h1*h2*(1-b)**i
 	return P
+
+def Vandermonde2D(degree,r,s):
+	"""
+	Initialize the 2D Vandermonde Matrix, :math:`V_{i,j} = \\phi_j(r_i)`
+	
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+
+	Returns
+		- ``V2D`` (``float64 array``) : Vandermonde matrix in 2D
+
+	Example
+		>>> N = 2
+		>>> r, s = RefNodes_Tri(N)
+		>>> V2D = Vandermonde2D(N,r,s)
+		>>> V2D
+		array([[ 0.70710678, -1.        ,  1.22474487, -1.73205081,  2.12132034,  2.73861279],
+		   [ 0.70710678, -1.        ,  1.22474487,  0.        , -0.        , -1.36930639],
+		   [ 0.70710678, -1.        ,  1.22474487,  1.73205081, -2.12132034,  2.73861279],
+		   [ 0.70710678,  0.5       , -0.61237244, -0.8660254 , -1.59099026,  0.6846532 ],
+		   [ 0.70710678,  0.5       , -0.61237244,  0.8660254 ,  1.59099026,  0.6846532 ],
+		   [ 0.70710678,  2.        ,  3.67423461, -0.        , -0.        ,  0.        ]])
+	"""
+	V2D = np.zeros((r.size, int((degree+1) * (degree+2) / 2)), float)
+	a, b = rs2ab(r, s)
+
+	sk = 0
+	for i in range(0, degree + 1):
+		for j in range(0, degree + 1 - i):
+			V2D[:, sk] = Simplex2DP(a,b,i,j)
+			sk = sk + 1
+	return V2D
