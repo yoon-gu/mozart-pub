@@ -28,7 +28,7 @@ resuming unindented text.
 """
 __author__ = ("Yoon-gu Hwang <yz0624@gmail.com>", 
 	"Dong-Wook Shin <dwshin.yonsei@gmail.com>", 
-	"Ji-Yeon Suh <suh91919@gmail.com>")
+	)
 
 # __all__ = ["greeting", "sample"]
 # from .poisson import *
