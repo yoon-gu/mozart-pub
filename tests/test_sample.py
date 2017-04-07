@@ -120,6 +120,14 @@ class TestFemCommon(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_a) < 1E-8)
 		self.assertTrue(LA.norm(diff_b) < 1E-8)
 
+	def test_Simplex2DP(self):
+		from mozart.poisson.fem.common import Simplex2DP
+		a = np.array([0,1])
+		b = np.array([2,3])
+		p = Simplex2DP(a,b,0,0)
+		diff_p = p - np.array([ 0.70710678, 0.70710678])
+		self.assertTrue(LA.norm(diff_p) < 1E-8)
+
 class TestFemInterval(unittest.TestCase):
 	def test_1d_uniform_interval(self):
 		from mozart.mesh.rectangle import interval
