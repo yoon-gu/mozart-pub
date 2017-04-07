@@ -352,7 +352,7 @@ def Vandermonde2D(degree,r,s):
 		   [ 0.70710678,  0.5       , -0.61237244,  0.8660254 ,  1.59099026,  0.6846532 ],
 		   [ 0.70710678,  2.        ,  3.67423461, -0.        , -0.        ,  0.        ]])
 	"""
-	V2D = np.zeros((r.size, int((degree+1) * (degree+2) / 2)), float)
+	V2D = np.zeros((r.size, int((degree+1) * (degree+2) / 2)), dtype = np.float64)
 	a, b = rs2ab(r, s)
 
 	sk = 0
@@ -408,3 +408,48 @@ def GradSimplex2DP(a,b,id,jd):
 	dmodedr = 2**(id + 0.5) * dmodedr
 	dmodeds = 2**(id + 0.5) * dmodeds
 	return (dmodedr, dmodeds)
+
+def GradVandermonde2D(degree,r,s):
+	"""
+	Initialize the gradient of the modal basis (i,j) at (r,s) at order N
+	
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+
+	Returns
+		- ``V2Dr`` (``float64 array``) : Gradient of Vandermonde matrix on the 2D simplex along r-direction
+		- ``V2Ds`` (``float64 array``) : Gradient of Vandermonde matrix on the 2D simplex along s-direction
+
+	Example
+		>>> N = 2
+		>>> r, s = RefNodes_Tri(N)
+		>>> V2Dr, V2Ds = GradVandermonde2D(degree,r,s)
+		>>> V2Dr
+		array([[ 0.        , -0.        ,  0.        ,  1.73205081, -2.12132034, -8.21583836],
+		   [ 0.        , -0.        ,  0.        ,  1.73205081, -2.12132034,  0.        ],
+		   [ 0.        , -0.        ,  0.        ,  1.73205081, -2.12132034,  8.21583836],
+		   [ 0.        ,  0.        , -0.        ,  1.73205081,  3.18198052, -4.10791918],
+		   [ 0.        ,  0.        , -0.        ,  1.73205081,  3.18198052,  4.10791918],
+		   [ 0.        ,  0.        ,  0.        ,  1.73205081,  8.48528137, -0.        ]])
+		>>> V2Ds
+		array([[ 0.        ,  1.5       , -4.89897949,  0.8660254 , -6.36396103, -2.73861279],
+		   [ 0.        ,  1.5       , -4.89897949,  0.8660254 , -1.06066017,  1.36930639],
+		   [ 0.        ,  1.5       , -4.89897949,  0.8660254 ,  4.24264069,  5.47722558],
+		   [ 0.        ,  1.5       ,  1.22474487,  0.8660254 , -1.06066017, -1.36930639],
+		   [ 0.        ,  1.5       ,  1.22474487,  0.8660254 ,  4.24264069,  2.73861279],
+		   [ 0.        ,  1.5       ,  7.34846923,  0.8660254 ,  4.24264069,  0.        ]])
+	"""
+	V2Dr = np.zeros((r.size, int((degree+1)*(degree+2)/2)), dtype = np.float64)
+	V2Ds = np.zeros((r.size, int((degree+1)*(degree+2)/2)), dtype = np.float64)
+
+	a, b = rs2ab(r,s)
+
+	sk = 0
+	for i in range(0,degree+1):
+		for j in range(0,degree+1-i):
+			V2Dr[:,sk], V2Ds[:,sk] = GradSimplex2DP(a,b,i,j)
+			sk += 1
+
+	return (V2Dr, V2Ds)
