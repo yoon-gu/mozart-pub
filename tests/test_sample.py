@@ -272,6 +272,26 @@ class TestFemInterval(unittest.TestCase):
 		self.assertTrue(np.abs(rateL2[-1]) > N+0.9)
 		self.assertTrue(np.abs(rateH1[-1]) > N-0.1)
 
+class TestFemTriangle(unittest.TestCase):
+	def test_getMatrix2D(self):
+		from mozart.poisson.fem.triangle import getMatrix
+		N = 1
+		M_R, Srr_R, Srs_R, Ssr_R, Sss_R, Dr_R, Ds_R = getMatrix(N)
+		diff_M = M_R - np.array([[1.0/3, 1.0/6, 1.0/6,], [1.0/6, 1.0/3, 1.0/6], [1.0/6, 1.0/6, 1.0/3]], dtype = np.float64)
+		diff_Srr = Srr_R - np.array([[1.0/2, -1.0/2, 0.0], [-1.0/2, 1.0/2, 0.0], [0.0, 0.0, 0.0]], dtype = np.float64)
+		diff_Srs = Srs_R - np.array([[1.0/2, 0.0, -1.0/2], [-1.0/2, 0.0, 1.0/2], [0.0, 0.0, 0.0]], dtype = np.float64)
+		diff_Ssr = Ssr_R - np.array([[1.0/2, -1.0/2, 0.0], [0.0, 0.0, 0.0], [-1.0/2, 1.0/2, 0.0]], dtype = np.float64)
+		diff_Sss = Sss_R - np.array([[1.0/2, 0.0, -1.0/2], [0.0, 0.0, 0.0], [-1.0/2, 0.0, 1.0/2]], dtype = np.float64)
+		diff_Dr = Dr_R - np.array([[-1.0/2, 1.0/2, 0.0], [-1.0/2, 1.0/2, 0.0], [-1.0/2, 1.0/2, 0.0]], dtype = np.float64)
+		diff_Ds = Ds_R - np.array([[-1.0/2, 0.0, 1.0/2], [-1.0/2, 0.0, 1.0/2], [-1.0/2, 0.0, 1.0/2]], dtype = np.float64)
+		self.assertTrue(LA.norm(diff_M) < 1E-8)
+		self.assertTrue(LA.norm(diff_Srr) < 1E-8)
+		self.assertTrue(LA.norm(diff_Srs) < 1E-8)
+		self.assertTrue(LA.norm(diff_Ssr) < 1E-8)
+		self.assertTrue(LA.norm(diff_Sss) < 1E-8)
+		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
+		self.assertTrue(LA.norm(diff_Ds) < 1E-8)
+
 class TestTecplot(unittest.TestCase):
 	def test_tecplot_triangle(self):
 		from mozart.common.etc import tecplot_triangle
