@@ -453,3 +453,44 @@ def GradVandermonde2D(degree,r,s):
 			sk += 1
 
 	return (V2Dr, V2Ds)
+
+def Dmatrices2D(degree,r,s,V):
+	"""
+	Initialize the (r,s) differentiation matrices on the simplex, evaluated at (r,s) at order N
+	
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+		- ``V`` (``float64 array``) : Vandermonde matrix in 2D
+
+	Returns
+		- ``Dr`` (``float64 array``) : differentiation matrix along r-direction
+		- ``Ds`` (``float64 array``) : differentiation matrix along s-direction
+
+	Example
+		>>> N = 2
+		>>> r, s = RefNodes_Tri(N)
+		>>> V = Vandermonde2D(N,r,s)
+		>>> Dr, Ds = Dmatrices2D(N,r,s,V)
+		>>> Dr
+		array([[-1.5,  2. , -0.5,  0. ,  0. ,  0. ],
+		   [-0.5,  0. ,  0.5,  0. ,  0. ,  0. ],
+		   [ 0.5, -2. ,  1.5,  0. ,  0. ,  0. ],
+		   [-0.5,  1. , -0.5, -1. ,  1. ,  0. ],
+		   [ 0.5, -1. ,  0.5, -1. ,  1. ,  0. ],
+		   [ 0.5,  0. , -0.5, -2. ,  2. ,  0. ]])
+		>>> Ds
+		array([[ -1.50000000e+00,   2.22044605e-16,   2.22044605e-16,   2.00000000e+00,  -4.44089210e-16,  -5.00000000e-01],
+		   [ -5.00000000e-01,  -1.00000000e+00,   2.77555756e-17,   1.00000000e+00,   1.00000000e+00,  -5.00000000e-01],
+		   [  5.00000000e-01,  -2.00000000e+00,  -2.22044605e-16,  -3.99042031e-16,   2.00000000e+00,  -5.00000000e-01],
+		   [ -5.00000000e-01,   1.38777878e-16,   1.38777878e-16,   4.42493564e-17,  -2.22044605e-16,   5.00000000e-01],
+		   [  5.00000000e-01,  -1.00000000e+00,   1.38777878e-17,  -1.00000000e+00,   1.00000000e+00,   5.00000000e-01],
+		   [  5.00000000e-01,   1.11022302e-16,   1.66533454e-16,  -2.00000000e+00,   0.00000000e+00,   1.50000000e+00]])
+	"""
+	Vr, Vs = GradVandermonde2D(degree, r, s)
+	invV = np.linalg.inv(V)
+	Dr = np.matmul(Vr,invV)
+	Ds = np.matmul(Vs,invV)
+
+	return (Dr, Ds)
