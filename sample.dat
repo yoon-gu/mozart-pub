@@ -1,0 +1,8 @@
+TITLE = "2D Finite Element Triangulation Plot"
+VARIABLES = "X", "Y", "U"
+ZONE T="P_1", DATAPACKING=POINT, NODES=3, ELEMENTS=1, ZONETYPE=FETRIANGLE
+0.0 0.0 10
+1.0 0.0 20
+0.0 1.0 30
+
+1 2 3
