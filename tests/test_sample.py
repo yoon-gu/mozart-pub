@@ -292,6 +292,14 @@ class TestFemTriangle(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_Dr) < 1E-8)
 		self.assertTrue(LA.norm(diff_Ds) < 1E-8)
 
+	def test_compute_n4s(self):
+		from mozart.poisson.fem.triangle import compute_n4s
+		n4e = np.array([[1, 3, 0], [3, 1, 4], [2, 4, 1], [4, 2, 5], [4, 6, 3], [6, 4, 7], [5, 7, 4], [7, 5, 8]])
+		n4s = compute_n4s(n4e)
+		diff_n4s = n4s - np.array([[1, 3], [2, 4], [4, 6], [5, 7], [3, 0], [1, 4], [2, 5],
+			[6, 3], [4, 7], [5, 8], [0, 1], [4, 3], [1, 2], [5, 4], [7, 6], [8, 7]])
+		self.assertTrue(LA.norm(diff_n4s) < 1E-8)
+
 class TestTecplot(unittest.TestCase):
 	def test_tecplot_triangle(self):
 		from mozart.common.etc import tecplot_triangle
