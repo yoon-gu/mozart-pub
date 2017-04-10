@@ -24,6 +24,38 @@ def getMatrix(degree):
 		- ``Sss_R`` (``float64 array``) : Stiffness matrix on the reference triangle (int_T \partial_s phi_i \partial_s phi_j dr)
 		- ``Dr_R`` (``float64 array``) : Differentiation matrix along r-direction
 		- ``Ds_R`` (``float64 array``) : Differentiation matrix along s-direction
+
+	Example
+		>>> N = 1
+		>>> M_R, Srr_R, Srs_R, Ssr_R, Sss_R, Dr_R, Ds_R = getMatrix(N)
+		>>> M_R
+		array([[ 0.33333333,  0.16666667,  0.16666667],
+		   [ 0.16666667,  0.33333333,  0.16666667],
+		   [ 0.16666667,  0.16666667,  0.33333333]])
+		>>> Srr_R
+		array([[ 0.5, -0.5,  0. ],
+		   [-0.5,  0.5,  0. ],
+		   [ 0. ,  0. ,  0. ]])
+		>>> Srs_R
+		array([[  5.00000000e-01,  -9.80781986e-17,  -5.00000000e-01],
+		   [ -5.00000000e-01,   9.80781986e-17,   5.00000000e-01],
+		   [  0.00000000e+00,   0.00000000e+00,   0.00000000e+00]])
+		>>> Ssr_R
+		array([[  5.00000000e-01,  -5.00000000e-01,   0.00000000e+00],
+		   [ -9.80781986e-17,   9.80781986e-17,   0.00000000e+00],
+		   [ -5.00000000e-01,   5.00000000e-01,   0.00000000e+00]])
+		>>> Sss_R
+		array([[  5.00000000e-01,  -9.80781986e-17,  -5.00000000e-01],
+		   [ -9.80781986e-17,   1.92386661e-32,   9.80781986e-17],
+		   [ -5.00000000e-01,   9.80781986e-17,   5.00000000e-01]])
+		>>> Dr_R
+		array([[-0.5,  0.5,  0. ],
+		   [-0.5,  0.5,  0. ],
+		   [-0.5,  0.5,  0. ]])
+		>>> Ds_R
+		array([[ -5.00000000e-01,   9.80781986e-17,   5.00000000e-01],
+		   [ -5.00000000e-01,   9.80781986e-17,   5.00000000e-01],
+		   [ -5.00000000e-01,   9.80781986e-17,   5.00000000e-01]])
 	"""
 
 	r, s = RefNodes_Tri(degree)
@@ -36,6 +68,34 @@ def getMatrix(degree):
 	Ssr_R = np.dot(np.dot(np.transpose(Ds_R),M_R),Dr_R)
 	Sss_R = np.dot(np.dot(np.transpose(Ds_R),M_R),Ds_R)
 	return (M_R, Srr_R, Srs_R, Ssr_R, Sss_R, Dr_R, Ds_R)
+
+def compute_n4s(n4e):
+	"""
+	Get a matrix whose each row contains end points of corresponding side (or edge)
+
+	Paramters
+		- ``n4e`` (``int32 array``) : nodes for elements
+
+	Returns
+		- ``n4s`` (``int32 array``) : nodes for sides
+
+	Example
+		>>> n4e = np.array([[1, 3, 0], [3, 1, 2]])
+		>>> n4s = compute_n4s(n4e)
+		>>> n4s
+		array([[1, 3],
+		   [3, 0],
+		   [1, 2],
+		   [0, 1],
+		   [2, 3]])
+	"""
+	allSides = np.vstack((np.vstack((n4e[:,[0,1]], n4e[:,[1,2]])),n4e[:,[2,0]]))
+	tmp=np.sort(allSides)
+	x, y = tmp.T
+	_, ind = np.unique(x + y*1.0j, return_index=True)
+	n4sInd = np.sort(ind)
+	n4s = allSides[n4sInd,:]
+	return n4s
 
 def sample():
 	from os import listdir
