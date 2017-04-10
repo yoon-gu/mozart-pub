@@ -124,6 +124,46 @@ def compute_s4e(n4e):
 	s4e = sideNr[back].reshape(3,-1).transpose().astype('int')
 	return s4e
 
+def compute_e4s(n4e):
+	"""
+	Get a matrix whose each row contains two elements sharing the corresponding side
+	If second column is -1, the corresponding side is on the boundary
+
+	Paramters
+		- ``n4e`` (``int32 array``) : nodes for elements
+
+	Returns
+		- ``e4s`` (``int32 array``) : elements for sides
+
+	Example
+		>>> n4e = np.array([[1, 3, 0], [3, 1, 2]])
+		>>> e4s = compute_e4s(n4e)
+		>>> e4s
+		array([[ 0,  1],
+		   [ 0, -1],
+		   [ 1, -1],
+		   [ 0, -1],
+		   [ 1, -1]])
+	"""
+	allSides = np.vstack((np.vstack((n4e[:,[0,1]], n4e[:,[1,2]])),n4e[:,[2,0]]))
+	tmp=np.sort(allSides)
+	x, y = tmp.T
+	_, ind, back = np.unique(x + y*1.0j, return_index=True, return_inverse=True)
+	n4sInd = np.sort(ind)
+
+	nrElems = n4e.shape[0]
+	elemNumbers = np.hstack((np.hstack((np.arange(0,nrElems),np.arange(0,nrElems))),np.arange(0,nrElems)))
+
+	e4s=np.zeros((ind.size,2),int)
+	e4s[:,0]=elemNumbers[n4sInd] + 1
+
+	allElems4s=np.zeros(allSides.shape[0],int)
+	tmp2 = np.bincount((back + 1),weights = (elemNumbers + 1))
+	allElems4s[ind]=tmp2[1::]
+	e4s[:,1] = allElems4s[n4sInd] - e4s[:,0]
+	e4s=e4s-1
+	return e4s
+
 def sample():
 	from os import listdir
 	from scipy.sparse import coo_matrix
