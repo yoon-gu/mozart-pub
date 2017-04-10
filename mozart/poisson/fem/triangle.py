@@ -71,7 +71,7 @@ def getMatrix(degree):
 
 def compute_n4s(n4e):
 	"""
-	Get a matrix whose each row contains end points of corresponding side (or edge)
+	Get a matrix whose each row contains end points of the corresponding side (or edge)
 
 	Paramters
 		- ``n4e`` (``int32 array``) : nodes for elements
@@ -96,6 +96,31 @@ def compute_n4s(n4e):
 	n4sInd = np.sort(ind)
 	n4s = allSides[n4sInd,:]
 	return n4s
+
+def compute_s4e(n4e):
+	"""
+	Get a matrix whose each row contains three side numbers of the corresponding element
+
+	Paramters
+		- ``n4e`` (``int32 array``) : nodes for elements
+
+	Returns
+		- ``s4e`` (``int32 array``) : sides for elements
+
+	Example
+		>>> n4e = np.array([[1, 3, 0], [3, 1, 2]])
+		>>> s4e = compute_s4e(n4e)
+		>>> s4e
+		array([[0, 1, 3],
+		   [0, 2, 4]])
+	"""
+	allSides = np.vstack((np.vstack((n4e[:,[0,1]], n4e[:,[1,2]])),n4e[:,[2,0]]))
+	tmp=np.sort(allSides)
+	x, y = tmp.T
+	_, ind, back = np.unique(x + y*1.0j, return_index=True, return_inverse=True)
+	sortInd = ind.argsort()
+	s4e = sortInd[back].reshape(-1,2).transpose().astype('int')
+	return s4e
 
 def sample():
 	from os import listdir
