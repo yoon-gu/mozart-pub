@@ -22,9 +22,6 @@ def getMatrix(degree):
 		- ``Sss_R`` (``float64 array``) : Stiffness matrix w.r.t. ss on the reference domain
 		- ``Dr_R`` (``float64 array``) : Differentiation matrix w.r.t. r on the reference domain  
 		- ``Ds_R`` (``float64 array``) : Differentiation matrix w.r.t. s on the reference domain
-	
-	Example
-		>>>
 	"""
 
 	r = np.linspace(-1, 1, degree+1)
