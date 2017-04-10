@@ -374,3 +374,18 @@ class TestFemRectangle(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
 		self.assertTrue(LA.norm(diff_n4db) < 1E-8)
 		self.assertTrue(LA.norm(diff_ind4e) < 1E-8)
+
+	def test_getPoissonMatrix2D(self):
+		from mozart.poisson.fem.rectangle import getMatrix
+		M_R, Srr_R, Sss_R, Dr_R, Ds_R = getMatrix(1)
+		diff_M_R = M_R - np.array([[4, 2, 2, 1],[2, 4, 1, 2],[2, 1, 4, 2],[1, 2 ,2 ,4]]) / 9.
+		diff_Srr_R = Srr_R - np.array([[2, -2 ,1 ,-1],[-2 ,2 ,-1, 1],[1 ,-1 ,2 ,-2],[-1, 1, -2 ,2]]) / 6.
+		diff_Sss_R = Sss_R - np.array([[2 ,1, -2 ,-1],[1 ,2, -1 ,-2],[-2 ,-1, 2, 1],[-1, -2 ,1 ,2]]) / 6.
+		diff_Dr_R = Dr_R - np.array([[-1, 1, 0, 0],[-1, 1, 0, 0],[0 ,0 ,-1, 1],[0, 0, -1 ,1]]) / 2.
+		diff_Ds_R = Ds_R - np.array([[-1, 0, 1, 0],[0 ,-1, 0, 1],[-1, 0, 1, 0],[0, -1 ,0 ,1]]) / 2.
+		
+		self.assertTrue(LA.norm(diff_M_R) < 1E-8)
+		self.assertTrue(LA.norm(diff_Srr_R) < 1E-8)
+		self.assertTrue(LA.norm(diff_Sss_R) < 1E-8)
+		self.assertTrue(LA.norm(diff_Dr_R) < 1E-8)
+		self.assertTrue(LA.norm(diff_Ds_R) < 1E-8)
