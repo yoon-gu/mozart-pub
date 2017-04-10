@@ -119,7 +119,9 @@ def compute_s4e(n4e):
 	x, y = tmp.T
 	_, ind, back = np.unique(x + y*1.0j, return_index=True, return_inverse=True)
 	sortInd = ind.argsort()
-	s4e = sortInd[back].reshape(-1,2).transpose().astype('int')
+	sideNr = np.zeros(ind.size, dtype = int)
+	sideNr[sortInd] = np.arange(0,ind.size)
+	s4e = sideNr[back].reshape(3,-1).transpose().astype('int')
 	return s4e
 
 def sample():
