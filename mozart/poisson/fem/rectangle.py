@@ -9,6 +9,69 @@ lib = CDLL(dllpath)
 
 from mozart.poisson.fem.common import nJacobiP, DnJacobiP
 
+def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
+	"""
+	Computes the coordinates of nodes and elements.
+	
+	Parameters
+		- ``c4n`` (``float64 array``) : coordinates for nodes
+		- ``ind4e`` (``int32 array``) : indices for elements 
+		- ``n4e`` (``int32 array``) : nodes for elements
+		- ``n4Db`` (``int32 array``) : nodes for Dirichlet boundary		
+		- ``f`` (``lambda``) : source term 
+		- ``u_D`` (``lambda``) : Dirichlet boundary condition
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``x`` (``float64 array``) : solution
+
+	Example
+	"""
+
+	M_R, Srr_R, Sss_R, Dr_R, Ds_R = getMatrix(degree)
+	fval = f(c4n[ind4e,0],c4n[ind4e,1]).flatten()
+	nrNodes = int(c4n.shape[0])
+	nrElems = int(n4e.shape[0])
+	nrLocal = int(M_R.shape[0])
+
+	I = np.zeros((nrElems * nrLocal * nrLocal), dtype = np.int32)
+	J = np.zeros((nrElems * nrLocal * nrLocal), dtype = np.int32)
+	
+	Alocal = np.zeros((nrElems * nrLocal * nrLocal), dtype = np.float64)
+	b = np.zeros(nrNodes)
+	Poisson_2D_Rectangle = lib['Poisson_2D_Rectangle']
+	Poisson_2D_Rectangle.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
+	                    		  	 c_void_p, c_void_p, c_void_p, c_int,
+	                    			 c_void_p, c_void_p, c_void_p, c_void_p, c_void_p,)
+	print(n4e)
+	print(ind4e)
+	Poisson_2D_Rectangle.restype = None
+	Poisson_2D_Rectangle(c_void_p(n4e.ctypes.data), 
+						 c_void_p(ind4e.ctypes.data),
+					     c_void_p(c4n.ctypes.data), 
+					     c_int(nrElems),
+					     c_void_p(M_R.ctypes.data),
+					     c_void_p(Srr_R.ctypes.data),
+					     c_void_p(Sss_R.ctypes.data),
+					     c_int(nrLocal),
+					     c_void_p(fval.ctypes.data),
+					     c_void_p(I.ctypes.data),
+					     c_void_p(J.ctypes.data),
+					     c_void_p(Alocal.ctypes.data),
+					     c_void_p(b.ctypes.data))
+
+	from scipy.sparse import coo_matrix
+	from scipy.sparse.linalg import spsolve
+	STIMA_COO = coo_matrix((Alocal, (I, J)), shape = (nrNodes, nrNodes))
+	STIMA_CSR = STIMA_COO.tocsr()
+
+	dof = np.setdiff1d(range(0,nrNodes), n4Db)
+
+	x = np.zeros(nrNodes)
+	x[dof] = spsolve(STIMA_CSR[dof,:].tocsc()[:, dof].tocsr(), b[dof])
+	return x
+
+
 def getMatrix(degree):
 	"""
 	Get FEM matrices on the reference domain I = [-1, 1]x[-1, 1]

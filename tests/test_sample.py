@@ -389,3 +389,19 @@ class TestFemRectangle(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_Sss_R) < 1E-8)
 		self.assertTrue(LA.norm(diff_Dr_R) < 1E-8)
 		self.assertTrue(LA.norm(diff_Ds_R) < 1E-8)
+
+	def test_solve(self):
+		from mozart.mesh.rectangle import rectangle
+		x1, x2, y1, y2, Mx, My, N = (0, 1, 0, 1, 4, 4, 1)
+		c4n, ind4e, n4e, n4Db = rectangle(x1,x2,y1,y2,Mx,My,N)
+		f = lambda x,y: 2.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)
+		u_D = lambda x,y: 0*x
+		from mozart.poisson.fem.rectangle import solve
+		x = solve(c4n, ind4e, n4e, n4Db, f, u_D, N)
+		diff_x = x - np.array([0,                   0,                   0,                   0,                   0,
+                   			   0,   0.475110454183750,   0.671907647931901,   0.475110454183750,                   0,
+                               0,   0.671907647931901,   0.950220908367501,   0.671907647931901,       			   0,                   
+                               0,   0.475110454183750,   0.671907647931901,   0.475110454183750,                   0,
+			                   0,                   0,                   0,                   0,                   0])
+
+		self.assertTrue(LA.norm(diff_x) < 1E-8)
