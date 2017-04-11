@@ -566,3 +566,25 @@ class TestFemCube(unittest.TestCase):
    							   0.593564453933756, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
 		self.assertTrue(LA.norm(diff_x) < 1E-8)	
+
+	def test_computeError(self):
+		from mozart.mesh.rectangle import cube
+		from mozart.poisson.fem.cube import solve
+		from mozart.poisson.fem.cube import computeError
+		degree = 1
+		iter = 4
+		f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
+		u_D = lambda x,y,z: 0*x
+		exact_u = lambda x,y,z: np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
+		exact_ux = lambda x,y,z: np.pi*np.cos(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
+		exact_uy = lambda x,y,z: np.pi*np.sin(np.pi*x)*np.cos(np.pi*y)*np.sin(np.pi*z)
+		exact_uz = lambda x,y,z: np.pi*np.sin(np.pi*x)*np.sin(np.pi*y)*np.cos(np.pi*z)
+		sH1error = np.zeros(iter, dtype = np.float64)
+		h = np.zeros(iter, dtype = np.float64)
+		for j in range(0,iter):
+			c4n, ind4e, n4e, n4Db = cube(0,1,0,1,0,1,2**(j+1),2**(j+1),2**(j+1),degree)
+			x = solve(c4n, ind4e, n4e, n4Db, f, u_D, 1)
+			sH1error[j] = computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, exact_uz, x, degree, degree+3)
+			h[j] = 1 / 2.0**(j+1)
+		rateH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
+		self.assertTrue(np.abs(rateH1[-1]) > degree-0.1)
