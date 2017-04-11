@@ -392,11 +392,11 @@ class TestFemRectangle(unittest.TestCase):
 
 	def test_solve(self):
 		from mozart.mesh.rectangle import rectangle
+		from mozart.poisson.fem.rectangle import solve
 		x1, x2, y1, y2, Mx, My, N = (0, 1, 0, 1, 4, 4, 1)
 		c4n, ind4e, n4e, n4Db = rectangle(x1,x2,y1,y2,Mx,My,N)
 		f = lambda x,y: 2.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)
-		u_D = lambda x,y: 0*x
-		from mozart.poisson.fem.rectangle import solve
+		u_D = lambda x,y: 0*x		
 		x = solve(c4n, ind4e, n4e, n4Db, f, u_D, N)
 		diff_x = x - np.array([0,                   0,                   0,                   0,                   0,
                    			   0,   0.475110454183750,   0.671907647931901,   0.475110454183750,                   0,
@@ -405,3 +405,24 @@ class TestFemRectangle(unittest.TestCase):
 			                   0,                   0,                   0,                   0,                   0])
 
 		self.assertTrue(LA.norm(diff_x) < 1E-8)
+
+	def test_computeError(self):
+		from mozart.mesh.rectangle import rectangle
+		from mozart.poisson.fem.rectangle import solve
+		from mozart.poisson.fem.rectangle import computeError
+		degree = 1
+		iter = 4
+		f = lambda x,y: 2.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)
+		u_D = lambda x,y: 0*x
+		exact_u = lambda x,y: np.sin(np.pi*x)*np.sin(np.pi*y)
+		exact_ux = lambda x,y: np.pi*np.cos(np.pi*x)*np.sin(np.pi*y)
+		exact_uy = lambda x,y: np.pi*np.sin(np.pi*x)*np.cos(np.pi*y)
+		sH1error = np.zeros(iter, dtype = np.float64)
+		h = np.zeros(iter, dtype = np.float64)
+		for j in range(0,iter):
+			c4n, ind4e, n4e, n4Db = rectangle(0,1,0,1,2**(j+1),2**(j+1),degree)
+			x = solve(c4n, ind4e, n4e, n4Db, f, u_D, 1)
+			sH1error[j] = computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, x, degree, degree+3)
+			h[j] = 1 / 2.0**(j+1)
+		rateH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
+		self.assertTrue(np.abs(rateH1[-1]) > degree-0.1)

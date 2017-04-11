@@ -86,6 +86,70 @@ def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	x[dof] = spsolve(STIMA_CSR[dof,:].tocsc()[:, dof].tocsr(), b[dof])
 	return x
 
+def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, approx_u, degree, degree_i):
+	"""
+	Compute semi H^1-error between exact solution and approximate solution.
+
+	Parameters
+		- ``c4n`` (``float64 array``) : coordinates for nodes
+		- ``ind4e`` (``int32 array``) : indices for elements
+		- ``n4e`` (``int32 array``) : nodes for elements		
+		- ``exact_u`` (``lambda``) : exact solution
+		- ``exact_ux`` (``lambda``) : derivative of exact solution 
+		- ``exact_uy`` (``lambda``) : derivative of exact solution 
+		- ``approx_u`` (``float64 array``) : approximate solution
+		- ``degree`` (``int32``) : polynomial degree
+		- ``degree_i`` (``int32``) : polynomial degree for interpolation
+
+	Returns
+		- ``sH1error`` (``float64``) : semi H^1 error between exact solution and approximate solution.
+
+	Example
+		>>> from mozart.mesh.rectangle import rectangle 
+		>>> c4n, ind4e, n4e, n4Db = rectangle(0,1,0,1,4,4,1)
+		>>> f = lambda x,y: 2.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)
+		>>> u_D = lambda x,y: 0*x
+		>>> from mozart.poisson.fem.rectangle import solve
+		>>> x = solve(c4n, ind4e, n4e, n4Db, f, u_D, 1)
+		>>> from mozart.poisson.fem.rectangle import computeError
+		>>> exact_u = lambda x,y: np.sin(np.pi*x)*np.sin(np.pi*y)
+		>>> exact_ux = lambda x,y: np.pi*np.cos(np.pi*x)*np.sin(np.pi*y)
+		>>> exact_uy = lambda x,y: np.pi*np.sin(np.pi*x)*np.cos(np.pi*y)
+		>>> sH1error = computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, approx_u, 1, 3)
+		>>> sH1error
+		0.466257369082
+	"""
+	# L2error = 0
+	sH1error = 0
+
+	M_R, Srr_R, Sss_R, Dr_R, Ds_R = getMatrix(degree)
+
+	# r = np.linspace(-1, 1, degree + 1)
+	# V = VandermondeM1D(degree, r)
+	# Dr = Dmatrix1D(degree, r, V)
+
+	# r_i = np.linspace(-1, 1, degree_i + 1)
+	# V_i = VandermondeM1D(degree_i, r_i)
+	# invV_i = np.linalg.inv(V_i)
+	# M_R = np.dot(np.transpose(invV_i), invV_i)
+	# PM = VandermondeM1D(degree, r_i)
+	# interpM = np.transpose(np.linalg.solve(np.transpose(V), np.transpose(PM)))
+
+
+	for j in range(0,n4e.shape[0]):
+		xr = (c4n[n4e[j,1],0] - c4n[n4e[j,0],0])/2.0
+		ys = (c4n[n4e[j,3],1] - c4n[n4e[j,0],1])/2.0
+		Jacobi = xr*ys
+		rx = ys/Jacobi
+		sy = xr/Jacobi
+
+		Dex = exact_ux(c4n[ind4e[j],0],c4n[ind4e[j],1]) - rx*np.dot(Dr_R,approx_u[ind4e[j]])
+		Dey = exact_uy(c4n[ind4e[j],0],c4n[ind4e[j],1]) - sy*np.dot(Ds_R,approx_u[ind4e[j]])
+		sH1error += Jacobi*(np.dot(np.dot(np.transpose(Dex),M_R),Dex) + np.dot(np.dot(np.transpose(Dey),M_R),Dey))
+
+	sH1error = np.sqrt(sH1error)
+
+	return sH1error
 
 def getMatrix(degree):
 	"""
