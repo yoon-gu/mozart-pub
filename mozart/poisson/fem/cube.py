@@ -10,7 +10,7 @@ lib = CDLL(dllpath)
 from mozart.poisson.fem.common import nJacobiP, DnJacobiP, VandermondeM1D, Dmatrix1D
 
 def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
-	M_R, Srr_R, Sss_R, Stt_R = getMatrix(degree)
+	M_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(degree)
 	fval = f(c4n[ind4e,0], c4n[ind4e,1], c4n[ind4e,2]).flatten()
 	nrNodes = int(c4n.shape[0])
 	nrElems = int(n4e.shape[0])
