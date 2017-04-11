@@ -549,4 +549,20 @@ class TestFemCube(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_Stt_R) < 1E-8)
 		self.assertTrue(LA.norm(diff_Dr_R) < 1E-8)
 		self.assertTrue(LA.norm(diff_Ds_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Dt_R) < 1E-8)		
+		self.assertTrue(LA.norm(diff_Dt_R) < 1E-8)	
+
+	def test_solve(self):
+		from mozart.mesh.rectangle import cube
+		from mozart.poisson.fem.cube import solve
+		x1, x2, y1, y2, z1, z2, Mx, My, Mz, N = (0, 1, 0, 1, 0, 1, 3, 3, 3, 1)
+		c4n, ind4e, n4e, n4Db = cube(x1,x2,y1,y2,z1,z2,Mx,My,Mz,N)
+		f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
+		u_D = lambda x,y,z: 0*x	
+		x = solve(c4n, ind4e, n4e, n4Db, f, u_D, N)
+		diff_x = x - np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+   							   0.593564453933756, 0.593564453933756, 0, 0, 0.593564453933756,
+							   0.593564453933756, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
+							   0.593564453933756, 0.593564453933756, 0, 0, 0.593564453933756,
+   							   0.593564453933756, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
+
+		self.assertTrue(LA.norm(diff_x) < 1E-8)	

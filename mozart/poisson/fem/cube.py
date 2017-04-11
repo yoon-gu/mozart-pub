@@ -10,6 +10,35 @@ lib = CDLL(dllpath)
 from mozart.poisson.fem.common import nJacobiP, DnJacobiP, VandermondeM1D, Dmatrix1D
 
 def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
+	"""
+	Computes the coordinates of nodes and elements.
+	
+	Parameters
+		- ``c4n`` (``float64 array``) : coordinates for nodes
+		- ``ind4e`` (``int32 array``) : indices for elements 
+		- ``n4e`` (``int32 array``) : nodes for elements
+		- ``n4Db`` (``int32 array``) : nodes for Dirichlet boundary		
+		- ``f`` (``lambda``) : source term 
+		- ``u_D`` (``lambda``) : Dirichlet boundary condition
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``x`` (``float64 array``) : solution
+
+	Example
+		>>> from mozart.mesh.rectangle import cube 
+		>>> c4n, ind4e, n4e, n4Db = cube(0,1,0,1,0,1,2,2,2,1)
+		>>> f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
+		>>> u_D = lambda x,y,z: 0*x
+		>>> from mozart.poisson.fem.cube import solve
+		>>> x = solve(c4n, ind4e, n4e, n4Db, f, u_D, 1)
+		>>> x
+		array([ 0.          0.          0.          0.          0.          0.          
+		        0.			0.          0.          0.          0.          0.          
+		        0.			0.82246703  0.          0.          0.          0.          
+		        0.          0.		    0.          0.          0.          0.          
+		        0.          0.          0.        ])
+	"""
 	M_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(degree)
 	fval = f(c4n[ind4e,0], c4n[ind4e,1], c4n[ind4e,2]).flatten()
 	nrNodes = int(c4n.shape[0])
@@ -56,7 +85,6 @@ def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	x = np.zeros(nrNodes)
 	x[dof] = spsolve(STIMA_CSR[dof,:].tocsc()[:, dof].tocsr(), b[dof])
 	return x
-
 
 def getMatrix(degree):
 	r = np.linspace(-1, 1, degree+1)
