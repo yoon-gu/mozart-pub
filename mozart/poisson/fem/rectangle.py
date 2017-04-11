@@ -26,6 +26,18 @@ def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 		- ``x`` (``float64 array``) : solution
 
 	Example
+		>>> from mozart.mesh.rectangle import rectangle 
+		>>> c4n, ind4e, n4e, n4Db = rectangle(0,1,0,1,4,4,1)
+		>>> f = lambda x,y: 2.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)
+		>>> u_D = lambda x,y: 0*x
+		>>> from mozart.poisson.fem.rectangle import solve
+		>>> x = solve(c4n, ind4e, n4e, n4Db, f, u_D, 1)
+		>>> x
+		array([ 0.          ,0.          ,0.          ,0.          ,0.          
+				0.			,0.47511045  ,0.67190765  ,0.47511045  ,0.  
+				0.          ,0.67190765  ,0.95022091  ,0.67190765  ,0.          
+				0.          ,0.47511045  ,0.67190765  ,0.47511045  ,0.          
+				0.          ,0.          ,0.          ,0.          ,0.])
 	"""
 
 	M_R, Srr_R, Sss_R, Dr_R, Ds_R = getMatrix(degree)
@@ -36,15 +48,18 @@ def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 
 	I = np.zeros((nrElems * nrLocal * nrLocal), dtype = np.int32)
 	J = np.zeros((nrElems * nrLocal * nrLocal), dtype = np.int32)
-	
+
 	Alocal = np.zeros((nrElems * nrLocal * nrLocal), dtype = np.float64)
 	b = np.zeros(nrNodes)
 	Poisson_2D_Rectangle = lib['Poisson_2D_Rectangle']
 	Poisson_2D_Rectangle.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
 	                    		  	 c_void_p, c_void_p, c_void_p, c_int,
 	                    			 c_void_p, c_void_p, c_void_p, c_void_p, c_void_p,)
-	print(n4e)
-	print(ind4e)
+
+	c4n = c4n.flatten()
+	ind4e = ind4e.flatten()
+	n4e = n4e.flatten()
+
 	Poisson_2D_Rectangle.restype = None
 	Poisson_2D_Rectangle(c_void_p(n4e.ctypes.data), 
 						 c_void_p(ind4e.ctypes.data),
