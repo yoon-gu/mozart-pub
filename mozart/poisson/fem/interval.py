@@ -27,7 +27,7 @@ def solve(c4n,n4e,n4db,ind4e,f,u_D,degree):
 
 	Example
 		>>> N = 2
-		>>> from mozart.mesh.rectangle import interval
+		>>> from mozart.mesh.interval import interval
 		>>> c4n, n4e, n4db, ind4e = interval(0, 1, 4, 2)
 		>>> f = lambda x: np.ones_like(x)
 		>>> u_D = lambda x: np.zeros_like(x)
@@ -95,7 +95,7 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, approx_u, degree, degree_i)
 
 	Example
 		>>> N = 2
-		>>> from mozart.mesh.rectangle import interval
+		>>> from mozart.mesh.interval import interval
 		>>> c4n, n4e, n4db, ind4e = interval(0, 1, 4, 2)
 		>>> f = lambda x: np.pi ** 2 * np.sin(np.pi * x)
 		>>> u_D = lambda x: np.zeros_like(x)

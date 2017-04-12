@@ -106,7 +106,7 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, exact_uz, approx_
 		- ``sH1error`` (``float64``) : semi H^1 error between exact solution and approximate solution.
 
 	Example
-		>>> from mozart.mesh.rectangle import cube
+		>>> from mozart.mesh.cube import cube
 		>>> c4n, ind4e, n4e, n4Db = cube(0,1,0,1,0,1,4,4,4,1)
 		>>> f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
 		>>> u_D = lambda x,y,z: 0*x
