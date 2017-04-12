@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.matlib
 
 def rectangle(x1, x2, y1, y2, Mx, My, degree):
 	"""

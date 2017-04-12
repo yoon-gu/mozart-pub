@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.matlib
 
 def interval(a, b, M, degree):
 	"""
@@ -34,6 +33,7 @@ def interval(a, b, M, degree):
 		   [4, 5, 6],
 		   [6, 7, 8]])
 	"""
+	
 	nrNodes = M*degree + 1; # the number of nodes on the mesh in terms of M and degree
 	c4n = np.linspace(a, b, nrNodes)
 	n4e = np.array([[degree*item, degree*item+degree] for item in range(0,M)], dtype=np.int32)

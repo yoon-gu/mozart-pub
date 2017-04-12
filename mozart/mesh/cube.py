@@ -1,5 +1,4 @@
 import numpy as np
-import numpy.matlib
 
 def cube(x1, x2, y1, y2, z1, z2, Mx, My, Mz, degree):
 	"""
@@ -54,7 +53,7 @@ def cube(x1, x2, y1, y2, z1, z2, Mx, My, Mz, degree):
 		>>> n4Db
 		array([ 0  1  2  3  4  5  6  7  8  9 10 11 12 14 15 16 17 18 19 20 21 22 23 24 25 26])
 	"""
-
+	import numpy.matlib
 	Nx = degree*Mx + 1
 	Ny = degree*My + 1
 	Nz = degree*Mz + 1
