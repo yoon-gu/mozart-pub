@@ -293,7 +293,7 @@ class TestFemTriangle(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_Ds) < 1E-8)
 
 	def test_compute_n4s(self):
-		from mozart.poisson.fem.triangle import compute_n4s
+		from mozart.mesh.triangle import compute_n4s
 		n4e = np.array([[1, 3, 0], [3, 1, 4], [2, 4, 1], [4, 2, 5], [4, 6, 3], [6, 4, 7], [5, 7, 4], [7, 5, 8]])
 		n4s = compute_n4s(n4e)
 		diff_n4s = n4s - np.array([[1, 3], [2, 4], [4, 6], [5, 7], [3, 0], [1, 4], [2, 5],
@@ -301,7 +301,7 @@ class TestFemTriangle(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_n4s) < 1E-8)
 
 	def test_compute_s4e(self):
-		from mozart.poisson.fem.triangle import compute_s4e
+		from mozart.mesh.triangle import compute_s4e
 		n4e = np.array([[1, 3, 0], [3, 1, 4], [2, 4, 1], [4, 2, 5], [4, 6, 3], [6, 4, 7], [5, 7, 4], [7, 5, 8]])
 		s4e = compute_s4e(n4e)
 		diff_s4e = s4e - np.array([[0, 4, 10], [0, 5, 11], [1, 5, 12], [1, 6, 13],
@@ -309,7 +309,7 @@ class TestFemTriangle(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_s4e) < 1E-8)
 
 	def test_compute_e4s(self):
-		from mozart.poisson.fem.triangle import compute_e4s
+		from mozart.mesh.triangle import compute_e4s
 		n4e = np.array([[1, 3, 0], [3, 1, 4], [2, 4, 1], [4, 2, 5], [4, 6, 3], [6, 4, 7], [5, 7, 4], [7, 5, 8]])
 		e4s = compute_e4s(n4e)
 		diff_e4s = e4s - np.array([[0, 1], [2, 3], [4, 5], [6, 7], [0, -1], [1, 2],
@@ -317,7 +317,7 @@ class TestFemTriangle(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_e4s) < 1E-8)
 
 	def test_refineUniformRed(self):
-		from mozart.poisson.fem.triangle import refineUniformRed
+		from mozart.mesh.triangle import refineUniformRed
 		c4n = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.], [0.5, 0.5]])
 		n4e = np.array([[0, 1, 4], [1, 2, 4], [2, 3, 4], [3, 0, 4]])
 		n4Db = np.array([[0, 1], [1, 2]])
