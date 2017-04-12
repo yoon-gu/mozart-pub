@@ -207,7 +207,7 @@ class TestFemCommon(unittest.TestCase):
 
 class TestFemInterval(unittest.TestCase):
 	def test_1d_uniform_interval(self):
-		from mozart.mesh.rectangle import interval
+		from mozart.mesh.interval import interval
 		a, b, M, N = (0, 1, 4, 2)
 		c4n, n4e, n4db, ind4e = interval(a,b,M,N)
 		diff_c4n = c4n - np.linspace(a,b,M*N+1)
@@ -237,7 +237,7 @@ class TestFemInterval(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_D2) < 1E-8)
 
 	def test_solve(self):
-		from mozart.mesh.rectangle import interval
+		from mozart.mesh.interval import interval
 		N = 3
 		c4n, n4e, n4db, ind4e = interval(0, 1, 4, N)
 		f = lambda x: np.ones_like(x)
@@ -250,7 +250,7 @@ class TestFemInterval(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_x) < 1E-8)
 
 	def test_computeError(self):
-		from mozart.mesh.rectangle import interval
+		from mozart.mesh.interval import interval
 		from mozart.poisson.fem.interval import solve
 		from mozart.poisson.fem.interval import computeError
 		N = 2
@@ -429,7 +429,7 @@ class TestFemRectangle(unittest.TestCase):
 
 class TestFemCube(unittest.TestCase):
 	def test_3d_uniform_cube(self):
-		from mozart.mesh.rectangle import cube
+		from mozart.mesh.cube import cube
 		x1, x2, y1, y2, z1, z2, Mx, My, Mz, N = (0,1,0,1,0,1,2,2,2,1)
 		c4n, ind4e, n4e, n4db = cube(x1,x2,y1,y2,z1,z2,Mx,My,Mz,N)
 		diff_c4n = c4n - np.array([[   0.0,       0.0,       0.0],
@@ -552,7 +552,7 @@ class TestFemCube(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_Dt_R) < 1E-8)
 
 	def test_solve(self):
-		from mozart.mesh.rectangle import cube
+		from mozart.mesh.cube import cube
 		from mozart.poisson.fem.cube import solve
 		x1, x2, y1, y2, z1, z2, Mx, My, Mz, N = (0, 1, 0, 1, 0, 1, 3, 3, 3, 1)
 		c4n, ind4e, n4e, n4Db = cube(x1,x2,y1,y2,z1,z2,Mx,My,Mz,N)
@@ -568,7 +568,7 @@ class TestFemCube(unittest.TestCase):
 		self.assertTrue(LA.norm(diff_x) < 1E-8)
 
 	def test_computeError(self):
-		from mozart.mesh.rectangle import cube
+		from mozart.mesh.cube import cube
 		from mozart.poisson.fem.cube import solve
 		from mozart.poisson.fem.cube import computeError
 		degree = 1
