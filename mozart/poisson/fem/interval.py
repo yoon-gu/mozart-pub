@@ -12,13 +12,13 @@ from mozart.poisson.fem.common import VandermondeM1D, Dmatrix1D
 def solve(c4n,n4e,n4db,ind4e,f,u_D,degree):
 	"""
 	Computes the coordinates of nodes and elements.
-	
+
 	Parameters
 		- ``c4n`` (``float64 array``) : coordinates for nodes
 		- ``n4e`` (``int32 array``) : nodes for elements
 		- ``n4db`` (``int32 array``) : nodes for Dirichlet boundary
-		- ``ind4e`` (``int32 array``) : indices for elements 
-		- ``f`` (``lambda``) : source term 
+		- ``ind4e`` (``int32 array``) : indices for elements
+		- ``f`` (``lambda``) : source term
 		- ``u_D`` (``lambda``) : Dirichlet boundary condition
 		- ``degree`` (``int32``) : Polynomial degree
 
@@ -27,7 +27,7 @@ def solve(c4n,n4e,n4db,ind4e,f,u_D,degree):
 
 	Example
 		>>> N = 2
-		>>> from mozart.mesh.rectangle import interval 
+		>>> from mozart.mesh.rectangle import interval
 		>>> c4n, n4e, n4db, ind4e = interval(0, 1, 4, 2)
 		>>> f = lambda x: np.ones_like(x)
 		>>> u_D = lambda x: np.zeros_like(x)
@@ -79,13 +79,13 @@ def solve(c4n,n4e,n4db,ind4e,f,u_D,degree):
 def computeError(c4n, n4e, ind4e, exact_u, exact_ux, approx_u, degree, degree_i):
 	"""
 	Computes L^2-error and semi H^1-error between exact solution and approximate solution.
-	
+
 	Parameters
 		- ``c4n`` (``float64 array``) : coordinates for nodes
 		- ``n4e`` (``int32 array``) : nodes for elements
 		- ``ind4e`` (``int32 array``) : indices for elements
 		- ``exact_u`` (``lambda``) : exact solution
-		- ``exact_ux`` (``lambda``) : derivative of exact solution 
+		- ``exact_ux`` (``lambda``) : derivative of exact solution
 		- ``approx_u`` (``float64 array``) : approximate solution
 		- ``degree`` (``int32``) : Polynomial degree
 		- ``degree_i`` (``int32``) : Polynomial degree for interpolation
@@ -96,7 +96,7 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, approx_u, degree, degree_i)
 
 	Example
 		>>> N = 2
-		>>> from mozart.mesh.rectangle import interval 
+		>>> from mozart.mesh.rectangle import interval
 		>>> c4n, n4e, n4db, ind4e = interval(0, 1, 4, 2)
 		>>> f = lambda x: np.pi ** 2 * np.sin(np.pi * x)
 		>>> u_D = lambda x: np.zeros_like(x)

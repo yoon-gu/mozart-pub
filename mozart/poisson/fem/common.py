@@ -20,14 +20,14 @@ def nJacobiP(x, alpha=0, beta=0, degree=0):
 
 	Returns
 		- ``P`` (``float64 array``) : the value of degree-th order normalized Jacobi polynomial at x
-	
+
 	Example
 		>>> N = 2
 		>>> x = np.array([-1, 0, 1])
 		>>> from mozart.poisson.fem.common import nJacobiP
 		>>> P = nJacobiP(x,0,0,N)
 		>>> print(P)
-		array([ 1.58113883, -0.79056942,  1.58113883])	
+		array([ 1.58113883, -0.79056942,  1.58113883])
 	"""
 	Pn = np.zeros((degree+1,x.size),float)
 	Pn[0,:] = np.sqrt(2.0**(-alpha-beta-1) * np.math.gamma(alpha+beta+2) / ((np.math.gamma(alpha + 1) * np.math.gamma(beta + 1))))
@@ -58,14 +58,14 @@ def DnJacobiP(x, alpha=0, beta=0, degree=0):
 
 	Returns
 		- ``dP`` (``float64 array``) : the value of the derivative of the normalized Jacobi polynomial at x according to alpha, beta, degree
-	
+
 	Example
 		>>> N = 2
 		>>> x = np.array([-1, 0, 1])
 		>>> from mozart.poisson.fem.common import DnJacobiP
 		>>> dP = DnJacobiP(x,0,0,N)
 		>>> print(dP)
-		array([-4.74341649,  0.        ,  4.74341649])	
+		array([-4.74341649,  0.        ,  4.74341649])
 	"""
 	dP = np.zeros(x.size,float)
 	if degree == 0:
@@ -87,7 +87,7 @@ def nJacobiGQ(alpha=0, beta=0, degree=0):
 	Returns
 		- ``x`` (``float64 array``) : Gauss quadrature points
 		- ``w`` (``float64 array``) : Gauss quadrature weights
-	
+
 	Example
 		>>> N = 2
 		>>> from mozart.poisson.fem.common import nJacobiGQ
@@ -110,7 +110,7 @@ def nJacobiGQ(alpha=0, beta=0, degree=0):
 			J = np.diag(-(alpha**2-beta**2)/((2.0*np.arange(0,degree+1)+alpha+beta+2.0)*(2.0*np.arange(0,degree+1)+alpha+beta))/2.0)+ \
 					np.diag(2.0/(2.0*np.arange(1,degree+1)+alpha+beta)*np.sqrt(np.arange(1,degree+1)*(np.arange(1,degree+1)+alpha+beta)* \
 					(np.arange(1,degree+1)+alpha)*(np.arange(1,degree+1)+beta)/(2.0*np.arange(1,degree+1)+alpha+beta-1.0)/(2.0*np.arange(1,degree+1)+alpha+beta+1.0)),1)
-		
+
 		J = J + np.transpose(J)
 
 		x, V = np.linalg.eig(J)
@@ -133,7 +133,7 @@ def nJacobiGL(alpha=0, beta=0, degree=0):
 
 	Returns
 		- ``x`` (``float64 array``) : Gauss Lobatto quadrature points
-	
+
 	Example
 		>>> N = 3
 		>>> from mozart.poisson.fem.common import nJacobiGL
@@ -148,7 +148,7 @@ def nJacobiGL(alpha=0, beta=0, degree=0):
 	else:
 		xint, w = nJacobiGQ(alpha+1,beta+1,degree-2)
 		x = np.hstack((np.array([-1]),xint))
-		x = np.hstack((x,np.array([1])))	
+		x = np.hstack((x,np.array([1])))
 	return x
 
 def VandermondeM1D(degree,r):
@@ -161,7 +161,7 @@ def VandermondeM1D(degree,r):
 
 	Returns
 		- ``V1D`` (``float64 array``) : 1D Vandermonde matrix
-	
+
 	Example
 		>>> N = 3
 		>>> from mozart.poisson.fem.interval import VandermondeM1D
@@ -188,7 +188,7 @@ def DVandermondeM1D(degree, r):
 
 	Returns
 		- ``DVr`` (``float64 array``) : Differentiate Vandermonde matrix
-	
+
 	Example
 		>>> N = 3
 		>>> from mozart.poisson.fem.interval import VandermondeM1D
@@ -215,7 +215,7 @@ def Dmatrix1D(degree, r, V):
 
 	Returns
 		- ``DVr`` (``float64 array``) : Differentiate Vandermonde matrix
-	
+
 	Example
 		>>> N = 3
 		>>> from mozart.poisson.fem.interval import Dmatrix1D
@@ -235,7 +235,7 @@ def Dmatrix1D(degree, r, V):
 def RefNodes_Tri(degree):
 	"""
 	Computes uniform nodes in the reference triangle for arbitrary polynomial degrees
-	
+
 	Parameters
 		- ``degree`` (``int32``) : Polynomial degree
 
@@ -269,7 +269,7 @@ def RefNodes_Tri(degree):
 def rs2ab(r,s):
 	"""
 	Transfer from (r,s) to (a,b) coordinates in triangle
-	
+
 	Parameters
 		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
 		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
@@ -306,7 +306,7 @@ def rs2ab(r,s):
 def Simplex2DP(a,b,i,j):
 	"""
 	Compute 2D orthonormal polynomial on simplex at (a, b) of order (i, j)
-	
+
 	Parameters
 		- ``a`` (``folat64 array``) : the value for the first normalized Jacobi polynomial in modal basis
 		- ``b`` (``float64 array``) : the value for the second normalized Jacobi polynomial in modal basis
@@ -331,7 +331,7 @@ def Simplex2DP(a,b,i,j):
 def Vandermonde2D(degree,r,s):
 	"""
 	Initialize the 2D Vandermonde Matrix, :math:`V_{i,j} = \\phi_j(r_i)`
-	
+
 	Parameters
 		- ``degree`` (``int32``) : Polynomial degree
 		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
@@ -365,7 +365,7 @@ def Vandermonde2D(degree,r,s):
 def GradSimplex2DP(a,b,id,jd):
 	"""
 	Return the derivatives of the modal basis (id,jd) on the 2D simplex at (a,b).
-	
+
 	Parameters
 		- ``a`` (``float64``) : 2(1+r)/(1-s) - 1
 		- ``b`` (``float64``) : s
@@ -412,7 +412,7 @@ def GradSimplex2DP(a,b,id,jd):
 def GradVandermonde2D(degree,r,s):
 	"""
 	Initialize the gradient of the modal basis (i,j) at (r,s) at order N
-	
+
 	Parameters
 		- ``degree`` (``int32``) : Polynomial degree
 		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
@@ -457,7 +457,7 @@ def GradVandermonde2D(degree,r,s):
 def Dmatrices2D(degree,r,s,V):
 	"""
 	Initialize the (r,s) differentiation matrices on the simplex, evaluated at (r,s) at order N
-	
+
 	Parameters
 		- ``degree`` (``int32``) : Polynomial degree
 		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle

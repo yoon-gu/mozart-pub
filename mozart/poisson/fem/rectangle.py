@@ -12,13 +12,13 @@ from mozart.poisson.fem.common import nJacobiP, DnJacobiP, VandermondeM1D, Dmatr
 def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	"""
 	Computes the coordinates of nodes and elements.
-	
+
 	Parameters
 		- ``c4n`` (``float64 array``) : coordinates for nodes
-		- ``ind4e`` (``int32 array``) : indices for elements 
+		- ``ind4e`` (``int32 array``) : indices for elements
 		- ``n4e`` (``int32 array``) : nodes for elements
-		- ``n4Db`` (``int32 array``) : nodes for Dirichlet boundary		
-		- ``f`` (``lambda``) : source term 
+		- ``n4Db`` (``int32 array``) : nodes for Dirichlet boundary
+		- ``f`` (``lambda``) : source term
 		- ``u_D`` (``lambda``) : Dirichlet boundary condition
 		- ``degree`` (``int32``) : Polynomial degree
 
@@ -26,17 +26,17 @@ def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 		- ``x`` (``float64 array``) : solution
 
 	Example
-		>>> from mozart.mesh.rectangle import rectangle 
+		>>> from mozart.mesh.rectangle import rectangle
 		>>> c4n, ind4e, n4e, n4Db = rectangle(0,1,0,1,4,4,1)
 		>>> f = lambda x,y: 2.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)
 		>>> u_D = lambda x,y: 0*x
 		>>> from mozart.poisson.fem.rectangle import solve
 		>>> x = solve(c4n, ind4e, n4e, n4Db, f, u_D, 1)
 		>>> x
-		array([ 0.          ,0.          ,0.          ,0.          ,0.          
-				0.			,0.47511045  ,0.67190765  ,0.47511045  ,0.  
-				0.          ,0.67190765  ,0.95022091  ,0.67190765  ,0.          
-				0.          ,0.47511045  ,0.67190765  ,0.47511045  ,0.          
+		array([ 0.          ,0.          ,0.          ,0.          ,0.
+				0.			,0.47511045  ,0.67190765  ,0.47511045  ,0.
+				0.          ,0.67190765  ,0.95022091  ,0.67190765  ,0.
+				0.          ,0.47511045  ,0.67190765  ,0.47511045  ,0.
 				0.          ,0.          ,0.          ,0.          ,0.])
 	"""
 
@@ -61,9 +61,9 @@ def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	n4e = n4e.flatten()
 
 	Poisson_2D_Rectangle.restype = None
-	Poisson_2D_Rectangle(c_void_p(n4e.ctypes.data), 
+	Poisson_2D_Rectangle(c_void_p(n4e.ctypes.data),
 						 c_void_p(ind4e.ctypes.data),
-					     c_void_p(c4n.ctypes.data), 
+					     c_void_p(c4n.ctypes.data),
 					     c_int(nrElems),
 					     c_void_p(M_R.ctypes.data),
 					     c_void_p(Srr_R.ctypes.data),
@@ -93,10 +93,10 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, approx_u, degree,
 	Parameters
 		- ``c4n`` (``float64 array``) : coordinates for nodes
 		- ``ind4e`` (``int32 array``) : indices for elements
-		- ``n4e`` (``int32 array``) : nodes for elements		
+		- ``n4e`` (``int32 array``) : nodes for elements
 		- ``exact_u`` (``lambda``) : exact solution
-		- ``exact_ux`` (``lambda``) : derivative of exact solution 
-		- ``exact_uy`` (``lambda``) : derivative of exact solution 
+		- ``exact_ux`` (``lambda``) : derivative of exact solution
+		- ``exact_uy`` (``lambda``) : derivative of exact solution
 		- ``approx_u`` (``float64 array``) : approximate solution
 		- ``degree`` (``int32``) : polynomial degree
 		- ``degree_i`` (``int32``) : polynomial degree for interpolation
@@ -105,7 +105,7 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, approx_u, degree,
 		- ``sH1error`` (``float64``) : semi H^1 error between exact solution and approximate solution.
 
 	Example
-		>>> from mozart.mesh.rectangle import rectangle 
+		>>> from mozart.mesh.rectangle import rectangle
 		>>> c4n, ind4e, n4e, n4Db = rectangle(0,1,0,1,4,4,1)
 		>>> f = lambda x,y: 2.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)
 		>>> u_D = lambda x,y: 0*x
@@ -162,7 +162,7 @@ def getMatrix(degree):
 		- ``M_R`` (``float64 array``) : Mass matrix on the reference domain
 		- ``Srr_R`` (``float64 array``) : Stiffness matrix w.r.t. rr on the reference domain
 		- ``Sss_R`` (``float64 array``) : Stiffness matrix w.r.t. ss on the reference domain
-		- ``Dr_R`` (``float64 array``) : Differentiation matrix w.r.t. r on the reference domain  
+		- ``Dr_R`` (``float64 array``) : Differentiation matrix w.r.t. r on the reference domain
 		- ``Ds_R`` (``float64 array``) : Differentiation matrix w.r.t. s on the reference domain
 	"""
 

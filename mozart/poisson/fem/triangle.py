@@ -232,7 +232,7 @@ def refineUniformRed(c4n, n4e, n4Db, n4Nb):
 	for elem in range(0,nrElems):
 		nodes = n4e[elem,:]
 		newNodes = np.array([newNodes4s[nodes[0],nodes[1]], newNodes4s[nodes[1],nodes[2]], newNodes4s[nodes[2],nodes[0]]])
-		n4eNew[4*elem + np.arange(0,4),:] = np.array([[nodes[0], newNodes[0], newNodes[2]], 
+		n4eNew[4*elem + np.arange(0,4),:] = np.array([[nodes[0], newNodes[0], newNodes[2]],
 			[newNodes[0], nodes[1], newNodes[1]], [newNodes[1], newNodes[2], newNodes[0]],
 			[newNodes[2], newNodes[1], nodes[2]]])
 
@@ -250,7 +250,7 @@ def refineUniformRed(c4n, n4e, n4Db, n4Nb):
 
 	return (c4nNew, n4eNew, n4DbNew, n4NbNew)
 
-	
+
 
 
 def sample():

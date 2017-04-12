@@ -12,13 +12,13 @@ from mozart.poisson.fem.common import nJacobiP, DnJacobiP, VandermondeM1D, Dmatr
 def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	"""
 	Computes the coordinates of nodes and elements.
-	
+
 	Parameters
 		- ``c4n`` (``float64 array``) : coordinates for nodes
-		- ``ind4e`` (``int32 array``) : indices for elements 
+		- ``ind4e`` (``int32 array``) : indices for elements
 		- ``n4e`` (``int32 array``) : nodes for elements
-		- ``n4Db`` (``int32 array``) : nodes for Dirichlet boundary		
-		- ``f`` (``lambda``) : source term 
+		- ``n4Db`` (``int32 array``) : nodes for Dirichlet boundary
+		- ``f`` (``lambda``) : source term
 		- ``u_D`` (``lambda``) : Dirichlet boundary condition
 		- ``degree`` (``int32``) : Polynomial degree
 
@@ -26,17 +26,17 @@ def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 		- ``x`` (``float64 array``) : solution
 
 	Example
-		>>> from mozart.mesh.rectangle import cube 
+		>>> from mozart.mesh.rectangle import cube
 		>>> c4n, ind4e, n4e, n4Db = cube(0,1,0,1,0,1,2,2,2,1)
 		>>> f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
 		>>> u_D = lambda x,y,z: 0*x
 		>>> from mozart.poisson.fem.cube import solve
 		>>> x = solve(c4n, ind4e, n4e, n4Db, f, u_D, 1)
 		>>> x
-		array([ 0.          0.          0.          0.          0.          0.          
-		        0.			0.          0.          0.          0.          0.          
-		        0.			0.82246703  0.          0.          0.          0.          
-		        0.          0.		    0.          0.          0.          0.          
+		array([ 0.          0.          0.          0.          0.          0.
+		        0.			0.          0.          0.          0.          0.
+		        0.			0.82246703  0.          0.          0.          0.
+		        0.          0.		    0.          0.          0.          0.
 		        0.          0.          0.        ])
 	"""
 	M_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(degree)
@@ -60,9 +60,9 @@ def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	n4e = n4e.flatten()
 
 	Poisson_3D_Cube.restype = None
-	Poisson_3D_Cube(c_void_p(n4e.ctypes.data), 
+	Poisson_3D_Cube(c_void_p(n4e.ctypes.data),
 						 c_void_p(ind4e.ctypes.data),
-						 c_void_p(c4n.ctypes.data), 
+						 c_void_p(c4n.ctypes.data),
 						 c_int(nrElems),
 						 c_void_p(M_R.ctypes.data),
 						 c_void_p(Srr_R.ctypes.data),
@@ -93,11 +93,11 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, exact_uz, approx_
 	Parameters
 		- ``c4n`` (``float64 array``) : coordinates for nodes
 		- ``ind4e`` (``int32 array``) : indices for elements
-		- ``n4e`` (``int32 array``) : nodes for elements		
+		- ``n4e`` (``int32 array``) : nodes for elements
 		- ``exact_u`` (``lambda``) : exact solution
-		- ``exact_ux`` (``lambda``) : derivative of exact solution 
-		- ``exact_uy`` (``lambda``) : derivative of exact solution 
-		- ``exact_uz`` (``lambda``) : derivative of exact solution 
+		- ``exact_ux`` (``lambda``) : derivative of exact solution
+		- ``exact_uy`` (``lambda``) : derivative of exact solution
+		- ``exact_uz`` (``lambda``) : derivative of exact solution
 		- ``approx_u`` (``float64 array``) : approximate solution
 		- ``degree`` (``int32``) : polynomial degree
 		- ``degree_i`` (``int32``) : polynomial degree for interpolation
@@ -138,14 +138,13 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, exact_uz, approx_
 	# interpM = np.transpose(np.linalg.solve(np.transpose(V), np.transpose(PM)))
 
 	for j in range(0,n4e.shape[0]):
-		xr = (c4n[n4e[j,1],0] - c4n[n4e[j,0],0])/2.0
-		ys = (c4n[n4e[j,3],1] - c4n[n4e[j,0],1])/2.0
-		zt = (c4n[n4e[j,4],2] - c4n[n4e[j,0],2])/2.0
-		Jacobi = xr*ys*zt
-		rx = 1.0/xr
-		sy = 1.0/ys
-		tz = 1.0/zt
-
+		xr = (c4n[n4e[j,1],0] - c4n[n4e[j,0],0]) / 2.0
+		ys = (c4n[n4e[j,3],1] - c4n[n4e[j,0],1]) / 2.0
+		zt = (c4n[n4e[j,4],2] - c4n[n4e[j,0],2]) / 2.0
+		Jacobi = xr * ys * zt
+		rx = 1.0 / xr
+		sy = 1.0 / ys
+		tz = 1.0 / zt
 
 		Dex = exact_ux(c4n[ind4e[j],0],c4n[ind4e[j],1],c4n[ind4e[j],2]) - rx*np.dot(Dr_R,approx_u[ind4e[j]])
 		Dey = exact_uy(c4n[ind4e[j],0],c4n[ind4e[j],1],c4n[ind4e[j],2]) - sy*np.dot(Ds_R,approx_u[ind4e[j]])
@@ -172,4 +171,5 @@ def getMatrix(degree):
 	Srr_R = np.dot(np.dot(np.transpose(Dr_R),M_R),Dr_R)
 	Sss_R = np.dot(np.dot(np.transpose(Ds_R),M_R),Ds_R)
 	Stt_R = np.dot(np.dot(np.transpose(Dt_R),M_R),Dt_R)
+
 	return (M_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R)

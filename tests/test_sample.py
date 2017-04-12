@@ -195,7 +195,7 @@ class TestFemCommon(unittest.TestCase):
 		    [ 0.5, -2.,  1.5,  0.,  0.,  0.],
 		    [-0.5,  1., -0.5, -1.,  1.,  0.],
 		    [ 0.5, -1.,  0.5, -1.,  1.,  0.],
-		    [ 0.5,  0., -0.5, -2.,  2.,  0.]])            
+		    [ 0.5,  0., -0.5, -2.,  2.,  0.]])
 		diff_Ds = Ds - np.array([[-1.5,  0.,  0.,  2.,  0.,  -0.5],
 			[-0.5, -1.,  0.,  1.,  1., -0.5],
 			[ 0.5, -2.,  0.,  0.,  2., -0.5],
@@ -346,7 +346,7 @@ class TestTecplot(unittest.TestCase):
 
 class TestCommonModuleMethods(unittest.TestCase):
 	def test_prefix_by_os(self):
-		answer_sheet ={"linux" : "linux", "linux32" : "linux", 
+		answer_sheet ={"linux" : "linux", "linux32" : "linux",
 			"darwin" : "osx", "win32" : "win64"}
 
 		from mozart.common.etc import prefix_by_os
@@ -369,7 +369,7 @@ class TestFemRectangle(unittest.TestCase):
 		diff_ind4e = ind4e - np.array([[0,1,3,4],[1,2,4,5],[3,4,6,7],[4,5,7,8]])
 		diff_n4e = n4e - np.array([[0,1,4,3],[1,2,5,4],[3,4,7,6],[4,5,8,7]])
 		diff_n4db = n4db - np.array([0,1,2,3,5,6,7,8])
-		
+
 		self.assertTrue(LA.norm(diff_c4n) < 1E-8)
 		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
 		self.assertTrue(LA.norm(diff_n4db) < 1E-8)
@@ -383,7 +383,7 @@ class TestFemRectangle(unittest.TestCase):
 		diff_Sss_R = Sss_R - np.array([[2 ,1, -2 ,-1],[1 ,2, -1 ,-2],[-2 ,-1, 2, 1],[-1, -2 ,1 ,2]]) / 6.
 		diff_Dr_R = Dr_R - np.array([[-1, 1, 0, 0],[-1, 1, 0, 0],[0 ,0 ,-1, 1],[0, 0, -1 ,1]]) / 2.
 		diff_Ds_R = Ds_R - np.array([[-1, 0, 1, 0],[0 ,-1, 0, 1],[-1, 0, 1, 0],[0, -1 ,0 ,1]]) / 2.
-		
+
 		self.assertTrue(LA.norm(diff_M_R) < 1E-8)
 		self.assertTrue(LA.norm(diff_Srr_R) < 1E-8)
 		self.assertTrue(LA.norm(diff_Sss_R) < 1E-8)
@@ -396,11 +396,11 @@ class TestFemRectangle(unittest.TestCase):
 		x1, x2, y1, y2, Mx, My, N = (0, 1, 0, 1, 4, 4, 1)
 		c4n, ind4e, n4e, n4Db = rectangle(x1,x2,y1,y2,Mx,My,N)
 		f = lambda x,y: 2.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)
-		u_D = lambda x,y: 0*x		
+		u_D = lambda x,y: 0*x
 		x = solve(c4n, ind4e, n4e, n4Db, f, u_D, N)
 		diff_x = x - np.array([0,                   0,                   0,                   0,                   0,
                    			   0,   0.475110454183750,   0.671907647931901,   0.475110454183750,                   0,
-                               0,   0.671907647931901,   0.950220908367501,   0.671907647931901,       			   0,                   
+                               0,   0.671907647931901,   0.950220908367501,   0.671907647931901,       			   0,
                                0,   0.475110454183750,   0.671907647931901,   0.475110454183750,                   0,
 			                   0,                   0,                   0,                   0,                   0])
 
@@ -476,7 +476,7 @@ class TestFemCube(unittest.TestCase):
 								   [12,    13,    16,    15,    21,    22,    25,    24],
 								   [13,    14,    17,    16,    22,    23,    26,    25]])
 		diff_n4db = n4db - np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26])
-		
+
 		self.assertTrue(LA.norm(diff_c4n) < 1E-8)
 		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
 		self.assertTrue(LA.norm(diff_n4db) < 1E-8)
@@ -542,14 +542,14 @@ class TestFemCube(unittest.TestCase):
 									 [ 0, -1,  0,  0, 0, 1, 0, 0],
 									 [ 0,  0, -1,  0, 0, 0, 1, 0],
 									 [ 0,  0,  0, -1, 0, 0, 0, 1]]) / 2.
-		
+
 		self.assertTrue(LA.norm(diff_M_R) < 1E-8)
 		self.assertTrue(LA.norm(diff_Srr_R) < 1E-8)
 		self.assertTrue(LA.norm(diff_Sss_R) < 1E-8)
 		self.assertTrue(LA.norm(diff_Stt_R) < 1E-8)
 		self.assertTrue(LA.norm(diff_Dr_R) < 1E-8)
 		self.assertTrue(LA.norm(diff_Ds_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Dt_R) < 1E-8)	
+		self.assertTrue(LA.norm(diff_Dt_R) < 1E-8)
 
 	def test_solve(self):
 		from mozart.mesh.rectangle import cube
@@ -557,7 +557,7 @@ class TestFemCube(unittest.TestCase):
 		x1, x2, y1, y2, z1, z2, Mx, My, Mz, N = (0, 1, 0, 1, 0, 1, 3, 3, 3, 1)
 		c4n, ind4e, n4e, n4Db = cube(x1,x2,y1,y2,z1,z2,Mx,My,Mz,N)
 		f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
-		u_D = lambda x,y,z: 0*x	
+		u_D = lambda x,y,z: 0*x
 		x = solve(c4n, ind4e, n4e, n4Db, f, u_D, N)
 		diff_x = x - np.array([0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
    							   0.593564453933756, 0.593564453933756, 0, 0, 0.593564453933756,
@@ -565,7 +565,7 @@ class TestFemCube(unittest.TestCase):
 							   0.593564453933756, 0.593564453933756, 0, 0, 0.593564453933756,
    							   0.593564453933756, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
-		self.assertTrue(LA.norm(diff_x) < 1E-8)	
+		self.assertTrue(LA.norm(diff_x) < 1E-8)
 
 	def test_computeError(self):
 		from mozart.mesh.rectangle import cube
