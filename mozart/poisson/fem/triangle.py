@@ -250,9 +250,6 @@ def refineUniformRed(c4n, n4e, n4Db, n4Nb):
 
 	return (c4nNew, n4eNew, n4DbNew, n4NbNew)
 
-
-
-
 def sample():
 	from os import listdir
 	from scipy.sparse import coo_matrix
@@ -321,7 +318,6 @@ def sample():
 		c_void_p(J.ctypes.data),
 		c_void_p(Alocal.ctypes.data),
 		c_void_p(b.ctypes.data))
-
 
 	STIMA_COO = coo_matrix((Alocal, (I, J)), shape=(nrNodes, nrNodes))
 	STIMA_CSR = STIMA_COO.tocsr()

@@ -75,7 +75,6 @@ def solve(c4n,n4e,n4db,ind4e,f,u_D,degree):
 	x[dof] = spsolve(STIMA_CSR[dof, :].tocsc()[:, dof].tocsr(), b[dof])
 	return x
 
-
 def computeError(c4n, n4e, ind4e, exact_u, exact_ux, approx_u, degree, degree_i):
 	"""
 	Computes L^2-error and semi H^1-error between exact solution and approximate solution.

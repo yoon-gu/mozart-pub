@@ -106,7 +106,6 @@ def rectangle(x1, x2, y1, y2, Mx, My, degree):
 
 	n4e = ind4e[[0,degree,(degree+1)**2-1,degree*(degree+1)],:]
 
-
 	btm = np.arange(0,Nx,1)
 	top = np.arange(Nx*(Ny-1),Nx*Ny,1)
 	left = np.arange(0,Nx*(Ny-1)+1,Nx)

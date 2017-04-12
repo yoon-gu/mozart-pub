@@ -135,7 +135,6 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, approx_u, degree,
 	# PM = VandermondeM1D(degree, r_i)
 	# interpM = np.transpose(np.linalg.solve(np.transpose(V), np.transpose(PM)))
 
-
 	for j in range(0,n4e.shape[0]):
 		xr = (c4n[n4e[j,1],0] - c4n[n4e[j,0],0])/2.0
 		ys = (c4n[n4e[j,3],1] - c4n[n4e[j,0],1])/2.0
