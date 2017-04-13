@@ -52,8 +52,8 @@ master_doc = 'index'
 
 # General information about the project.
 project = u'Mozart'
-copyright = u'2017, Yoon-gu Hwang, and Dong-wook Shin'
-author = u'Yoon-gu Hwang, and Dong-wook Shin'
+copyright = u'2017, Yoon-gu Hwang, Dong-wook Shin, and Ji-yeon Suh'
+author = u'Yoon-gu Hwang, Dong-wook Shin, and Ji-yeon Suh'
 
 # The version info for the project you're documenting, acts as replacement for
 # |version| and |release|, also used in various other places throughout the

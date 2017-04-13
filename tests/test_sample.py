@@ -11,7 +11,7 @@ class TestBasic(unittest.TestCase):
 
 	def test_authors(self):
 		import mozart as mz
-		authors = ('Yoon-gu Hwang <yz0624@gmail.com>', 'Dong-Wook Shin <dwshin.yonsei@gmail.com>')
+		authors = ('Yoon-gu Hwang <yz0624@gmail.com>', 'Dong-Wook Shin <dwshin.yonsei@gmail.com>', 'Ji-Yeon Suh <suh91919@gmail.com>')
 		self.assertEqual(mz.__author__, authors)
 
 class TestFemCommon(unittest.TestCase):
