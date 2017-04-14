@@ -52,10 +52,10 @@ class TestFemCube(unittest.TestCase):
 								   [13,    14,    17,    16,    22,    23,    26,    25]])
 		diff_n4db = n4db - np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26])
 
-		self.assertTrue(LA.norm(diff_c4n) < 1E-8)
-		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
-		self.assertTrue(LA.norm(diff_n4db) < 1E-8)
-		self.assertTrue(LA.norm(diff_ind4e) < 1E-8)
+		self.assertAlmostEqual(LA.norm(diff_c4n), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_n4e), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_n4db), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_ind4e), 0.0, 8)
 
 	def test_getPoissonMatrix3D(self):
 		from mozart.poisson.fem.cube import getMatrix
@@ -118,13 +118,13 @@ class TestFemCube(unittest.TestCase):
 									 [ 0,  0, -1,  0, 0, 0, 1, 0],
 									 [ 0,  0,  0, -1, 0, 0, 0, 1]]) / 2.
 
-		self.assertTrue(LA.norm(diff_M_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Srr_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Sss_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Stt_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Dr_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Ds_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Dt_R) < 1E-8)
+		self.assertAlmostEqual(LA.norm(diff_M_R), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_Srr_R), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_Sss_R), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_Stt_R), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_Dr_R), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_Ds_R), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_Dt_R), 0.0, 8)
 
 	def test_solve(self):
 		from mozart.mesh.cube import cube
@@ -140,7 +140,7 @@ class TestFemCube(unittest.TestCase):
 							   0.593564453933756, 0.593564453933756, 0, 0, 0.593564453933756,
    							   0.593564453933756, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0])
 
-		self.assertTrue(LA.norm(diff_x) < 1E-8)
+		self.assertAlmostEqual(LA.norm(diff_x), 0.0, 8)
 
 	def test_computeError(self):
 		from mozart.mesh.cube import cube

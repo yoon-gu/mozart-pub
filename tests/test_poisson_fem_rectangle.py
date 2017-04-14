@@ -12,10 +12,10 @@ class TestFemRectangle(unittest.TestCase):
 		diff_n4e = n4e - np.array([[0,1,4,3],[1,2,5,4],[3,4,7,6],[4,5,8,7]])
 		diff_n4db = n4db - np.array([0,1,2,3,5,6,7,8])
 
-		self.assertTrue(LA.norm(diff_c4n) < 1E-8)
-		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
-		self.assertTrue(LA.norm(diff_n4db) < 1E-8)
-		self.assertTrue(LA.norm(diff_ind4e) < 1E-8)
+		self.assertAlmostEqual(LA.norm(diff_c4n), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_n4e), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_n4db), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_ind4e), 0.0, 8)
 
 	def test_getPoissonMatrix2D(self):
 		from mozart.poisson.fem.rectangle import getMatrix
@@ -26,11 +26,11 @@ class TestFemRectangle(unittest.TestCase):
 		diff_Dr_R = Dr_R - np.array([[-1, 1, 0, 0],[-1, 1, 0, 0],[0 ,0 ,-1, 1],[0, 0, -1 ,1]]) / 2.
 		diff_Ds_R = Ds_R - np.array([[-1, 0, 1, 0],[0 ,-1, 0, 1],[-1, 0, 1, 0],[0, -1 ,0 ,1]]) / 2.
 
-		self.assertTrue(LA.norm(diff_M_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Srr_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Sss_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Dr_R) < 1E-8)
-		self.assertTrue(LA.norm(diff_Ds_R) < 1E-8)
+		self.assertAlmostEqual(LA.norm(diff_M_R), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_Srr_R), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_Sss_R), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_Dr_R), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_Ds_R), 0.0, 8)
 
 	def test_solve(self):
 		from mozart.mesh.rectangle import rectangle
@@ -46,7 +46,7 @@ class TestFemRectangle(unittest.TestCase):
                                0,   0.475110454183750,   0.671907647931901,   0.475110454183750,                   0,
 			                   0,                   0,                   0,                   0,                   0])
 
-		self.assertTrue(LA.norm(diff_x) < 1E-8)
+		self.assertAlmostEqual(LA.norm(diff_x), 0.0, 8)
 
 	def test_computeError(self):
 		from mozart.mesh.rectangle import rectangle

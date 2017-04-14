@@ -11,10 +11,10 @@ class TestFemInterval(unittest.TestCase):
 		diff_n4e = n4e - np.array([[0,2], [2,4], [4,6], [6,8]])
 		diff_n4db = n4db - np.array([0, 8])
 		diff_ind4e = ind4e - np.array([[0,1,2], [2,3,4], [4,5,6], [6,7,8]])
-		self.assertTrue(LA.norm(diff_c4n) < 1E-8)
-		self.assertTrue(LA.norm(diff_n4e) < 1E-8)
-		self.assertTrue(LA.norm(diff_n4db) < 1E-8)
-		self.assertTrue(LA.norm(diff_ind4e) < 1E-8)
+		self.assertAlmostEqual(LA.norm(diff_c4n), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_n4e), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_n4db), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_ind4e), 0.0, 8)
 
 	def test_getPoissonMatrix1D(self):
 		from mozart.poisson.fem.interval import getMatrix
@@ -26,12 +26,12 @@ class TestFemInterval(unittest.TestCase):
 		diff_M2 = M2 - np.array([[ 4,  2, -1], [ 2, 16,  2], [-1,  2, 4]]) / 15.
 		diff_S2 = S2 - np.array([[ 7, -8,  1], [-8, 16, -8], [ 1, -8, 7]]) / 6.
 		diff_D2 = D2 - np.array([[-3,  4, -1], [-1,  0,  1], [ 1, -4, 3]]) / 2.
-		self.assertTrue(LA.norm(diff_M1) < 1E-8)
-		self.assertTrue(LA.norm(diff_S1) < 1E-8)
-		self.assertTrue(LA.norm(diff_D1) < 1E-8)
-		self.assertTrue(LA.norm(diff_M2) < 1E-8)
-		self.assertTrue(LA.norm(diff_S2) < 1E-8)
-		self.assertTrue(LA.norm(diff_D2) < 1E-8)
+		self.assertAlmostEqual(LA.norm(diff_M1), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_S1), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_D1), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_M2), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_S2), 0.0, 8)
+		self.assertAlmostEqual(LA.norm(diff_D2), 0.0, 8)
 
 	def test_solve(self):
 		from mozart.mesh.interval import interval
@@ -44,7 +44,7 @@ class TestFemInterval(unittest.TestCase):
 		diff_x = x - np.array([                 0,   0.038194444444444,   0.069444444444444,   0.093749999999999,   0.111111111111110,
 		   0.121527777777777,   0.124999999999999,   0.121527777777777,   0.111111111111110,   0.093749999999999,   0.069444444444444,
 		   0.038194444444444,                   0])
-		self.assertTrue(LA.norm(diff_x) < 1E-8)
+		self.assertAlmostEqual(LA.norm(diff_x), 0.0, 8)
 
 	def test_computeError(self):
 		from mozart.mesh.interval import interval
