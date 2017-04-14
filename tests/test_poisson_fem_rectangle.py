@@ -49,7 +49,7 @@ class TestFemRectangle(unittest.TestCase):
 			h = np.zeros(iter, dtype = np.float64)
 			for j in range(0,iter):
 				c4n, ind4e, n4e, n4Db = rectangle(0,1,0,1,2**(j+1),2**(j+1),degree)
-				x = solve(c4n, ind4e, n4e, n4Db, f, u_D, 1)
+				x = solve(c4n, ind4e, n4e, n4Db, f, u_D, degree)
 				sH1error[j] = computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, x, degree, degree+3)
 				h[j] = 1 / 2.0**(j+1)
 			rateH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))

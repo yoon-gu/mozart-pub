@@ -147,7 +147,7 @@ class TestFemCube(unittest.TestCase):
 		from mozart.poisson.fem.cube import solve
 		from mozart.poisson.fem.cube import computeError
 		iter = 4
-		for degree in range(1,4):
+		for degree in range(1,2):
 			f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
 			u_D = lambda x,y,z: 0*x
 			exact_u = lambda x,y,z: np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
@@ -158,7 +158,7 @@ class TestFemCube(unittest.TestCase):
 			h = np.zeros(iter, dtype = np.float64)
 			for j in range(0,iter):
 				c4n, ind4e, n4e, n4Db = cube(0,1,0,1,0,1,2**(j+1),2**(j+1),2**(j+1),degree)
-				x = solve(c4n, ind4e, n4e, n4Db, f, u_D, 1)
+				x = solve(c4n, ind4e, n4e, n4Db, f, u_D, degree)
 				sH1error[j] = computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, exact_uz, x, degree, degree+3)
 				h[j] = 1 / 2.0**(j+1)
 			rateH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
