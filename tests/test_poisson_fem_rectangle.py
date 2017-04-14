@@ -53,4 +53,5 @@ class TestFemRectangle(unittest.TestCase):
 				sH1error[j] = computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, x, degree, degree+3)
 				h[j] = 1 / 2.0**(j+1)
 			rateH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
-			self.assertTrue(np.abs(rateH1[-1]) > degree-0.1)
+			self.assertTrue(np.abs(rateH1[-1]) > degree-0.1, \
+				"Convergence rate : {0}".format(np.abs(rateH1[-1])))
