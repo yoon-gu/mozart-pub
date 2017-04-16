@@ -3,60 +3,6 @@ import numpy as np
 from numpy import linalg as LA
 
 class TestFemCube(unittest.TestCase):
-	def test_3d_uniform_cube(self):
-		from mozart.mesh.cube import cube
-		x1, x2, y1, y2, z1, z2, Mx, My, Mz, N = (0,1,0,1,0,1,2,2,2,1)
-		c4n, ind4e, n4e, n4db = cube(x1,x2,y1,y2,z1,z2,Mx,My,Mz,N)
-		diff_c4n = c4n - np.array([[   0.0,       0.0,       0.0],
-							       [0.5000,       0.0,       0.0],
-							       [1.0000,       0.0,       0.0],
-							       [   0.0,    0.5000,       0.0],
-							       [0.5000,    0.5000,       0.0],
-							       [1.0000,    0.5000,       0.0],
-							       [   0.0,    1.0000,       0.0],
-							       [0.5000,    1.0000,       0.0],
-							       [1.0000,    1.0000,       0.0],
-							       [   0.0,       0.0,    0.5000],
-							       [0.5000,       0.0,    0.5000],
-							       [1.0000,       0.0,    0.5000],
-							       [   0.0,    0.5000,    0.5000],
-							       [0.5000,    0.5000,    0.5000],
-							       [1.0000,    0.5000,    0.5000],
-							       [   0.0,    1.0000,    0.5000],
-							       [0.5000,    1.0000,    0.5000],
-							       [1.0000,    1.0000,    0.5000],
-							       [   0.0,       0.0,    1.0000],
-							       [0.5000,       0.0,    1.0000],
-							       [1.0000,       0.0,    1.0000],
-							       [   0.0,    0.5000,    1.0000],
-							       [0.5000,    0.5000,    1.0000],
-							       [1.0000,    0.5000,    1.0000],
-							       [   0.0,    1.0000,    1.0000],
-							       [0.5000,    1.0000,    1.0000],
-							       [1.0000,    1.0000,    1.0000]])
-		diff_ind4e = ind4e - np.array([[0,     1,     3,     4,     9,    10,    12,    13],
-								       [1,     2,     4,     5,    10,    11,    13,    14],
-								       [3,     4,     6,     7,    12,    13,    15,    16],
-								       [4,     5,     7,     8,    13,    14,    16,    17],
-								       [9,    10,    12,    13,    18,    19,    21,    22],
-								       [10,    11,    13,    14,    19,    20,    22,    23],
-								       [12,    13,    15,    16,    21,    22,    24,    25],
-								       [13,    14,    16,    17,    22,    23,    25,    26]])
-		diff_n4e = n4e - np.array([[0,     1,     4,     3,     9,    10,    13,    12],
-								   [1,     2,     5,     4,    10,    11,    14,    13],
-								   [3,     4,     7,     6,    12,    13,    16,    15],
-								   [4,     5,     8,     7,    13,    14,    17,    16],
-								   [9,    10,    13,    12,    18,    19,    22,    21],
-								   [10,    11,    14,    13,    19,    20,    23,    22],
-								   [12,    13,    16,    15,    21,    22,    25,    24],
-								   [13,    14,    17,    16,    22,    23,    26,    25]])
-		diff_n4db = n4db - np.array([0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23, 24, 25, 26])
-
-		self.assertAlmostEqual(LA.norm(diff_c4n), 0.0, 8)
-		self.assertAlmostEqual(LA.norm(diff_n4e), 0.0, 8)
-		self.assertAlmostEqual(LA.norm(diff_n4db), 0.0, 8)
-		self.assertAlmostEqual(LA.norm(diff_ind4e), 0.0, 8)
-
 	def test_getPoissonMatrix3D(self):
 		from mozart.poisson.fem.cube import getMatrix
 		M_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(1)
@@ -147,7 +93,7 @@ class TestFemCube(unittest.TestCase):
 		from mozart.poisson.fem.cube import solve
 		from mozart.poisson.fem.cube import computeError
 		iter = 4
-		for degree in range(1,2):
+		for degree in range(1,4):
 			f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
 			u_D = lambda x,y,z: 0*x
 			exact_u = lambda x,y,z: np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
