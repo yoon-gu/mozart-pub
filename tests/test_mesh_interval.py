@@ -1,6 +1,5 @@
 import unittest
 import numpy as np
-from numpy import linalg as LA
 import numpy.testing as npt
 
 class TestFemMeshInterval(unittest.TestCase):
