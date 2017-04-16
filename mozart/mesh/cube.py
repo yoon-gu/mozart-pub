@@ -93,7 +93,7 @@ def cube(x1, x2, y1, y2, z1, z2, Mx, My, Mz, degree):
 
 	ind4e = np.int32(tmp3.transpose() - 1)
 
-	n4e = ind4e[[0,degree,(degree+1)**2-1,degree*(degree+1)],:]
+	
 	n4e = ind4e[:,[0, degree, (degree+1)**2-1, (degree+1)**2-degree-1,(degree+1)**2*degree,(degree+1)**2*degree+degree, (degree+1)**3-1, (degree+1)**3-degree-1]]
 
 	x1Db = np.where(c4n[:, 0] == x1)[0]

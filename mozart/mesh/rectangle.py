@@ -45,6 +45,7 @@ def rectangle(x1, x2, y1, y2, Mx, My, degree):
 		array([0 1 2 3 5 6 7 8])
 	"""
 
+	import numpy.matlib
 	Nx = degree*Mx + 1
 	Ny = degree*My + 1
 
