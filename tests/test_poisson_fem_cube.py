@@ -92,8 +92,8 @@ class TestFemCube(unittest.TestCase):
 		from mozart.mesh.cube import cube
 		from mozart.poisson.fem.cube import solve
 		from mozart.poisson.fem.cube import computeError
-		iter = 4
-		for degree in range(1,2):
+		iter = 3
+		for degree in range(1,4):
 			f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
 			u_D = lambda x,y,z: 0*x
 			exact_u = lambda x,y,z: np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
@@ -108,5 +108,5 @@ class TestFemCube(unittest.TestCase):
 				sH1error[j] = computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, exact_uz, x, degree, degree+3)
 				h[j] = 1 / 2.0**(j+1)
 			rateH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
-			self.assertTrue(np.abs(rateH1[-1]) > degree-0.1, \
-				"Convergence rate : {0}".format(np.abs(rateH1[-1])))
+			self.assertTrue(np.abs(rateH1[-1]) > degree-0.2, \
+				"Convergence rate : {0} when trying degree = {1}".format(np.abs(rateH1[-1]), degree))

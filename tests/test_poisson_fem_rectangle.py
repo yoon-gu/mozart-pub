@@ -38,7 +38,7 @@ class TestFemRectangle(unittest.TestCase):
 		from mozart.mesh.rectangle import rectangle
 		from mozart.poisson.fem.rectangle import solve
 		from mozart.poisson.fem.rectangle import computeError
-		iter = 4
+		iter = 3
 		for degree in range(1,4):
 			f = lambda x,y: 2.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)
 			u_D = lambda x,y: 0*x
@@ -54,4 +54,4 @@ class TestFemRectangle(unittest.TestCase):
 				h[j] = 1 / 2.0**(j+1)
 			rateH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
 			self.assertTrue(np.abs(rateH1[-1]) > degree-0.1, \
-				"Convergence rate : {0}".format(np.abs(rateH1[-1])))
+				"Convergence rate : {0} when trying degree = {1}".format(np.abs(rateH1[-1]), degree))
