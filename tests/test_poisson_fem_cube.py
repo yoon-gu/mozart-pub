@@ -93,7 +93,7 @@ class TestFemCube(unittest.TestCase):
 		from mozart.poisson.fem.cube import solve
 		from mozart.poisson.fem.cube import computeError
 		iter = 4
-		for degree in range(1,4):
+		for degree in range(1,3):
 			f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
 			u_D = lambda x,y,z: 0*x
 			exact_u = lambda x,y,z: np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
