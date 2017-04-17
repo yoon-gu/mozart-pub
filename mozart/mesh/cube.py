@@ -23,7 +23,7 @@ def cube(x1, x2, y1, y2, z1, z2, Mx, My, Mz, degree):
 		- ``n4Db`` (``int array``) : nodes for Dirichlet boundary
 
 	Example
-		>>> c4n, ind4e, n4e, n4Db = rectangle(0,1,0,1,0,1,2,2,2,1)
+		>>> c4n, ind4e, n4e, n4Db = cube(0,1,0,1,0,1,2,2,2,1)
 		>>> c4n
 		array([[ 0.   0.   0. ], [ 0.5  0.   0. ], [ 1.   0.   0. ], [ 0.   0.5  0. ]
 			   [ 0.5  0.5  0. ], [ 1.   0.5  0. ], [ 0.   1.   0. ], [ 0.5  1.   0. ]

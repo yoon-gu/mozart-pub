@@ -2,7 +2,7 @@ import unittest
 import numpy as np
 from numpy import linalg as LA
 
-class TestFemInterval(unittest.TestCase):
+class TestMeshTriangle(unittest.TestCase):
 		def test_compute_n4s(self):
 			from mozart.mesh.triangle import compute_n4s
 			n4e = np.array([[1, 3, 0], [3, 1, 4], [2, 4, 1], [4, 2, 5], [4, 6, 3], [6, 4, 7], [5, 7, 4], [7, 5, 8]])
