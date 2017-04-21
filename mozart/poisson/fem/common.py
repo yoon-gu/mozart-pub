@@ -494,3 +494,26 @@ def Dmatrices2D(degree,r,s,V):
 	Ds = np.dot(Vs,invV)
 
 	return (Dr, Ds)
+
+def RefNodes_Rect(degree):
+	"""
+	Compute (r,s) nodes in reference rectangle for polynomial of order `degree`
+
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``r`` (``float64 array``) : x-coordinates of nodes in the reference rectangle
+		- ``s`` (``float64 array``) : y-coordinates of nodes in the reference rectangle
+
+	Example
+		>>> N = 3
+		>>> r, s = RefNodes_Rect(N)
+	"""
+	LGLpts = nJacobiGL(0,0,degree)
+	r = np.matrix(LGLpts).T * np.ones((1,degree+1))
+	s = r
+	r = r.T
+	r = r.flatten()
+	s = s.flatten()
+	return (r,s)

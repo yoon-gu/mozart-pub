@@ -1,6 +1,17 @@
 import unittest
 import numpy as np
 from numpy import linalg as LA
+import numpy.testing as npt
+
+def test_RefNodes_Rect():
+	from mozart.poisson.fem.common import RefNodes_Rect
+	r, s = RefNodes_Rect(3)
+	ref_r = np.matrix('[-1;-0.447213595499958;0.447213595499958;1;-1;-0.447213595499958;0.447213595499958;1;-1;\
+		-0.447213595499958;0.447213595499958;1;-1;-0.447213595499958;0.447213595499958;1]')
+	ref_s = np.matrix('[-1;-1;-1;-1;-0.447213595499958;-0.447213595499958;-0.447213595499958;-0.447213595499958;\
+		0.447213595499958;0.447213595499958;0.447213595499958;0.447213595499958;1;1;1;1]')
+	npt.assert_almost_equal(r, ref_r.T, decimal=8)
+	npt.assert_almost_equal(s, ref_s.T, decimal=8)
 
 class TestFemCommon(unittest.TestCase):
 	def test_nJacobiP(self):
