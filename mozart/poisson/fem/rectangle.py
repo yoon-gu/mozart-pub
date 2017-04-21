@@ -52,9 +52,9 @@ def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	Alocal = np.zeros((nrElems * nrLocal * nrLocal), dtype = np.float64)
 	b = np.zeros(nrNodes)
 	Poisson_2D_Rectangle = lib['Poisson_2D_Rectangle']
-	Poisson_2D_Rectangle.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
-	                    		  	 c_void_p, c_void_p, c_void_p, c_int,
-	                    			 c_void_p, c_void_p, c_void_p, c_void_p, c_void_p,)
+	Poisson_2D_Rectangle.argtypes = (c_void_p, c_void_p, c_void_p, c_void_p, c_int, c_int,
+	                    		  	 c_void_p, c_void_p, c_void_p, c_void_p, c_int, c_int,
+	                    			 c_void_p, c_void_p, c_void_p, c_void_p, c_void_p, c_void_p,)
 
 	c4n = c4n.flatten()
 	ind4e = ind4e.flatten()
@@ -63,13 +63,18 @@ def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	Poisson_2D_Rectangle.restype = None
 	Poisson_2D_Rectangle(c_void_p(n4e.ctypes.data),
 						 c_void_p(ind4e.ctypes.data),
+						 c_void_p(ind4e.ctypes.data),
 					     c_void_p(c4n.ctypes.data),
 					     c_int(nrElems),
+					     c_int(0), # nrNbSide
 					     c_void_p(M_R.ctypes.data),
+					     c_void_p(M_R.ctypes.data),# M1D_R
 					     c_void_p(Srr_R.ctypes.data),
 					     c_void_p(Sss_R.ctypes.data),
 					     c_int(nrLocal),
+					     c_int(0), # nrLocalS
 					     c_void_p(fval.ctypes.data),
+					     c_void_p(fval.ctypes.data), # Neuman condition
 					     c_void_p(I.ctypes.data),
 					     c_void_p(J.ctypes.data),
 					     c_void_p(Alocal.ctypes.data),

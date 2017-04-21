@@ -34,8 +34,3 @@ class TestCommonModuleMethods(unittest.TestCase):
 			res = prefix_by_os(case)
 			print(case, answer, res)
 			self.assertEqual(res, answer)
-
-	def test_benchmark01_sample(self):
-		from mozart.poisson.fem.triangle import sample
-		sample()
-		self.assertTrue(True)
