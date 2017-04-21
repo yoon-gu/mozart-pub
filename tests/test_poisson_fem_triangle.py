@@ -21,3 +21,11 @@ def test_getMatrix2D():
 	npt.assert_almost_equal(Dr_R, ref_Dr, decimal=8)
 	npt.assert_almost_equal(Ds_R, ref_Ds, decimal=8)
 	npt.assert_almost_equal(M1D_R, ref_M1D, decimal=8)
+
+def test_compute_n4s():
+	from mozart.poisson.fem.triangle import compute_n4s
+	n4e = np.array([[1, 3, 0], [3, 1, 4], [2, 4, 1], [4, 2, 5], [4, 6, 3], [6, 4, 7], [5, 7, 4], [7, 5, 8]])
+	n4s = compute_n4s(n4e)
+	ref_n4s = np.array([[1, 3], [2, 4], [4, 6], [5, 7], [3, 0], [1, 4], [2, 5],
+		[6, 3], [4, 7], [5, 8], [0, 1], [4, 3], [1, 2], [5, 4], [7, 6], [8, 7]], dtype = int)
+	npt.assert_almost_equal(n4s, ref_n4s, decimal=8)
