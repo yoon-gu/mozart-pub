@@ -45,3 +45,21 @@ def test_compute_e4s():
 	ref_e4s = np.array([[0, 1], [2, 3], [4, 5], [6, 7], [0, -1], [1, 2],
 		[3, -1], [4, -1], [5, 6], [7, -1], [0, -1], [1, 4], [2, -1], [3, 6], [5, -1], [7, -1]], dtype = int)
 	npt.assert_almost_equal(e4s, ref_e4s, decimal=8)
+
+def test_refineUniformRed():
+	from mozart.poisson.fem.triangle import refineUniformRed
+	c4n = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.], [0.5, 0.5]])
+	n4e = np.array([[0, 1, 4], [1, 2, 4], [2, 3, 4], [3, 0, 4]])
+	n4Db = np.array([[0, 1], [1, 2]])
+	n4Nb = np.array([[2, 3], [3, 0]])
+	c4n, n4e, n4Db, n4Nb = refineUniformRed(c4n, n4e, n4Db, n4Nb)
+	ref_c4n = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.], [0.5, 0.5], [0.5, 0.],
+		[1., 0.5], [0.5, 1.], [0., 0.5], [0.75, 0.25], [0.75, 0.75], [0.25, 0.75], [0.25, 0.25]], dtype = np.float64)
+	ref_n4e = np.array([[0, 5, 12], [5, 1, 9], [9, 12, 5], [12, 9, 4], [1, 6, 9], [6, 2, 10], [10, 9, 6],
+		[9, 10, 4], [2, 7, 10], [7, 3, 11], [11, 10, 7], [10, 11, 4], [3, 8, 11], [8, 0, 12], [12, 11, 8], [11, 12, 4]], dtype = int)
+	ref_n4Db = np.array([[0, 5], [5, 1], [1, 6], [6, 2]], dtype = int)
+	ref_n4Nb = np.array([[2, 7], [7, 3], [3, 8], [8, 0]], dtype = int)
+	npt.assert_almost_equal(c4n, ref_c4n, decimal=8)
+	npt.assert_almost_equal(n4e, ref_n4e, decimal=8)
+	npt.assert_almost_equal(n4Db, ref_n4Db, decimal=8)
+	npt.assert_almost_equal(n4Nb, ref_n4Nb, decimal=8)
