@@ -63,3 +63,23 @@ def test_refineUniformRed():
 	npt.assert_almost_equal(n4e, ref_n4e, decimal=8)
 	npt.assert_almost_equal(n4Db, ref_n4Db, decimal=8)
 	npt.assert_almost_equal(n4Nb, ref_n4Nb, decimal=8)
+
+def test_getIndex():
+	from mozart.poisson.fem.triangle import getIndex
+	N = 3
+	c4n = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.]])
+	n4e = np.array([[1, 3, 0], [3, 1, 2]])
+	n4sDb = np.array([[0, 1], [2, 3], [3, 4]])
+	n4sNb = np.array([[1, 2]])
+	c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4sDb, n4sNb)
+	ref_c4nNew = np.array([[0., 0.], [1.,  0.], [1., 1.], [ 0., 1.], [2.0/3, 1.0/3],
+		[1.0/3, 2.0/3], [0., 2.0/3], [0., 1.0/3], [1., 1.0/3], [1., 2.0/3], [1.0/3, 0.],
+		[2.0/3, 0.], [2.0/3, 1.], [1.0/3, 1.], [1.0/3, 1.0/3], [2.0/3, 2.0/3]], dtype = np.float64)
+	ref_ind4e = np.array([[ 0, 10, 11,  1,  7, 14,  4,  6,  5,  3],
+		[ 2, 12, 13,  3,  9, 15,  5,  8,  4,  1]], dtype = int)
+	ref_ind4Db = np.array([ 0,  1,  2,  3,  4,  4,  5, 10, 11, 12, 13], dtype = int)
+	ref_ind4Nb = np.array([[1, 8, 9, 2]], dtype = int)
+	npt.assert_almost_equal(c4nNew, ref_c4nNew, decimal=8)
+	npt.assert_almost_equal(ind4e, ref_ind4e, decimal=8)
+	npt.assert_almost_equal(ind4Db, ref_ind4Db, decimal=8)
+	npt.assert_almost_equal(ind4Nb, ref_ind4Nb, decimal=8)
