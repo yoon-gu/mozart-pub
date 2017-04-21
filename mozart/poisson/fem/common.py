@@ -517,3 +517,53 @@ def RefNodes_Rect(degree):
 	r = r.flatten()
 	s = s.flatten()
 	return (r,s)
+
+def Simplex2DP_Rect(a,b,i,j):
+	"""
+	Compute 2D orthonormal polynomial on simplex(rectangle) at (a, b) of order (i, j)
+
+	Parameters
+		- ``a`` (``folat64 array``) : the value for the first normalized Jacobi polynomial in modal basis
+		- ``b`` (``float64 array``) : the value for the second normalized Jacobi polynomial in modal basis
+		- ``i`` (``int32``) : order of the the first normalized Jacobi polynomial in modal basis
+		- ``j`` (``int32``) : order of the the second normalized Jacobi polynomial in modal basis
+
+	Returns
+		- ``P`` (``float64 array``) : evaluated value
+
+	Example
+		>>> a = np.array([0, 1])
+		>>> b = np.array([2, 3])
+		>>> p = Simplex2DP_Rect(a, b, 0, 0)
+		>>> p
+	"""
+	h1 = nJacobiP(a,0,0,i)
+	h2 = nJacobiP(b,0,0,j)
+	P = h1 * h2
+	return P
+
+def Vandermonde2D_Rect(degree,r,s):
+	"""
+	Initialize the 2D Vandermonde Matrix, :math:`V_{i,j} = \\phi_j(r_i)`
+
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference rectangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference rectangle
+
+	Returns
+		- ``V2D`` (``float64 array``) : Vandermonde matrix in 2D
+
+	Example
+		>>> N = 2
+		>>> r, s = RefNodes_Rect(N)
+		>>> V2D = Vandermonde2D_Rect(N,r,s)
+		>>> V2D
+	"""
+	V2D = np.zeros((r.size, (degree + 1) * (degree + 1)), dtype = np.float64)
+	sk = 0
+	for i in range(0, degree + 1):
+		for j in range(0, degree + 1):
+			V2D[:, sk] = Simplex2DP_Rect(r,s,i,j)
+			sk = sk + 1
+	return V2D
