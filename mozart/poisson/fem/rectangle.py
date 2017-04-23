@@ -128,17 +128,17 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, approx_u, degree,
 	sH1error = 0
 
 	M_R, Srr_R, Sss_R, Dr_R, Ds_R = getMatrix(degree)
+	from mozart.poisson.fem.common import RefNodes_Rect, Vandermonde2D_Rect, Dmatrices2D_Rect
+	r, s = RefNodes_Rect(degree)
+	V = Vandermonde2D_Rect(degree, r, s)
+	Dr, Ds = Dmatrices2D_Rect(degree, r, s, V)
 
-	# r = np.linspace(-1, 1, degree + 1)
-	# V = VandermondeM1D(degree, r)
-	# Dr = Dmatrix1D(degree, r, V)
-
-	# r_i = np.linspace(-1, 1, degree_i + 1)
-	# V_i = VandermondeM1D(degree_i, r_i)
-	# invV_i = np.linalg.inv(V_i)
-	# M_R = np.dot(np.transpose(invV_i), invV_i)
-	# PM = VandermondeM1D(degree, r_i)
-	# interpM = np.transpose(np.linalg.solve(np.transpose(V), np.transpose(PM)))
+	r_i, s_i = RefNodes_Rect(degree_i)
+	V_i = Vandermonde2D_Rect(degree_i, r_i, s_i)
+	invV_i = np.linalg.inv(V_i)
+	M_R_i = np.dot(np.transpose(invV_i), invV_i)
+	PM = Vandermonde2D_Rect(degree, r_i, s_i)
+	interpM = np.transpose(np.linalg.solve(np.transpose(V), np.transpose(PM)))
 
 	for j in range(0,n4e.shape[0]):
 		xr = (c4n[n4e[j,1],0] - c4n[n4e[j,0],0])/2.0
