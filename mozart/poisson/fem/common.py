@@ -530,12 +530,6 @@ def Simplex2DP_Rect(a,b,i,j):
 
 	Returns
 		- ``P`` (``float64 array``) : evaluated value
-
-	Example
-		>>> a = np.array([0, 1])
-		>>> b = np.array([2, 3])
-		>>> p = Simplex2DP_Rect(a, b, 0, 0)
-		>>> p
 	"""
 	h1 = nJacobiP(a,0,0,i)
 	h2 = nJacobiP(b,0,0,j)
@@ -553,12 +547,6 @@ def Vandermonde2D_Rect(degree,r,s):
 
 	Returns
 		- ``V2D`` (``float64 array``) : Vandermonde matrix in 2D
-
-	Example
-		>>> N = 2
-		>>> r, s = RefNodes_Rect(N)
-		>>> V2D = Vandermonde2D_Rect(N,r,s)
-		>>> V2D
 	"""
 	V2D = np.zeros((r.size, (degree + 1) * (degree + 1)), dtype = np.float64)
 	sk = 0
@@ -567,3 +555,73 @@ def Vandermonde2D_Rect(degree,r,s):
 			V2D[:, sk] = Simplex2DP_Rect(r,s,i,j)
 			sk = sk + 1
 	return V2D
+
+def GradSimplex2DP_Rect(r,s,id,jd):
+	"""
+	Return the derivatives of the modal basis (id,jd) on the rectangle at (a,b).
+
+	Parameters
+		- ``r`` (``float64``) : 
+		- ``s`` (``float64``) : 
+		- ``id`` (``int32``) : order of the the first normalized Jacobi polynomial in modal basis
+		- ``jd`` (``int32``) : order of the the second normalized Jacobi polynomial in modal basis
+
+	Returns
+		- ``dmodedr`` (``float64 array``) : derivative value of modal basis on the rectangle along r-direction
+		- ``dmodeds`` (``float64 array``) : derivative value of modal basis on the rectangle along s-direction
+	"""
+	fr = nJacobiP(r, 0, 0, id)
+	dfr = DnJacobiP(r, 0, 0, id)
+	gs = nJacobiP(s, 0, 0, jd)
+	dgs = DnJacobiP(s, 0, 0, jd)
+
+	dmodedr = dfr * gs
+	dmodeds = fr * dgs
+	return (dmodedr, dmodeds)
+
+
+def GradVandermonde2D_Rect(degree,r,s):
+	"""
+	Initialize the gradient of the modal basis (i,j) at (r,s) at order N
+
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+
+	Returns
+		- ``V2Dr`` (``float64 array``) : Gradient of Vandermonde matrix on the 2D simplex along r-direction
+		- ``V2Ds`` (``float64 array``) : Gradient of Vandermonde matrix on the 2D simplex along s-direction
+	"""
+	V2Dr = np.zeros((r.size, (degree + 1) * (degree + 1)), dtype = np.float64)
+	V2Ds = np.zeros((r.size, (degree + 1) * (degree + 1)), dtype = np.float64)
+
+	sk = 0
+	for i in range(0,degree+1):
+		for j in range(0,degree+1):
+			V2Dr[:,sk], V2Ds[:,sk] = GradSimplex2DP_Rect(r,s,i,j)
+			sk += 1
+
+	return (V2Dr, V2Ds)
+
+def Dmatrices2D_Rect(degree,r,s,V):
+	"""
+	Initialize the (r,s) differentiation matrices on the simplex, evaluated at (r,s) at order N
+
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+		- ``V`` (``float64 array``) : Vandermonde matrix in 2D
+
+	Returns
+		- ``Dr`` (``float64 array``) : differentiation matrix along r-direction
+		- ``Ds`` (``float64 array``) : differentiation matrix along s-direction
+
+	"""
+	Vr, Vs = GradVandermonde2D_Rect(degree, r, s)
+	invV = np.linalg.inv(V)
+	Dr = np.dot(Vr,invV)
+	Ds = np.dot(Vs,invV)
+
+	return (Dr, Ds)
