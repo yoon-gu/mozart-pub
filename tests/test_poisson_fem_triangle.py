@@ -69,7 +69,7 @@ def test_getIndex():
 	N = 3
 	c4n = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.]])
 	n4e = np.array([[1, 3, 0], [3, 1, 2]])
-	n4sDb = np.array([[0, 1], [2, 3], [3, 4]])
+	n4sDb = np.array([[0, 1], [2, 3], [3, 0]])
 	n4sNb = np.array([[1, 2]])
 	c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4sDb, n4sNb)
 	ref_c4nNew = np.array([[0., 0.], [1.,  0.], [1., 1.], [ 0., 1.], [2.0/3, 1.0/3],
@@ -83,3 +83,20 @@ def test_getIndex():
 	npt.assert_almost_equal(ind4e, ref_ind4e, decimal=8)
 	npt.assert_almost_equal(ind4Db, ref_ind4Db, decimal=8)
 	npt.assert_almost_equal(ind4Nb, ref_ind4Nb, decimal=8)
+
+def test_solve():
+	from mozart.poisson.fem.triangle import getIndex, getMatrix, solve
+	N=3
+	c4n = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.]])
+	n4e = np.array([[1, 3, 0], [3, 1, 2]])
+	n4sDb = np.array([[0, 1], [2, 3], [3, 0]])
+	n4sNb = np.array([[1, 2]])
+	c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4sDb, n4sNb)
+	M_R, Srr_R, Srs_R, Ssr_R, Sss_R, Dr_R, Ds_R, M1D_R = getMatrix(N)
+	f = (lambda x, y: 2 * np.pi**2 * np.sin(np.pi * x) * np.sin(np.pi * y))
+	u_D = (lambda x, y: x * 0)
+	u_N = (lambda x, y: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y))
+	x = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Srs_R, Ssr_R, Sss_R, M1D_R, f, u_D, u_N)
+	ref_x = np.array([0.0, 0.0, 0.0, 0.0, 0.765319076383922, 0.721859628155421, 0.0, 0.0,
+		0.173837792914003, 0.077001015038323, 0.0, 0.0, 0.0, 0.0, 0.680219813668878, 0.699470067428459])
+	npt.assert_almost_equal(x, ref_x, decimal=8)
