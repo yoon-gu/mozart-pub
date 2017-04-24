@@ -439,35 +439,15 @@ def solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Srs_R, Ssr_R, Sss_R, M
 		>>> n4sNb = np.array([[1, 2]])
 		>>> c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4sDb, n4sNb)
 		>>> M_R, Srr_R, Srs_R, Ssr_R, Sss_R, Dr_R, Ds_R, M1D_R = getMatrix(N)
+		>>> f = (lambda x, y: 2 * np.pi**2 * np.sin(np.pi * x) * np.sin(np.pi * y))
+		>>> u_D = (lambda x, y: x * 0)
+		>>> u_N = (lambda x, y: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y))
+		>>> x = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Srs_R, Ssr_R, Sss_R, M1D_R, f, u_D, u_N)
 		>>> c4nNew
-		array([[ 0. ,  0. ],
-		   [ 1. ,  0. ],
-		   [ 1. ,  1. ],
-		   [ 0. ,  1. ],
-		   [ 0.5,  0.5],
-		   [ 0. ,  0.5],
-		   [ 1. ,  0.5],
-		   [ 0.5,  0. ],
-		   [ 0.5,  1. ]])
-		>>> n4eNew
-		array([[1, 4, 7],
-		   [4, 3, 5],
-		   [5, 7, 4],
-		   [7, 5, 0],
-		   [3, 4, 8],
-		   [4, 1, 6],
-		   [6, 8, 4],
-		   [8, 6, 2]])
-		>>> n4DbNew
-		array([[0, 7],
-		   [7, 1],
-		   [1, 6],
-		   [6, 2]])
-		>>>n4NbNew
-		array([[2, 8],
-		   [8, 3],
-		   [3, 5],
-		   [5, 0]])
+		array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.76531908,
+		   0.72185963,  0.        ,  0.        ,  0.17383779,  0.07700102,
+		   0.        ,  0.        ,  0.        ,  0.        ,  0.68021981,
+		   0.69947007])
 	"""
 	from os import listdir
 	from scipy.sparse import coo_matrix
