@@ -77,7 +77,7 @@ def test_getIndex():
 		[2.0/3, 0.], [2.0/3, 1.], [1.0/3, 1.], [1.0/3, 1.0/3], [2.0/3, 2.0/3]], dtype = np.float64)
 	ref_ind4e = np.array([[ 0, 10, 11,  1,  7, 14,  4,  6,  5,  3],
 		[ 2, 12, 13,  3,  9, 15,  5,  8,  4,  1]], dtype = int)
-	ref_ind4Db = np.array([ 0,  1,  2,  3,  4,  4,  5, 10, 11, 12, 13], dtype = int)
+	ref_ind4Db = np.array([ 0,  1,  2,  3,  6,  7, 10, 11, 12, 13], dtype = int)
 	ref_ind4Nb = np.array([[1, 8, 9, 2]], dtype = int)
 	npt.assert_almost_equal(c4nNew, ref_c4nNew, decimal=8)
 	npt.assert_almost_equal(ind4e, ref_ind4e, decimal=8)
