@@ -125,9 +125,10 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, approx_u, degree,
 		0.466257369082
 	"""
 	# L2error = 0
-	sH1error = 0
+	# sH1error = 0
+	nrElems = int(n4e.shape[0])
 
-	M_R, Srr_R, Sss_R, Dr_R, Ds_R = getMatrix(degree)
+	# M_R, Srr_R, Sss_R, Dr_R, Ds_R = getMatrix(degree)
 	from mozart.poisson.fem.common import RefNodes_Rect, Vandermonde2D_Rect, Dmatrices2D_Rect
 	r, s = RefNodes_Rect(degree)
 	V = Vandermonde2D_Rect(degree, r, s)
@@ -136,24 +137,60 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, approx_u, degree,
 	r_i, s_i = RefNodes_Rect(degree_i)
 	V_i = Vandermonde2D_Rect(degree_i, r_i, s_i)
 	invV_i = np.linalg.inv(V_i)
-	M_R_i = np.dot(np.transpose(invV_i), invV_i)
+	M_R = np.dot(np.transpose(invV_i), invV_i)
 	PM = Vandermonde2D_Rect(degree, r_i, s_i)
 	interpM = np.transpose(np.linalg.solve(np.transpose(V), np.transpose(PM)))
 
-	for j in range(0,n4e.shape[0]):
-		xr = (c4n[n4e[j,1],0] - c4n[n4e[j,0],0])/2.0
-		ys = (c4n[n4e[j,3],1] - c4n[n4e[j,0],1])/2.0
-		Jacobi = xr*ys
-		rx = ys/Jacobi
-		sy = xr/Jacobi
+	nrLocal = (degree + 1) * (degree + 1)
+	nrLocal_i = (degree_i + 1) * (degree_i + 1)
 
-		Dex = exact_ux(c4n[ind4e[j],0],c4n[ind4e[j],1]) - rx*np.dot(Dr_R,approx_u[ind4e[j]])
-		Dey = exact_uy(c4n[ind4e[j],0],c4n[ind4e[j],1]) - sy*np.dot(Ds_R,approx_u[ind4e[j]])
-		sH1error += Jacobi*(np.dot(np.dot(np.transpose(Dex),M_R),Dex) + np.dot(np.dot(np.transpose(Dey),M_R),Dey))
+	# for j in range(0,n4e.shape[0]):
+	# 	xr = (c4n[n4e[j,1],0] - c4n[n4e[j,0],0])/2.0
+	# 	ys = (c4n[n4e[j,3],1] - c4n[n4e[j,0],1])/2.0
+	# 	Jacobi = xr*ys
+	# 	rx = ys/Jacobi
+	# 	sy = xr/Jacobi
 
+	# 	Dex = exact_ux(c4n[ind4e[j],0],c4n[ind4e[j],1]) - rx*np.dot(Dr_R,approx_u[ind4e[j]])
+	# 	Dey = exact_uy(c4n[ind4e[j],0],c4n[ind4e[j],1]) - sy*np.dot(Ds_R,approx_u[ind4e[j]])
+	# 	sH1error += Jacobi*(np.dot(np.dot(np.transpose(Dex),M_R),Dex) + np.dot(np.dot(np.transpose(Dey),M_R),Dey))
+
+
+	Error_2D_Rec = lib['Error_2D_Rec_a']
+	Error_2D_Rec.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
+							 c_void_p, c_void_p, c_void_p, c_void_p, c_int, c_int,
+							 c_void_p, c_void_p, c_void_p, c_void_p, c_void_p, c_void_p, )
+	L2error = np.array([0.0], dtype=np.float64)
+	sH1error = np.array([0.0], dtype=np.float64)
+	# c4n = c4n.flatten()
+	# ind4e = ind4e.flatten()
+	# n4e = n4e.flatten()
+
+	# Nodes_x = repmat(c4n(1,n4e(1,:)),nrLocal_i,1) + (r_i+1)*(c4n(1,n4e(2,:))-c4n(1,n4e(1,:)))/2+(s_i+1)*(c4n(1,n4e(4,:))-c4n(1,n4e(1,:)))/2;
+ #    Nodes_y = repmat(c4n(2,n4e(1,:)),nrLocal_i,1) + (r_i+1)*(c4n(2,n4e(2,:))-c4n(2,n4e(1,:)))/2+(s_i+1)*(c4n(2,n4e(4,:))-c4n(2,n4e(1,:)))/2;
+    
+	Error_2D_Rec.restype = None
+	Error_2D_Rec(c_void_p(n4e.flatten().ctypes.data),
+				 c_void_p(ind4e.flatten().ctypes.data),
+				 c_void_p(c4n.flatten().ctypes.data),
+				 c_int(nrElems),
+				 c_void_p(M_R.ctypes.data),
+				 c_void_p(interpM.ctypes.data),
+				 c_void_p(Dr.ctypes.data),
+				 c_void_p(Ds.ctypes.data),
+				 c_int(nrLocal),
+				 c_int(nrLocal_i),
+				 c_void_p(approx_u.ctypes.data), 
+				 c_void_p(exact_u(c4n[ind4e,0],c4n[ind4e,1]).ctypes.data),
+				 c_void_p(exact_ux(c4n[ind4e,0],c4n[ind4e,1]).ctypes.data),
+				 c_void_p(exact_uy(c4n[ind4e,0],c4n[ind4e,1]).ctypes.data),
+				 c_void_p(L2error.ctypes.data),
+				 c_void_p(sH1error.ctypes.data))
+
+	L2error = np.sqrt(L2error)
 	sH1error = np.sqrt(sH1error)
 
-	return sH1error
+	return (L2error, sH1error)
 
 def getMatrix(degree):
 	"""
