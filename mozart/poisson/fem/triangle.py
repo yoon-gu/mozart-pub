@@ -496,14 +496,14 @@ def solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Srs_R, Ssr_R, Sss_R, M
 						c_void_p, c_void_p,
 						c_void_p, c_void_p, c_void_p, c_void_p)
 	Poison_2D.restype = None
-	Poison_2D(c_void_p(n4e.flatten().ctypes.data), c_void_p(ind4e.flatten().ctypes.data),
-		c_void_p(ind4Nb.flatten().ctypes.data), c_void_p(c4nNew.flatten().ctypes.data), c_int(nrElems),
-		c_int(nrNbSide), c_void_p(M_R.flatten().ctypes.data), c_void_p(M1D_R.flatten().ctypes.data),
-		c_void_p(Srr_R.flatten().ctypes.data), c_void_p(Srs_R.flatten().ctypes.data), c_void_p(Ssr_R.flatten().ctypes.data),
-		c_void_p(Sss_R.flatten().ctypes.data), c_int(nrLocal), c_int(nrLocalS),
-		c_void_p(f_val.flatten().ctypes.data), c_void_p(g_val.flatten().ctypes.data),
-		c_void_p(I.flatten().ctypes.data), c_void_p(J.flatten().ctypes.data),
-		c_void_p(Alocal.flatten().ctypes.data), c_void_p(b.flatten().ctypes.data))
+	Poison_2D(c_void_p(n4e.ctypes.data), c_void_p(ind4e.ctypes.data),
+		c_void_p(ind4Nb.ctypes.data), c_void_p(c4nNew.ctypes.data), c_int(nrElems),
+		c_int(nrNbSide), c_void_p(M_R.ctypes.data), c_void_p(M1D_R.ctypes.data),
+		c_void_p(Srr_R.ctypes.data), c_void_p(Srs_R.ctypes.data), c_void_p(Ssr_R.ctypes.data),
+		c_void_p(Sss_R.ctypes.data), c_int(nrLocal), c_int(nrLocalS),
+		c_void_p(f_val.ctypes.data), c_void_p(g_val.ctypes.data),
+		c_void_p(I.ctypes.data), c_void_p(J.ctypes.data),
+		c_void_p(Alocal.ctypes.data), c_void_p(b.ctypes.data))
 
 	STIMA_COO = coo_matrix((Alocal, (I, J)), shape=(nrNodes, nrNodes))
 	STIMA_CSR = STIMA_COO.tocsr()
