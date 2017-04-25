@@ -497,6 +497,98 @@ def solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Srs_R, Ssr_R, Sss_R, M
 	
 	return x
 
+def Error(c4n, n4e, ind4e, u, u_exact, ux, uy, degree, degree_i):
+	"""
+	Refine a given mesh uniformly using the red refinement
+
+	Paramters
+		- ``c4n`` (``float64 array``) : coordinates for nodes
+		- ``n4e`` (``int32 array``) : nodes for elements
+		- ``ind4e`` (``int32 array``) : indices on each element
+		- ``u`` (``float64 array``) : numerical solution
+		- ``u_exact`` (``lambda function``) : exact solution
+		- ``ux`` (``lambda function``) : derivative of the exact solution with respect to x
+		- ``uy`` (``lambda function``) : derivative of the exact solution with respect to y
+		- ``degree`` (``int32``) : degree of polynomial
+		- ``degree_i`` (``int32``) : degree of polynomial for interpolation
+
+	Returns
+		- ``L2error`` (``float64 array``) : L2error between the numerical and the exact solutions
+		- ``sH1error`` (``float64 array``) : semi-H1error between the numerical and the exact solutions
+
+	Example
+		>>> N = 3
+		>>> c4n = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.]])
+		>>> n4e = np.array([[1, 3, 0], [3, 1, 2]])
+		>>> n4sDb = np.array([[0, 1], [2, 3], [3, 0]])
+		>>> n4sNb = np.array([[1, 2]])
+		>>> c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4sDb, n4sNb)
+		>>> M_R, Srr_R, Srs_R, Ssr_R, Sss_R, Dr_R, Ds_R, M1D_R = getMatrix(N)
+		>>> f = (lambda x, y: 2 * np.pi**2 * np.sin(np.pi * x) * np.sin(np.pi * y))
+		>>> u_D = (lambda x, y: x * 0)
+		>>> u_N = (lambda x, y: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y))
+		>>> u_exact = (lambda x, y: np.sin(np.pi * x) * np.sin(np.pi * y))
+		>>> ux = (lambda x, y: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y))
+		>>> uy = (lambda x, y: np.pi * np.sin(np.pi * x) * np.cos(np.pi * y))
+		>>> x = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Srs_R, Ssr_R, Sss_R, M1D_R, f, u_D, u_N)
+		>>> L2error, sH1error = Error(c4n, n4e, ind4e, u, u_exact, ux, uy, N, N+3)
+		>>> L2error
+
+		>>> sH2error
+
+	"""
+	from os import listdir
+	
+	L2error = np.zeros(1, dtype = np.float64)
+	sH1error = np.zeros(1, dtype = np.float64)
+
+	r, s = RefNodes_Tri(degree)
+	V = Vandermonde2D(degree, r, s)
+	Dr_R, Ds_R = Dmatrices2D(degree, r, s, V)
+
+	r_i, s_i = RefNodes_Tri(degree_i)
+	V_i = Vandermonde2D(degree_i, r_i, s_i)
+	invV_i = np.linalg.inv(V_i)
+	M_R = np.dot(np.transpose(invV_i),invV_i)
+	PM = Vandermonde2D(degree, r_i, s_i)
+	interpM = np.linalg.solve(V.transpose(), PM.transpose()).transpose()
+
+	nrElems = n4e.shape[0]
+	nrLocal = r.shape[0]
+	nrLocal_i = r_i.shape[0]
+
+	Nodes_x = np.outer((r_i+1)/2,c4n[n4e[:,0],0]) \
+	   + np.outer((s_i+1)/2,c4n[n4e[:,1],0]) - np.outer((r_i+s_i)/2,c4n[n4e[:,2],0])
+    Nodes_y = np.outer((r_i+1)/2,c4n[n4e[:,0],1]) \
+	   + np.outer((s_i+1)/2,c4n[n4e[:,1],1]) - np.outer((r_i+s_i)/2,c4n[n4e[:,2],1])
+
+	u_exact_val = u_exact(Nodes_x.flatten('F'), Nodes_y.flatten('F')).reshape((nrElems,nrLocal_i))
+	ux_val = ux(Nodes_x.flatten('F'), Nodes_y.flatten('F')).reshape((nrElems,nrLocal_i))
+	uy_val = uy(Nodes_x.flatten('F'), Nodes_y.flatten('F')).reshape((nrElems,nrLocal_i))
+	u_recon = u[ind4e].transpose()
+
+	Error_2D = lib['Error_2D_Tri_a'] # need the extern!!
+	Error_2D.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
+						c_void_p, c_void_p,
+						c_void_p, c_void_p,
+						c_int, c_int,
+						c_void_p, c_void_p, c_void_p, c_void_p,
+						c_void_p, c_void_p)
+	Error_2D.restype = None
+	Error_2D(c_void_p(n4e.ctypes.data), c_void_p(ind4e.ctypes.data),
+		c_void_p(c4n.ctypes.data), c_int(nrElems),
+		c_void_p(M_R.ctypes.data), c_void_p(interpM.ctypes.data),
+		c_void_p(Dr_R.ctypes.data), c_void_p(Ds_R.ctypes.data),
+		c_int(nrLocal), c_int(nrLocal_i),
+		c_void_p(u_recon.ctypes.data), c_void_p(u_exact_val.ctypes.data),
+		c_void_p(ux_val.ctypes.data), c_void_p(uy_val.ctypes.data),
+		c_void_p(L2error.ctypes.data), c_void_p(sH1error.ctypes.data))
+
+	L2error = np.sqrt(L2error)
+	sH1error = np.sqrt(sH1error)
+
+	return (L2error, sH1error)
+
 
 # def sample():
 # 	from os import listdir
