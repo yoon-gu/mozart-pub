@@ -202,6 +202,8 @@ def getIndex(degree, c4n, n4e, n4sDb, n4sNb):
 
 	r, s = RefNodes_Tri(degree)
 
+	c4nNew = c4n
+
 	if degree > 1:
 		r1D = np.linspace(-1,1,degree+1)
 		r1D = r1D[1:degree]
@@ -209,7 +211,7 @@ def getIndex(degree, c4n, n4e, n4sDb, n4sNb):
 		c4sx = np.tile(Mid[:,0],(degree-1,1)).transpose() + np.outer((c4n[n4s[:,1],0] - c4n[n4s[:,0],0])/2,r1D)
 		c4sy = np.tile(Mid[:,1],(degree-1,1)).transpose() + np.outer((c4n[n4s[:,1],1] - c4n[n4s[:,0],1])/2,r1D)
 		c4s = np.vstack((c4sx.flatten(), c4sy.flatten())).transpose()
-		c4nNew = np.vstack((c4n, c4s))
+		c4nNew = np.vstack((c4nNew, c4s))
 
 	if degree > 2:
 		i_ind = np.setdiff1d(np.arange(0,nrLocal),BDindex_F.flatten())
@@ -530,15 +532,13 @@ def Error(c4n, n4e, ind4e, u, u_exact, ux, uy, degree, degree_i):
 		>>> u_exact = (lambda x, y: np.sin(np.pi * x) * np.sin(np.pi * y))
 		>>> ux = (lambda x, y: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y))
 		>>> uy = (lambda x, y: np.pi * np.sin(np.pi * x) * np.cos(np.pi * y))
-		>>> x = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Srs_R, Ssr_R, Sss_R, M1D_R, f, u_D, u_N)
+		>>> u = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Srs_R, Ssr_R, Sss_R, M1D_R, f, u_D, u_N)
 		>>> L2error, sH1error = Error(c4n, n4e, ind4e, u, u_exact, ux, uy, N, N+3)
 		>>> L2error
-
+		array([ 0.08607183])
 		>>> sH2error
-
+		array([ 0.77150202])
 	"""
-	from os import listdir
-	
 	L2error = np.zeros(1, dtype = np.float64)
 	sH1error = np.zeros(1, dtype = np.float64)
 
@@ -559,13 +559,16 @@ def Error(c4n, n4e, ind4e, u, u_exact, ux, uy, degree, degree_i):
 
 	Nodes_x = np.outer((r_i+1)/2,c4n[n4e[:,0],0]) \
 	   + np.outer((s_i+1)/2,c4n[n4e[:,1],0]) - np.outer((r_i+s_i)/2,c4n[n4e[:,2],0])
-    Nodes_y = np.outer((r_i+1)/2,c4n[n4e[:,0],1]) \
+	Nodes_y = np.outer((r_i+1)/2,c4n[n4e[:,0],1]) \
 	   + np.outer((s_i+1)/2,c4n[n4e[:,1],1]) - np.outer((r_i+s_i)/2,c4n[n4e[:,2],1])
 
-	u_exact_val = u_exact(Nodes_x.flatten('F'), Nodes_y.flatten('F')).reshape((nrElems,nrLocal_i))
-	ux_val = ux(Nodes_x.flatten('F'), Nodes_y.flatten('F')).reshape((nrElems,nrLocal_i))
-	uy_val = uy(Nodes_x.flatten('F'), Nodes_y.flatten('F')).reshape((nrElems,nrLocal_i))
-	u_recon = u[ind4e].transpose()
+	u_exact_val = u_exact(Nodes_x.flatten('F'), Nodes_y.flatten('F'))
+	ux_val = ux(Nodes_x.flatten('F'), Nodes_y.flatten('F'))
+	uy_val = uy(Nodes_x.flatten('F'), Nodes_y.flatten('F'))
+	u_recon = u[ind4e]
+
+	Dr_R = Dr_R.flatten('F')
+	Ds_R = Ds_R.flatten('F')
 
 	Error_2D = lib['Error_2D_Tri_a'] # need the extern!!
 	Error_2D.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
