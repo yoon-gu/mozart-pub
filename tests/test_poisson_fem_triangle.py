@@ -100,3 +100,35 @@ def test_solve():
 	ref_x = np.array([0.0, 0.0, 0.0, 0.0, 0.765319076383922, 0.721859628155421, 0.0, 0.0,
 		0.173837792914003, 0.077001015038323, 0.0, 0.0, 0.0, 0.0, 0.680219813668878, 0.699470067428459])
 	npt.assert_almost_equal(x, ref_x, decimal=8)
+
+def test_Error():
+	from mozart.poisson.fem.triangle import getIndex, getMatrix, solve, Error, refineUniformRed
+	iter = 5
+	f = (lambda x, y: 2 * np.pi**2 * np.sin(np.pi * x) * np.sin(np.pi * y))
+	u_D = (lambda x, y: x * 0)
+	u_N = (lambda x, y: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y))
+	u_exact = (lambda x, y: np.sin(np.pi * x) * np.sin(np.pi * y))
+	ux = (lambda x, y: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y))
+	uy = (lambda x, y: np.pi * np.sin(np.pi * x) * np.cos(np.pi * y))
+
+	for N in range (1,5):
+		c4n = np.array([[0., 0.], [1., 0.], [1., 1.], [0., 1.]])
+		n4e = np.array([[1, 3, 0], [3, 1, 2]])
+		n4sDb = np.array([[0, 1], [2, 3], [3, 0]])
+		n4sNb = np.array([[1, 2]])
+
+		M_R, Srr_R, Srs_R, Ssr_R, Sss_R, Dr_R, Ds_R, M1D_R = getMatrix(N)
+		L2error = np.zeros(iter, dtype = np.float64)
+		sH1error = np.zeros(iter, dtype = np.float64)
+		h = np.zeros(iter, dtype = np.float64)
+		for j in range(0,iter):
+			c4n, n4e, n4sDb, n4sNb = refineUniformRed(c4n, n4e, n4sDb, n4sNb)
+			c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4sDb, n4sNb)
+			u = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Srs_R, Ssr_R, Sss_R, M1D_R, f, u_D, u_N)
+			L2error[j], sH1error[j] = Error(c4n, n4e, ind4e, u, u_exact, ux, uy, N, N+3)
+			h[j] = 0.5 ** (j+1)
+
+		rateL2 = (np.log(L2error[1:])-np.log(L2error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
+		ratesH1 = (np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
+		npt.assert_array_less(N+1-0.1, rateL2[-1])
+		npt.assert_array_less(N-0.1, ratesH1[-1])
