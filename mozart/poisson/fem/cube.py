@@ -9,6 +9,55 @@ lib = CDLL(dllpath)
 
 from mozart.poisson.fem.common import nJacobiP, DnJacobiP, VandermondeM1D, Dmatrix1D
 
+def compute_n4s(n4e):
+	"""
+	Get a matrix whose each row contains end points of the corresponding side (or edge)
+
+	Paramters
+		- ``n4e`` (``int32 array``) : nodes for elements
+
+	Returns
+		- ``n4s`` (``int32 array``) : nodes for sides
+
+	Example
+		>>> n4e = np.array([[0, 1, 4, 3, 6, 7,10, 9], [1, 2, 5, 4, 4, 8, 11, 10]])
+		>>> n4s = compute_n4s(n4e)
+		>>> n4s
+		array([[ 0,  1],
+		   [ 1,  2],
+		   [ 1,  4],
+		   [ 2,  5],
+		   [ 4,  3],
+		   [ 5,  4],
+		   [ 3,  1],
+		   [ 4,  2],
+		   [ 0,  6],
+		   [ 1,  7],
+		   [ 2,  8],
+		   [ 4, 10],
+		   [ 5, 11],
+		   [ 3,  9],
+		   [ 6,  7],
+		   [ 4,  8],
+		   [ 7, 10],
+		   [ 8, 11],
+		   [10,  9],
+		   [11, 10],
+		   [ 9,  6]])
+	"""
+	allSides = np.array([n4e[:,[0,1]], n4e[:,[1,2]], n4e[:,[2,3]], n4e[:,[3,1]],
+		n4e[:,[0,4]], n4e[:,[1,5]], n4e[:,[2,6]], n4e[:,[3,7]],
+		n4e[:,[4,5]], n4e[:,[5,6]], n4e[:,[6,7]], n4e[:,[7,4]]])
+	allSides = np.reshape(allSides,(12*n4e.shape[0],-1))
+	tmp=np.sort(allSides)
+	x, y = tmp.T
+	_, ind = np.unique(x + y*1.0j, return_index=True)
+	n4sInd = np.sort(ind)
+	n4s = allSides[n4sInd,:]
+	return n4s
+
+
+
 def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	"""
 	Computes the coordinates of nodes and elements.
