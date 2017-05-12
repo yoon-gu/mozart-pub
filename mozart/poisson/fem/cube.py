@@ -55,6 +55,36 @@ def compute_n4s(n4e):
 	n4s = allSides[n4sInd,:]
 	return n4s
 
+def compute_s4e(n4e):
+	"""
+	Get a matrix whose each row contains three side numbers of the corresponding element
+
+	Paramters
+		- ``n4e`` (``int32 array``) : nodes for elements
+
+	Returns
+		- ``s4e`` (``int32 array``) : sides for elements
+
+	Example
+		>>> n4e = np.array([[0, 1, 4, 3, 6, 7, 10, 9], [1, 2, 5, 4, 7, 8, 11, 10]])
+		>>> s4e = compute_s4e(n4e)
+		>>> s4e
+		array([[ 0,  2,  4,  6,  7,  8, 10, 12, 13, 15, 17, 19],
+		   [ 1,  3,  5,  2,  8,  9, 11, 10, 14, 16, 18, 15]])
+	"""
+	allSides = np.array([n4e[:,[0,1]], n4e[:,[1,2]], n4e[:,[2,3]], n4e[:,[3,0]],
+		n4e[:,[0,4]], n4e[:,[1,5]], n4e[:,[2,6]], n4e[:,[3,7]],
+		n4e[:,[4,5]], n4e[:,[5,6]], n4e[:,[6,7]], n4e[:,[7,4]]])
+	allSides = np.reshape(allSides,(12*n4e.shape[0],-1))
+	tmp=np.sort(allSides)
+	x, y = tmp.T
+	_, ind, back = np.unique(x + y*1.0j, return_index=True, return_inverse=True)
+	sortInd = ind.argsort()
+	sideNr = np.zeros(ind.size, dtype = int)
+	sideNr[sortInd] = np.arange(0,ind.size)
+	s4e = sideNr[back].reshape(12,-1).transpose().astype('int')
+	return s4e
+
 def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	"""
 	Computes the coordinates of nodes and elements.

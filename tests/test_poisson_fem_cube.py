@@ -12,6 +12,14 @@ def test_compute_n4s():
 		[10,  9], [11, 10], [ 9,  6]], dtype = int)
 	npt.assert_almost_equal(n4s, ref_n4s, decimal=8)
 
+def test_compute_s4e():
+	from mozart.poisson.fem.cube import compute_s4e
+	n4e = np.array([[0, 1, 4, 3, 6, 7, 10, 9], [1, 2, 5, 4, 7, 8, 11, 10]])
+	s4e = compute_s4e(n4e)
+	ref_s4e = np.array([[ 0,  2,  4,  6,  7,  8, 10, 12, 13, 15, 17, 19],
+				[ 1,  3,  5,  2,  8,  9, 11, 10, 14, 16, 18, 15]], dtype = int)
+	npt.assert_almost_equal(s4e, ref_s4e, decimal=8)
+
 def test_getPoissonMatrix3D():
 	from mozart.poisson.fem.cube import getMatrix
 	M_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(1)
