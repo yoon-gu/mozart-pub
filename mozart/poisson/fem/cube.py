@@ -150,6 +150,55 @@ def compute_f4e(n4e):
 	f4e = sideNr[back].reshape(6,-1).transpose().astype('int')
 	return f4e
 
+def compute_e4f(n4e):
+	"""
+	Get a matrix whose each row contains two elements sharing the corresponding face
+	If second column is -1, the corresponding face is on the boundary
+
+	Paramters
+		- ``n4e`` (``int32 array``) : nodes for elements
+
+	Returns
+		- ``e4f`` (``int32 array``) : elements for faces
+
+	Example
+		>>> n4e = np.array([[0, 1, 4, 3, 6, 7, 10, 9], [1, 2, 5, 4, 7, 8, 11, 10]])
+		>>> e4f = compute_e4f(n4e)
+		>>> e4f
+		array([[ 0, -1],
+		   [ 0, -1],
+		   [ 0, -1],
+		   [ 0, -1],
+		   [ 0,  1],
+		   [ 0, -1],
+		   [ 1, -1],
+		   [ 1, -1],
+		   [ 1, -1],
+		   [ 1, -1],
+		   [ 1, -1]])
+	"""
+	allFaces = np.array([n4e[:,[0,1,2,3]], n4e[:,[0,1,5,4]], n4e[:,[1,2,6,5]],
+		n4e[:,[2,3,7,6]], n4e[:,[3,0,4,7]], n4e[:,[4,5,6,7]]])
+	allFaces = np.reshape(allFaces,(6*n4e.shape[0],-1))
+	tmp=np.sort(allFaces)
+	tmp=np.ascontiguousarray(tmp)
+	_, ind, back = np.unique(tmp.view([('',tmp.dtype)]*tmp.shape[1]),return_index=True, return_inverse=True)
+	n4fInd = np.sort(ind)
+
+	nrElems = n4e.shape[0]
+	import numpy.matlib
+	elemNumbers = np.matlib.repmat(np.arange(0,nrElems),6,1).flatten('F')
+
+	e4f=np.zeros((ind.size,2),int)
+	e4f[:,0]=elemNumbers[n4fInd] + 1
+
+	allElems4s=np.zeros(allFaces.shape[0],int)
+	tmp2 = np.bincount((back + 1),weights = (elemNumbers + 1))
+	allElems4s[ind]=tmp2[1::]
+	e4f[:,1] = allElems4s[n4fInd] - e4f[:,0]
+	e4f=e4f-1
+	return e4f
+
 def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	"""
 	Computes the coordinates of nodes and elements.
