@@ -4,12 +4,12 @@ from numpy import linalg as LA
 
 def test_compute_n4s():
 	from mozart.poisson.fem.cube import compute_n4s
-	n4e = np.array([[0, 1, 4, 3, 6, 7,10, 9], [1, 2, 5, 4, 4, 8, 11, 10]])
+	n4e = np.array([[0, 1, 4, 3, 6, 7, 10, 9], [1, 2, 5, 4, 7, 8, 11, 10]])
 	n4s = compute_n4s(n4e)
 	ref_n4s = np.array([[ 0,  1], [ 1,  2], [ 1,  4], [ 2,  5], [ 4,  3], 
-		[ 5,  4], [ 3,  1], [ 4,  2], [ 0,  6], [ 1,  7], [ 2,  8], 
-		[ 4, 10], [ 5, 11], [ 3,  9], [ 6,  7], [ 4,  8], [ 7, 10], 
-		[ 8, 11], [10,  9], [11, 10], [ 9,  6]], dtype = int)
+		[ 5,  4], [ 3,  0], [ 0,  6], [ 1,  7], [ 2,  8], [ 4, 10], 
+		[ 5, 11], [ 3,  9], [ 6,  7], [ 7,  8], [ 7, 10], [ 8, 11], 
+		[10,  9], [11, 10], [ 9,  6]], dtype = int)
 	npt.assert_almost_equal(n4s, ref_n4s, decimal=8)
 
 def test_getPoissonMatrix3D():
