@@ -85,6 +85,42 @@ def compute_s4e(n4e):
 	s4e = sideNr[back].reshape(12,-1).transpose().astype('int')
 	return s4e
 
+def compute_n4f(n4e):
+	"""
+	Get a matrix whose each row contains end points of the corresponding face
+
+	Paramters
+		- ``n4e`` (``int32 array``) : nodes for elements
+
+	Returns
+		- ``n4f`` (``int32 array``) : nodes for faces
+
+	Example
+		>>> n4e = np.array([[0, 1, 4, 3, 6, 7, 10, 9], [1, 2, 5, 4, 7, 8, 11, 10]])
+		>>> n4f = compute_n4f(n4e)
+		>>> n4f
+		array([[ 0,  1,  4,  3],
+		   [ 1,  2,  5,  4],
+		   [ 0,  1,  7,  6],
+		   [ 1,  2,  8,  7],
+		   [ 1,  4, 10,  7],
+		   [ 2,  5, 11,  8],
+		   [ 4,  3,  9, 10],
+		   [ 5,  4, 10, 11],
+		   [ 3,  0,  6,  9],
+		   [ 6,  7, 10,  9],
+		   [ 7,  8, 11, 10]])
+	"""
+	allFaces = np.array([n4e[:,[0,1,2,3]], n4e[:,[0,1,5,4]], n4e[:,[1,2,6,5]],
+		n4e[:,[2,3,7,6]], n4e[:,[3,0,4,7]], n4e[:,[4,5,6,7]]])
+	allFaces = np.reshape(allFaces,(6*n4e.shape[0],-1))
+	tmp=np.sort(allFaces)
+	tmp=np.ascontiguousarray(tmp)
+	_, ind = np.unique(tmp.view([('',tmp.dtype)]*tmp.shape[1]),return_index=True)
+	n4fInd = np.sort(ind)
+	n4f = allFaces[n4fInd,:]
+	return n4f
+
 def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	"""
 	Computes the coordinates of nodes and elements.
