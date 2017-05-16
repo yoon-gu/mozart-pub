@@ -647,7 +647,26 @@ def RefNodes_Cube(degree):
 	r = np.matlib.repmat(pts,(degree+1)**2,1).flatten()
 	s = np.matlib.repmat(np.matlib.repmat(pts,degree+1,1),1,degree+1).flatten('F')
 	t = np.matlib.repmat(pts,(degree+1)**2,1).flatten('F')
-	r = r.T
-	r = r.flatten()
-	s = s.flatten()
 	return (r,s,t)
+
+
+def RefNodes_Rec(degree):
+	"""
+	Compute uniform (r,s) nodes in reference rectangle for polynomial of order `degree`
+
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``r`` (``float64 array``) : x-coordinates of nodes in the reference rectangle
+		- ``s`` (``float64 array``) : y-coordinates of nodes in the reference rectangle
+
+	Example
+		>>> N = 3
+		>>> r, s = RefNodes_Rec(N)
+	"""
+	pts = np.linspace(-1,1,degree+1)
+	import numpy.matlib
+	r = np.matlib.repmat(pts,degree+1,1).flatten()
+	s = np.matlib.repmat(pts,degree+1,1).flatten('F')
+	return (r,s)
