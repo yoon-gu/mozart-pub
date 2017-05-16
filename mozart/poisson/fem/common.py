@@ -625,3 +625,29 @@ def Dmatrices2D_Rect(degree,r,s,V):
 	Ds = np.dot(Vs,invV)
 
 	return (Dr, Ds)
+
+def RefNodes_Cube(degree):
+	"""
+	Compute (r,s) nodes in reference cube for polynomial of order `degree`
+
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+
+	Returns
+		- ``r`` (``float64 array``) : x-coordinates of nodes in the reference cube
+		- ``s`` (``float64 array``) : y-coordinates of nodes in the reference cube
+		- ``t`` (``float64 array``) : y-coordinates of nodes in the reference cube
+
+	Example
+		>>> N = 3
+		>>> r, s, t = RefNodes_Cube(N)
+	"""
+	pts = np.linspace(-1,1,degree+1)
+	import numpy.matlib
+	r = np.matlib.repmat(pts,(degree+1)**2,1).flatten()
+	s = np.matlib.repmat(np.matlib.repmat(pts,degree+1,1),1,degree+1).flatten('F')
+	t = np.matlib.repmat(pts,(degree+1)**2,1).flatten('F')
+	r = r.T
+	r = r.flatten()
+	s = s.flatten()
+	return (r,s,t)
