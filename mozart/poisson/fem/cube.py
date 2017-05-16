@@ -7,7 +7,7 @@ from mozart.common.etc import prefix_by_os
 dllpath = path.join(mz.__path__[0], prefix_by_os(platform) + '_' + 'libmozart.so')
 lib = CDLL(dllpath)
 
-from mozart.poisson.fem.common import nJacobiP, DnJacobiP, VandermondeM1D, Dmatrix1D
+from mozart.poisson.fem.common import nJacobiP, DnJacobiP, VandermondeM1D, Dmatrix1D, RefNodes_Rec, RefNodes_Cube
 
 def compute_n4s(n4e):
 	"""
@@ -198,6 +198,229 @@ def compute_e4f(n4e):
 	e4f[:,1] = allElems4s[n4fInd] - e4f[:,0]
 	e4f=e4f-1
 	return e4f
+
+def getIndex(degree, c4n, n4e, n4fDb, n4fNb):
+	"""
+	Get indices on each element
+
+	Paramters
+		- ``degree`` (``int32``) : degree of polynomial
+		- ``c4n`` (``float64 array``) : coordinates for nodes
+		- ``n4e`` (``int32 array``) : nodes for elements
+		- ``n4fDb`` (``int32 array``) : nodes for faces on Dirichlet boundary
+		- ``n4fNb`` (``int32 array``) : nodes for faces on Neumann boundary
+
+	Returns
+		- ``c4nNew`` (``float64 array``) : coordinates for all nodes (vetex, side and interior nodes)
+		- ``ind4e`` (``int32 array``) : indices on each element
+		- ``ind4Db`` (``int32 array``) : indices on Dirichlet boundary
+		- ``ind4Nb`` (``int32 array``) : indices on Neumann boundary
+
+	Example
+		>>> N = 3
+		>>> c4n = np.array([[0., 0., 0.], [1., 0., 0.], [2., 0., 0.], [0., 1., 0.],
+							[1., 1., 0.], [2., 1., 0.], [0., 0., 1.], [1., 0., 1.],
+							[2., 0., 1.], [0., 1., 1.], [1., 1., 1.], [2., 1., 1.]])
+		>>> n4e = np.array([[0, 1, 4, 3, 6, 7, 10, 9], [1, 2, 5, 4, 7, 8, 11, 10]])
+		>>> n4fDb = np.array([[0, 1, 7, 6], [1, 2, 8, 7], [2, 5, 11, 8], [5, 4, 10, 11],
+							  [4, 3, 9, 10], [3, 0, 6, 9], [6, 7, 10, 9], [7, 8, 11, 10]])
+		>>> n4fNb = np.array([[0, 1, 4, 3], [1, 2, 5, 4]])
+		>>> c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4fDb, n4fNb)
+	"""
+	allSides = np.array([n4e[:,[0,1]], n4e[:,[1,2]], n4e[:,[2,3]], n4e[:,[3,0]],
+		n4e[:,[0,4]], n4e[:,[1,5]], n4e[:,[2,6]], n4e[:,[3,7]],
+		n4e[:,[4,5]], n4e[:,[5,6]], n4e[:,[6,7]], n4e[:,[7,4]]])
+	allSides = np.reshape(allSides,(12*n4e.shape[0],-1))
+	tmp=np.sort(allSides)
+	x, y = tmp.T
+	_, ind, back = np.unique(x + y*1.0j, return_index=True, return_inverse=True)
+	n4sInd = np.sort(ind)
+	n4s = allSides[n4sInd,:]
+
+	sortInd = ind.argsort()
+	sideNr = np.zeros(ind.size, dtype = int)
+	sideNr[sortInd] = np.arange(0,ind.size)
+	s4e = sideNr[back].reshape(12,-1).transpose().astype('int')
+
+
+	allFaces = np.array([n4e[:,[0,1,2,3]], n4e[:,[0,1,5,4]], n4e[:,[1,2,6,5]],
+		n4e[:,[2,3,7,6]], n4e[:,[3,0,4,7]], n4e[:,[4,5,6,7]]])
+	allFaces = np.reshape(allFaces,(6*n4e.shape[0],-1))
+	tmp=np.sort(allFaces)
+	tmp=np.ascontiguousarray(tmp)
+	_, ind, back = np.unique(tmp.view([('',tmp.dtype)]*tmp.shape[1]),return_index=True, return_inverse=True)
+
+	n4fInd = np.sort(ind)
+	n4f = allFaces[n4fInd,:]
+
+	sortInd = ind.argsort()
+	sideNr = np.zeros(ind.size, dtype = int)
+	sideNr[sortInd] = np.arange(0,ind.size)
+	f4e = sideNr[back].reshape(6,-1).transpose().astype('int')
+
+	nrElems = n4e.shape[0]
+	import numpy.matlib
+	elemNumbers = np.matlib.repmat(np.arange(0,nrElems),6,1).flatten()
+
+	e4f=np.zeros((ind.size,2),int)
+	e4f[:,0]=elemNumbers[n4fInd] + 1
+
+	allElems4s=np.zeros(allFaces.shape[0],int)
+	tmp2 = np.bincount((back + 1),weights = (elemNumbers + 1))
+	allElems4s[ind]=tmp2[1::]
+	e4f[:,1] = allElems4s[n4fInd] - e4f[:,0]
+	e4f=e4f-1
+
+	S_ind = np.zeros((nrElems,12), dtype = int)
+	for j in range(0,nrElems):
+		if (n4s[s4e[j,0],:] == n4e[j,[0,1]]).all():
+			S_ind[j,0] = 1
+
+		if (n4s[s4e[j,1],:] == n4e[j,[1,2]]).all():
+			S_ind[j,1] = 1
+
+		if (n4s[s4e[j,2],:] == n4e[j,[2,3]]).all():
+			S_ind[j,2] = 1
+
+		if (n4s[s4e[j,3],:] == n4e[j,[3,0]]).all():
+			S_ind[j,3] = 1
+
+		if (n4s[s4e[j,8],:] == n4e[j,[4,5]]).all():
+			S_ind[j,8] = 1
+
+		if (n4s[s4e[j,9],:] == n4e[j,[5,6]]).all():
+			S_ind[j,9] = 1
+
+		if (n4s[s4e[j,10],:] == n4e[j,[6,7]]).all():
+			S_ind[j,10] = 1
+
+		if (n4s[s4e[j,11],:] == n4e[j,[7,4]]).all():
+			S_ind[j,11] = 1
+
+	S_ind[:,4:8] = 1
+	S_ind = (np.outer(np.arange(0,degree-1),S_ind) + np.outer(np.arange(degree-2,-1,-1),1-S_ind)).flatten('F')
+	S_ind = np.reshape(S_ind,(nrElems,(degree-1)*12))
+
+	nru = (degree+1)**3
+	nri = (degree-1)**3
+	nrf = (degree-1)**2
+	nrs = degree-1
+	nrNodes = c4n.shape[0]
+	nNS = nrNodes + nrs * n4s.shape[0]
+	nNSF = nNS + nrf * n4f.shape[0]
+	AllNodes = nNSF + nri * nrElems
+
+	BDindex_S = np.array([np.arange(1,degree), np.arange(2*degree+1,degree*degree+degree,degree+1), np.arange((degree+1)**2-2,degree*(degree+1),-1),
+						  np.arange((degree-1)*(degree+1),degree,-(degree+1)), np.arange((degree+1)**2,(degree+1)**2*(degree-1)+1,(degree+1)**2),
+						  np.arange((degree+1)**2+degree,(degree+1)**2*(degree-1)+degree+1,(degree+1)**2),
+						  np.arange(2*(degree+1)**2-1,degree*(degree+1)**2,(degree+1)**2),
+						  np.arange((degree+1)**2+degree*(degree+1),(degree-1)*(degree+1)**2+degree*(degree+1)+1,(degree+1)**2),
+						  degree*(degree+1)**2+np.arange(1,degree), degree*(degree+1)**2+np.arange(2*degree+1,degree*(degree+1),degree+1),
+						  degree*(degree+1)**2+np.arange((degree+1)**2-2,degree*(degree+1),-1),
+						  degree*(degree+1)**2+np.arange((degree-1)*(degree+1),degree,-(degree+1))])
+
+	BDindex_F = np.array([np.arange(0,(degree+1)**2),
+		(np.matlib.repmat(np.arange(0,degree+1),degree+1,1) + np.matlib.repmat(np.arange(0,degree*(degree+1)**2+1,(degree+1)**2),degree+1,1).transpose()).flatten(),
+		(np.matlib.repmat(np.arange(degree,(degree+1)**2,(degree+1)),degree+1,1) + np.matlib.repmat(np.arange(0,degree*(degree+1)**2+1,(degree+1)**2),degree+1,1).transpose()).flatten(),
+		(np.matlib.repmat(np.arange((degree+1)**2-1,degree*(degree+1)-1,-1),degree+1,1) + np.matlib.repmat(np.arange(0,degree*(degree+1)**2+1,(degree+1)**2),degree+1,1).transpose()).flatten(),
+		(np.matlib.repmat(np.arange(degree*(degree+1),-1,-(degree+1)),degree+1,1) + np.matlib.repmat(np.arange(0,degree*(degree+1)**2+1,(degree+1)**2),degree+1,1).transpose()).flatten(),
+		degree*(degree+1)**2+np.arange(0,(degree+1)**2)])
+
+	Iindex = np.setdiff1d(np.arange(0,nru),BDindex_F.flatten())
+	Iindex_F = np.setdiff1d(np.arange(0,(degree+1)**2), \
+		np.array([np.arange(0,degree+1), np.arange(degree,(degree+1)**2,degree+1), np.arange(0,degree*(degree+1)+1,degree+1), np.arange(degree*(degree+1),(degree+1)**2)]))
+	tmp = (np.matlib.reshape(np.arange(degree-2,-1,-1),degree-1,1) + np.matlib.repmat(np.arange(0,nrf,degree-1),degree-1,1).transpose()).flatten()
+	faceNr2 = np.zeros(6*nrElems, dtype = int)
+	faceNr2[n4fInd]=1
+	F_ind = np.reshape(faceNr2,(nrElems,6))
+	F_ind = F_ind[:,1:5]
+	F_ind = (np.outer(np.arange(0,nrf),F_ind) + np.outer(tmp,1-F_ind)).flatten('F')
+	F_ind = np.reshape(F_ind, (nrElems, 4*nrf))
+
+	ind4e = np.zeros((nrElems,nru), dtype = int)
+	ind4e[:,[0, degree, (degree+1)**2-1, degree*(degree+1), degree*(degree+1)**2, degree*(degree+1)**2+degree, degree*(degree+1)**2+(degree+1)**2-1, degree*(degree+1)**2+degree*(degree+1)]] = n4e
+	ind4e[:,BDindex_S[0,:]] = np.matlib.repmat(nrNodes+s4e[:,0]*nrs,degree-1,1).transpose() + S_ind[:,0:nrs]
+	ind4e[:,BDindex_S[1,:]] = np.matlib.repmat(nrNodes+s4e[:,1]*nrs,degree-1,1).transpose() + S_ind[:,nrs:2*nrs]
+	ind4e[:,BDindex_S[2,:]] = np.matlib.repmat(nrNodes+s4e[:,2]*nrs,degree-1,1).transpose() + S_ind[:,2*nrs:3*nrs]
+	ind4e[:,BDindex_S[3,:]] = np.matlib.repmat(nrNodes+s4e[:,3]*nrs,degree-1,1).transpose() + S_ind[:,3*nrs:4*nrs]
+	ind4e[:,BDindex_S[4,:]] = np.matlib.repmat(nrNodes+s4e[:,4]*nrs,degree-1,1).transpose() + S_ind[:,4*nrs:5*nrs]
+	ind4e[:,BDindex_S[5,:]] = np.matlib.repmat(nrNodes+s4e[:,5]*nrs,degree-1,1).transpose() + S_ind[:,5*nrs:6*nrs]
+	ind4e[:,BDindex_S[6,:]] = np.matlib.repmat(nrNodes+s4e[:,6]*nrs,degree-1,1).transpose() + S_ind[:,6*nrs:7*nrs]
+	ind4e[:,BDindex_S[7,:]] = np.matlib.repmat(nrNodes+s4e[:,7]*nrs,degree-1,1).transpose() + S_ind[:,7*nrs:8*nrs]
+	ind4e[:,BDindex_S[8,:]] = np.matlib.repmat(nrNodes+s4e[:,8]*nrs,degree-1,1).transpose() + S_ind[:,8*nrs:9*nrs]
+	ind4e[:,BDindex_S[9,:]] = np.matlib.repmat(nrNodes+s4e[:,9]*nrs,degree-1,1).transpose() + S_ind[:,9*nrs:10*nrs]
+	ind4e[:,BDindex_S[10,:]] = np.matlib.repmat(nrNodes+s4e[:,10]*nrs,degree-1,1).transpose() + S_ind[:,10*nrs:11*nrs]
+	ind4e[:,BDindex_S[11,:]] = np.matlib.repmat(nrNodes+s4e[:,11]*nrs,degree-1,1).transpose() + S_ind[:,11*nrs:12*nrs]
+	ind4e[:,BDindex_F[0,Iindex_F]] = np.matlib.repmat(nNS + f4e[:,0]*nrf,nrf,1).transpose() + np.matlib.repmat(np.arange(0,nrf),nrElems,1)
+	ind4e[:,BDindex_F[1,Iindex_F]] = np.matlib.repmat(nNS + f4e[:,1]*nrf,nrf,1).transpose() + F_ind[:,0:nrf]
+	ind4e[:,BDindex_F[2,Iindex_F]] = np.matlib.repmat(nNS + f4e[:,2]*nrf,nrf,1).transpose() + F_ind[:,nrf:2*nrf]
+	ind4e[:,BDindex_F[3,Iindex_F]] = np.matlib.repmat(nNS + f4e[:,3]*nrf,nrf,1).transpose() + F_ind[:,2*nrf:3*nrf]
+	ind4e[:,BDindex_F[4,Iindex_F]] = np.matlib.repmat(nNS + f4e[:,4]*nrf,nrf,1).transpose() + F_ind[:,3*nrf:4*nrf]
+	ind4e[:,BDindex_F[5,Iindex_F]] = np.matlib.repmat(nNS + f4e[:,5]*nrf,nrf,1).transpose() + np.matlib.repmat(np.arange(0,nrf),nrElems,1)
+	ind4e[:,Iindex] = np.reshape(np.arange(nNSF,AllNodes),(nrElems,nri))
+
+	ind4Db = np.zeros((n4fDb.shape[0],(degree+1)**2), dtype=int)
+	DbF_ind = np.arange(0,n4f.shape[0])
+	DbF_ind = DbF_ind[e4f[:,1]==-1]
+	DbF = n4f[DbF_ind,:]
+
+	for j in range(0,n4fDb.shape[0]):
+		faceDb = DbF_ind[(DbF[:,0] == n4fDb[j,0]) & (DbF[:,1] == n4fDb[j,1]) & (DbF[:,2] == n4fDb[j,2]) & (DbF[:,3] == n4fDb[j,3])]
+		elem = e4f[faceDb,0]
+		ind4Db[j,:] = ind4e[elem,BDindex_F[f4e[elem,:].flatten()==faceDb,:]]
+	ind4Db = np.unique(ind4Db)
+
+	if n4fNb.shape[0] == 0:
+		ind4nb = np.zeros(0)
+	else:
+		ind4Nb = np.zeros((n4fNb.shape[0],(degree+1)**2), dtype=int)
+		for j in range(0,n4fNb.shape[0]):
+			faceNb = DbF_ind[(DbF[:,0] == n4fNb[j,0]) & (DbF[:,1] == n4fNb[j,1]) & (DbF[:,2] == n4fNb[j,2]) & (DbF[:,3] == n4fNb[j,3])]
+			elem = e4f[faceNb,0]
+			ind4Nb[j,:] = ind4e[elem,BDindex_F[f4e[elem,:].flatten()==faceNb,:]]
+
+	r, s = RefNodes_Rec(degree)
+	r3, s3, t3 = RefNodes_Cube(degree)
+
+	if degree < 2:
+		c4nNew = c4n
+	else:
+		r1D = np.linspace(-1,1,degree+1)
+		r1D = r1D[1:-1]
+		Mid = (c4n[n4s[:,0],:] + c4n[n4s[:,1],:])/2.0
+		c4sx = (Mid[:,0] + np.outer(r1D,(c4n[n4s[:,1],0]-c4n[n4s[:,0],0])/2.0)).flatten('F')
+		c4sy = (Mid[:,1] + np.outer(r1D,(c4n[n4s[:,1],1]-c4n[n4s[:,0],1])/2.0)).flatten('F')
+		c4sz = (Mid[:,2] + np.outer(r1D,(c4n[n4s[:,1],2]-c4n[n4s[:,0],2])/2.0)).flatten('F')
+		c4s = np.array([c4sx, c4sy, c4sz]).transpose().reshape((-1,3))
+
+		c4fx = (np.matlib.repmat(c4n[n4f[:,0],0],nrf,1) + np.outer((r[Iindex_F]+1),(c4n[n4f[:,1],0]-c4n[n4f[:,0],0])/2.0) \
+				      + np.outer((s[Iindex_F]+1),(c4n[n4f[:,3],0]-c4n[n4f[:,0],0])/2.0)).flatten('F')
+		c4fy = (np.matlib.repmat(c4n[n4f[:,0],1],nrf,1) + np.outer((r[Iindex_F]+1),(c4n[n4f[:,1],1]-c4n[n4f[:,0],1])/2.0) \
+				      + np.outer((s[Iindex_F]+1),(c4n[n4f[:,3],1]-c4n[n4f[:,0],1])/2.0)).flatten('F')
+		c4fz = (np.matlib.repmat(c4n[n4f[:,0],2],nrf,1) + np.outer((r[Iindex_F]+1),(c4n[n4f[:,1],2]-c4n[n4f[:,0],2])/2.0) \
+				      + np.outer((s[Iindex_F]+1),(c4n[n4f[:,3],2]-c4n[n4f[:,0],2])/2.0)).flatten('F')
+		c4f = np.array([c4fx, c4fy, c4fz]).transpose().reshape((-1,3))
+
+		c4ix =  (np.matlib.repmat(c4n[n4e[:,0],0],nri,1) \
+					  + np.outer((r3[Iindex]+1),(c4n[n4e[:,1],0]-c4n[n4e[:,0],0])/2.0) \
+        			  + np.outer((s3[Iindex]+1),(c4n[n4e[:,3],0]-c4n[n4e[:,0],0])/2.0) \
+        			  + np.outer((t3[Iindex]+1),(c4n[n4e[:,4],0]-c4n[n4e[:,0],0])/2.0)).flatten('F')
+		c4iy =  (np.matlib.repmat(c4n[n4e[:,0],1],nri,1) \
+					  + np.outer((r3[Iindex]+1),(c4n[n4e[:,1],1]-c4n[n4e[:,0],1])/2.0) \
+        			  + np.outer((s3[Iindex]+1),(c4n[n4e[:,3],1]-c4n[n4e[:,0],1])/2.0) \
+        			  + np.outer((t3[Iindex]+1),(c4n[n4e[:,4],1]-c4n[n4e[:,0],1])/2.0)).flatten('F')
+		c4iz =  (np.matlib.repmat(c4n[n4e[:,0],2],nri,1) \
+					  + np.outer((r3[Iindex]+1),(c4n[n4e[:,1],2]-c4n[n4e[:,0],2])/2.0) \
+        			  + np.outer((s3[Iindex]+1),(c4n[n4e[:,3],2]-c4n[n4e[:,0],2])/2.0) \
+        			  + np.outer((t3[Iindex]+1),(c4n[n4e[:,4],2]-c4n[n4e[:,0],2])/2.0)).flatten('F')
+		c4i = np.array([c4ix, c4iy, c4iz]).transpose().reshape((-1,3))
+
+		c4nNew = np.vstack((c4n, c4s))
+		c4nNew = np.vstack((c4nNew, c4f))
+		c4nNew = np.vstack((c4nNew, c4i))
+
+	return (c4nNew, ind4e, ind4Db, ind4Nb)
+
 
 def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 	"""
