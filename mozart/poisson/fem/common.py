@@ -670,3 +670,25 @@ def RefNodes_Rec(degree):
 	r = np.matlib.repmat(pts,degree+1,1).flatten()
 	s = np.matlib.repmat(pts,degree+1,1).flatten('F')
 	return (r,s)
+
+
+def Simplex3DP_Cube(a,b,c,i,j,k):
+	"""
+	Compute 3D orthonormal polynomial on simplex(Cube) at (a, b) of order (i, j)
+
+	Parameters
+		- ``a`` (``folat64 array``) : the value for the first normalized Jacobi polynomial in modal basis
+		- ``b`` (``float64 array``) : the value for the second normalized Jacobi polynomial in modal basis
+		- ``c`` (``float64 array``) : the value for the third normalized Jacobi polynomial in modal basis
+		- ``i`` (``int32``) : order of the the first normalized Jacobi polynomial in modal basis
+		- ``j`` (``int32``) : order of the the second normalized Jacobi polynomial in modal basis
+		- ``k`` (``int32``) : order of the the third normalized Jacobi polynomial in modal basis
+
+	Returns
+		- ``P`` (``float64 array``) : evaluated value
+	"""
+	h1 = nJacobiP(a,0,0,i)
+	h2 = nJacobiP(b,0,0,j)
+	h3 = nJacobiP(c,0,0,j)
+	P = h1 * h2 * h3
+	return P

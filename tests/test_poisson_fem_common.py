@@ -3,6 +3,19 @@ import numpy as np
 from numpy import linalg as LA
 import numpy.testing as npt
 
+def test_nJacobiP():
+	from mozart.poisson.fem.common import nJacobiP
+	x = np.linspace(-1,1,5)
+	P = nJacobiP(x,0,0,0)
+	ref_P = 0.707106781186548 * np.ones(5,float)
+	P2 = nJacobiP(x,0,0,1)
+	ref_P2 = 1.224744871391589*x
+	P3 = nJacobiP(x,0,0,2)
+	ref_P3 = np.array([1.581138830084190, -0.197642353760524, -0.790569415042095, -0.197642353760524, 1.581138830084190])
+	npt.assert_almost_equal(P, ref_P, decimal=8)
+	npt.assert_almost_equal(P2, ref_P2, decimal=8)
+	npt.assert_almost_equal(P3, ref_P3, decimal=8)
+
 def test_RefNodes_Rect():
 	from mozart.poisson.fem.common import RefNodes_Rect
 	r, s = RefNodes_Rect(3)
@@ -113,20 +126,18 @@ def test_RefNodes_Rec():
 	npt.assert_almost_equal(r, ref_r, decimal=8)
 	npt.assert_almost_equal(s, ref_s, decimal=8)
 
+def test_Simplex3DP_Cube():
+	from mozart.poisson.fem.common import Simplex3DP_Cube
+	a = np.array([0,1])
+	b = np.array([2,3])
+	c = np.array([3,4])
+	p = Simplex3DP_Cube(a,b,c,0,0,0)
+	ref_p = np.array([(np.sqrt(2)/2)**3, (np.sqrt(2)/2)**3])
+	npt.assert_almost_equal(p, ref_p, decimal=8)
+
 
 class TestFemCommon(unittest.TestCase):
-	def test_nJacobiP(self):
-		from mozart.poisson.fem.common import nJacobiP
-		x = np.linspace(-1,1,5)
-		P = nJacobiP(x,0,0,0)
-		diff_P = P - 0.707106781186548 * np.ones(5,float)
-		P2 = nJacobiP(x,0,0,1)
-		diff_P2 = P2 - 1.224744871391589*x
-		P3 = nJacobiP(x,0,0,2)
-		diff_P3 = P3 - np.array([1.581138830084190, -0.197642353760524, -0.790569415042095, -0.197642353760524, 1.581138830084190])
-		self.assertAlmostEqual(LA.norm(diff_P), 0.0, 8)
-		self.assertAlmostEqual(LA.norm(diff_P2), 0.0, 8)
-		self.assertAlmostEqual(LA.norm(diff_P3), 0.0, 8)
+	
 
 	def test_nJacobiGQ(self):
 		from mozart.poisson.fem.common import nJacobiGQ
