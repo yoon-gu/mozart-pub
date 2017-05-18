@@ -743,3 +743,31 @@ def Vandermonde3D_Cube(degree,r,s,t):
 				V3D[:, sk] = Simplex3DP_Cube(r,s,t,i,j,k)
 				sk = sk + 1
 	return V3D
+
+def GradVandermonde3D_Cube(degree,r,s,t):
+	"""
+	Initialize the gradient of the modal basis (i,j,k) at (r,s,t) at order N
+
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference cube
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference cube
+		- ``t`` (``float64 array``) : y-coordinates of uniform nodes in the reference cube
+
+	Returns
+		- ``V2Dr`` (``float64 array``) : Gradient of Vandermonde matrix on the 3D simplex along r-direction
+		- ``V2Ds`` (``float64 array``) : Gradient of Vandermonde matrix on the 3D simplex along s-direction
+		- ``V2Dt`` (``float64 array``) : Gradient of Vandermonde matrix on the 3D simplex along z-direction
+	"""
+	V3Dr = np.zeros((r.size, (degree + 1) **3), dtype = np.float64)
+	V3Ds = np.zeros((r.size, (degree + 1) **3), dtype = np.float64)
+	V3Dt = np.zeros((r.size, (degree + 1) **3), dtype = np.float64)
+
+	sk = 0
+	for i in range(0,degree+1):
+		for j in range(0,degree+1):
+			for k in range(0,degree+1):
+				V3Dr[:,sk], V3Ds[:,sk], V3Dt[:,sk] = GradSimplex3DP_Cube(r,s,t,i,j,k)
+				sk += 1
+
+	return (V3Dr, V3Ds, V3Dt)
