@@ -107,7 +107,7 @@ def test_getIndex():
 
 def test_getPoissonMatrix3D():
 	from mozart.poisson.fem.cube import getMatrix
-	M_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(1)
+	M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(1)
 	ref_M_R = np.array([[8, 4, 4, 2, 4, 2, 2, 1],
 				       [4, 8, 2, 4, 2, 4, 1, 2],
 				       [4, 2, 8, 4, 2, 1, 4, 2],
@@ -116,6 +116,8 @@ def test_getPoissonMatrix3D():
 				       [2, 4, 1, 2, 4, 8, 2, 4],
 				       [2, 1, 4, 2, 4, 2, 8, 4],
 				       [1, 2, 2, 4, 2, 4, 4, 8]]) / 27.
+	ref_M2D_R = np.array([[4, 2, 2, 1],  [2, 4, 1, 2],  
+						 [2, 1, 4, 2],  [1, 2, 2, 4]]) / 9.
 	ref_Srr_R = np.array([[ 4, -4,  2, -2,  2, -2,  1, -1],
 						 [-4,  4, -2,  2, -2,  2, -1,  1],
 						 [ 2, -2,  4, -4,  1, -1,  2, -2],
@@ -165,6 +167,7 @@ def test_getPoissonMatrix3D():
 						[ 0,  0, -1,  0, 0, 0, 1, 0],
 						[ 0,  0,  0, -1, 0, 0, 0, 1]]) / 2.
 	npt.assert_almost_equal(M_R, ref_M_R, decimal=8)
+	npt.assert_almost_equal(M2D_R, ref_M2D_R, decimal=8)
 	npt.assert_almost_equal(Srr_R, ref_Srr_R, decimal=8)
 	npt.assert_almost_equal(Sss_R, ref_Sss_R, decimal=8)
 	npt.assert_almost_equal(Stt_R, ref_Stt_R, decimal=8)

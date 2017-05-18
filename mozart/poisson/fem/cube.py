@@ -452,7 +452,7 @@ def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
 		        0.          0.		    0.          0.          0.          0.
 		        0.          0.          0.        ])
 	"""
-	M_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(degree)
+	M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(degree)
 	fval = f(c4n[ind4e,0], c4n[ind4e,1], c4n[ind4e,2]).flatten()
 	nrNodes = int(c4n.shape[0])
 	nrElems = int(n4e.shape[0])
@@ -537,7 +537,7 @@ def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, exact_uz, approx_
 	# L2error = 0
 	sH1error = 0
 
-	M_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(degree)
+	M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(degree)
 
 	# r = np.linspace(-1, 1, degree + 1)
 	# V = VandermondeM1D(degree, r)
@@ -576,6 +576,7 @@ def getMatrix(degree):
 	M1_R = np.dot(np.transpose(invV),invV)
 
 	M_R = np.kron(np.kron(M1_R,M1_R),M1_R)
+	M2D_R = np.kron(M1_R,M1_R)
 
 	Dr_R = np.kron(np.eye(r.size),np.kron(np.eye(r.size),Dmatrix1D(degree, r, V)))
 	Ds_R = np.kron(np.eye(r.size),np.kron(Dmatrix1D(degree, r, V),np.eye(r.size)))
@@ -585,4 +586,4 @@ def getMatrix(degree):
 	Sss_R = np.dot(np.dot(np.transpose(Ds_R),M_R),Ds_R)
 	Stt_R = np.dot(np.dot(np.transpose(Dt_R),M_R),Dt_R)
 
-	return (M_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R)
+	return (M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R)
