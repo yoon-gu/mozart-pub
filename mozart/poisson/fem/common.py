@@ -689,7 +689,7 @@ def Simplex3DP_Cube(a,b,c,i,j,k):
 	"""
 	h1 = nJacobiP(a,0,0,i)
 	h2 = nJacobiP(b,0,0,j)
-	h3 = nJacobiP(c,0,0,j)
+	h3 = nJacobiP(c,0,0,k)
 	P = h1 * h2 * h3
 	return P
 
@@ -721,3 +721,25 @@ def GradSimplex3DP_Cube(r,s,t,id,jd,kd):
 	dmodeds = fr * dgs * ht
 	dmodedt = fr * gs * dht
 	return (dmodedr, dmodeds, dmodedt)
+
+def Vandermonde3D_Cube(degree,r,s,t):
+	"""
+	Initialize the 3D Vandermonde Matrix, :math:`V_{i,j} = \\phi_j(r_i)`
+
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference rectangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference rectangle
+		- ``t`` (``float64 array``) : z-coordinates of uniform nodes in the reference rectangle
+
+	Returns
+		- ``V3D`` (``float64 array``) : Vandermonde matrix in 3D
+	"""
+	V3D = np.zeros((r.size, (degree + 1) **3), dtype = np.float64)
+	sk = 0
+	for i in range(0, degree + 1):
+		for j in range(0, degree + 1):
+			for k in range(0, degree + 1):
+				V3D[:, sk] = Simplex3DP_Cube(r,s,t,i,j,k)
+				sk = sk + 1
+	return V3D
