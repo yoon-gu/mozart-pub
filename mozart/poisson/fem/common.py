@@ -692,3 +692,32 @@ def Simplex3DP_Cube(a,b,c,i,j,k):
 	h3 = nJacobiP(c,0,0,j)
 	P = h1 * h2 * h3
 	return P
+
+def GradSimplex3DP_Cube(r,s,t,id,jd,kd):
+	"""
+	Return the derivatives of the modal basis (id,jd,kd) on the cube at (r,s,t).
+
+	Parameters
+		- ``r`` (``float64``) : x-coordinate on the cube
+		- ``s`` (``float64``) : y-coordinate on the cube
+		- ``t`` (``float64``) : z-coordinate on the cube
+		- ``id`` (``int32``) : order of the the first normalized Jacobi polynomial in modal basis
+		- ``jd`` (``int32``) : order of the the second normalized Jacobi polynomial in modal basis
+		- ``id`` (``int32``) : order of the the third normalized Jacobi polynomial in modal basis
+
+	Returns
+		- ``dmodedr`` (``float64 array``) : derivative value of modal basis on the rectangle along r-direction
+		- ``dmodeds`` (``float64 array``) : derivative value of modal basis on the rectangle along s-direction
+		- ``dmodedt`` (``float64 array``) : derivative value of modal basis on the rectangle along t-direction
+	"""
+	fr = nJacobiP(r, 0, 0, id)
+	dfr = DnJacobiP(r, 0, 0, id)
+	gs = nJacobiP(s, 0, 0, jd)
+	dgs = DnJacobiP(s, 0, 0, jd)
+	ht = nJacobiP(t, 0, 0, kd)
+	dht = DnJacobiP(t, 0, 0, kd)
+
+	dmodedr = dfr * gs * ht
+	dmodeds = fr * dgs * ht
+	dmodedt = fr * gs * dht
+	return (dmodedr, dmodeds, dmodedt)

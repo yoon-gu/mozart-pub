@@ -52,7 +52,7 @@ def test_nJacobiGQ():
 def test_nJacobiGL():
 	from mozart.poisson.fem.common import nJacobiGL
 	x0 = nJacobiGL(0,0,0)
-	ref_x0 = 0.0;
+	ref_x0 = 0.0
 	x1 = nJacobiGL(0,0,1)
 	ref_x1 = np.array([-1.0, 1.0])
 	x2 = nJacobiGL(0,0,2)
@@ -313,3 +313,24 @@ def test_Simplex3DP_Cube():
 	p = Simplex3DP_Cube(a,b,c,0,0,0)
 	ref_p = np.array([(np.sqrt(2)/2)**3, (np.sqrt(2)/2)**3])
 	npt.assert_almost_equal(p, ref_p, decimal=8)
+
+def test_GradSimplex3DP_Cube():
+	from mozart.poisson.fem.common import RefNodes_Cube, GradSimplex3DP_Cube
+	N = 2
+	r, s, t = RefNodes_Cube(N)
+	dmodedr, dmodeds, dmodedt = GradSimplex3DP_Cube(r,s,t,1,1,1)
+	ref_dmodedr = np.array([1.83711730708738, 1.83711730708738, 1.83711730708738, 0., 0., 0., 
+		-1.83711730708738, -1.83711730708738, -1.83711730708738, 0., 0., 0., 0., 0., 0., 0., 
+		0., 0., -1.83711730708738, -1.83711730708738, -1.83711730708738, 0., 0., 0., 
+		1.83711730708738, 1.83711730708738, 1.83711730708738])
+	ref_dmodeds = np.array([1.83711730708738, 0., -1.83711730708738, 1.83711730708738, 0., 
+		-1.83711730708738, 1.83711730708738, 0., -1.83711730708738, 0., 0., 0., 0., 0., 0., 
+		0., 0., 0., -1.83711730708738, 0., 1.83711730708738, -1.83711730708738, 0., 
+		1.83711730708738, -1.83711730708738, 0., 1.83711730708738])
+	ref_dmodedt = np.array([1.83711730708738, 0., -1.83711730708738, 0., 0., 0., -1.83711730708738, 
+		0., 1.83711730708738, 1.83711730708738, 0., -1.83711730708738, 0., 0., 0., -1.83711730708738, 
+		0., 1.83711730708738, 1.83711730708738, 0., -1.83711730708738, 0., 0., 0., -1.83711730708738, 
+		0., 1.83711730708738])
+	npt.assert_almost_equal(dmodedr, ref_dmodedr, decimal=8)
+	npt.assert_almost_equal(dmodeds, ref_dmodeds, decimal=8)
+	npt.assert_almost_equal(dmodedt, ref_dmodedt, decimal=8)
