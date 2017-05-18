@@ -390,3 +390,37 @@ def test_GradVandermonde3D_Cube():
 	npt.assert_almost_equal(V3Dr, ref_V3Dr, decimal=8)
 	npt.assert_almost_equal(V3Ds, ref_V3Ds, decimal=8)
 	npt.assert_almost_equal(V3Dt, ref_V3Dt, decimal=8)
+
+def test_Dmatrices3D_Cube():
+	from mozart.poisson.fem.common import RefNodes_Cube, Vandermonde3D_Cube, Dmatrices3D_Cube
+	degree = 1
+	r, s, t = RefNodes_Cube(degree)
+	V = Vandermonde3D_Cube(degree, r, s, t)
+	Dr, Ds, Dt = Dmatrices3D_Cube(degree, r, s, t, V)
+	ref_Dr = np.matrix('[-0.5 0.5 0 0 0 0 0 0; \
+		-0.5 0.5 0 0 0 0 0 0; \
+		0 0 -0.5 0.5 0 0 0 0; \
+		0 0 -0.5 0.5 0 0 0 0; \
+		0 0 0 0 -0.5 0.5 0 0; \
+		0 0 0 0 -0.5 0.5 0 0; \
+		0 0 0 0 0 0 -0.5 0.5; \
+		0 0 0 0 0 0 -0.5 0.5]')
+	ref_Ds = np.matrix('[-0.5 0 0.5 0 0 0 0 0; \
+		0 -0.5 0 0.5 0 0 0 0; \
+		-0.5 0 0.5 0 0 0 0 0; \
+		0 -0.5 0 0.5 0 0 0 0; \
+		0 0 0 0 -0.5 0 0.5 0; \
+		0 0 0 0 0 -0.5 0 0.5; \
+		0 0 0 0 -0.5 0 0.5 0; \
+		0 0 0 0 0 -0.5 0 0.5]')
+	ref_Dt = np.matrix('[-0.5 0 0 0 0.5 0 0 0; \
+		0 -0.5 0 0 0 0.5 0 0; \
+		0 0 -0.5 0 0 0 0.5 0; \
+		0 0 0 -0.5 0 0 0 0.5; \
+		-0.5 0 0 0 0.5 0 0 0; \
+		0 -0.5 0 0 0 0.5 0 0; \
+		0 0 -0.5 0 0 0 0.5 0; \
+		0 0 0 -0.5 0 0 0 0.5]')
+	npt.assert_almost_equal(Dr, ref_Dr, decimal=8)
+	npt.assert_almost_equal(Ds, ref_Ds, decimal=8)
+	npt.assert_almost_equal(Dt, ref_Dt, decimal=8)

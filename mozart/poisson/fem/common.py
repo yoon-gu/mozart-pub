@@ -771,3 +771,28 @@ def GradVandermonde3D_Cube(degree,r,s,t):
 				sk += 1
 
 	return (V3Dr, V3Ds, V3Dt)
+
+def Dmatrices3D_Cube(degree,r,s,t,V):
+	"""
+	Initialize the (r,s,t) differentiation matrices on the simplex, evaluated at (r,s,t) at order N
+
+	Parameters
+		- ``degree`` (``int32``) : Polynomial degree
+		- ``r`` (``float64 array``) : x-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : y-coordinates of uniform nodes in the reference triangle
+		- ``s`` (``float64 array``) : z-coordinates of uniform nodes in the reference triangle
+		- ``V`` (``float64 array``) : Vandermonde matrix in 2D
+
+	Returns
+		- ``Dr`` (``float64 array``) : differentiation matrix along r-direction
+		- ``Ds`` (``float64 array``) : differentiation matrix along s-direction
+		- ``Ds`` (``float64 array``) : differentiation matrix along z-direction
+
+	"""
+	Vr, Vs, Vt = GradVandermonde3D_Cube(degree, r, s, t)
+	invV = np.linalg.inv(V)
+	Dr = np.dot(Vr,invV)
+	Ds = np.dot(Vs,invV)
+	Dt = np.dot(Vt,invV)
+
+	return (Dr, Ds, Dt)
