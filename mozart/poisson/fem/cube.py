@@ -421,83 +421,105 @@ def getIndex(degree, c4n, n4e, n4fDb, n4fNb):
 
 	return (c4nNew, ind4e, ind4Db, ind4Nb)
 
-
-def solve(c4n, ind4e, n4e, n4Db, f, u_D, degree):
+def solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Sss_R, Stt_R, M2D_R, f, u_D, u_N, degree):
 	"""
-	Computes the coordinates of nodes and elements.
+	Refine a given mesh uniformly using the red refinement
 
-	Parameters
-		- ``c4n`` (``float64 array``) : coordinates for nodes
-		- ``ind4e`` (``int32 array``) : indices for elements
+	Paramters
+		- ``c4nNew`` (``float64 array``) : coordinates for all nodes
 		- ``n4e`` (``int32 array``) : nodes for elements
-		- ``n4Db`` (``int32 array``) : nodes for Dirichlet boundary
-		- ``f`` (``lambda``) : source term
-		- ``u_D`` (``lambda``) : Dirichlet boundary condition
-		- ``degree`` (``int32``) : Polynomial degree
+		- ``ind4e`` (``int32 array``) : indices on each element
+		- ``ind4Db`` (``int32 array``) : indices on Dirichlet boundary
+		- ``ind4Nb`` (``int32 array``) : indices on Neumann boundary
+		- ``M_R`` (``float64 array``) : Mass matrix on the reference triangle
+		- ``Srr_R`` (``float64 array``) : Stiffness matrix on the reference triangle (int_T \partial_r phi_i \partial_r phi_j dr)
+		- ``Sss_R`` (``float64 array``) : Stiffness matrix on the reference triangle (int_T \partial_s phi_i \partial_s phi_j dr)
+		- ``Stt_R`` (``float64 array``) : Stiffness matrix on the reference triangle (int_T \partial_t phi_i \partial_t phi_j dr)
+		- ``M2D_R`` (``float64 array``) : Mass matrix on the reference rectangle (2D)
+		- ``f`` (``lambda function``) : source
+		- ``u_D`` (``lambda function``) : Dirichlet boundary condition
+		- ``u_N`` (``lambda function``) : Neumann boundary condition
+		- ``degree`` (``int32``) : degree of polynomial
 
 	Returns
 		- ``x`` (``float64 array``) : solution
 
 	Example
-		>>> from mozart.mesh.rectangle import cube
-		>>> c4n, ind4e, n4e, n4Db = cube(0,1,0,1,0,1,2,2,2,1)
-		>>> f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
-		>>> u_D = lambda x,y,z: 0*x
-		>>> from mozart.poisson.fem.cube import solve
-		>>> x = solve(c4n, ind4e, n4e, n4Db, f, u_D, 1)
+		>>> N = 3
+		>>> c4n = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.],
+							[0., 0., 1.], [1., 0., 1.], [0., 1., 1.], [1., 1., 1.]])
+		>>> n4e = np.array([[0, 1, 3, 2, 4, 5, 7, 6]])
+		>>> n4fDb = np.array([[0, 1, 3, 2], [0, 1, 5, 4], [2, 0, 4, 6], [4, 5, 7, 6]])
+		>>> n4fNb = np.array([[1, 3, 7, 5]])
+		>>> c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4fDb, n4fNb)
+		>>> M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(N)
+		>>> f = (lambda x, y, z: 3 * np.pi**2 * np.sin(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
+		>>> u_D = (lambda x, y, z: x * 0)
+		>>> u_N = (lambda x, y, z: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
+		>>> x = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Sss_R, Stt_R, M2D_R, f, u_D, u_N)
 		>>> x
-		array([ 0.          0.          0.          0.          0.          0.
-		        0.			0.          0.          0.          0.          0.
-		        0.			0.82246703  0.          0.          0.          0.
-		        0.          0.		    0.          0.          0.          0.
-		        0.          0.          0.        ])
+		array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+				0.36673102,  0.36673102,  0.        ,  0.        ,  0.        ,
+				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+				0.06209753,  0.1873742 ,  0.06209753,  0.1873742 ,  0.61071588,
+				0.55509583,  0.61071588,  0.55509583,  0.        ,  0.        ,
+				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
+				0.        ,  0.67471301,  0.69313957,  0.77159936,  0.81732792,
+				0.67471301,  0.69313957,  0.77159936,  0.81732792])
 	"""
-	M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(degree)
-	fval = f(c4n[ind4e,0], c4n[ind4e,1], c4n[ind4e,2]).flatten()
-	nrNodes = int(c4n.shape[0])
-	nrElems = int(n4e.shape[0])
-	nrLocal = int(M_R.shape[0])
-
-	I = np.zeros((nrElems * nrLocal * nrLocal), dtype = np.int32)
-	J = np.zeros((nrElems * nrLocal * nrLocal), dtype = np.int32)
-
-	Alocal = np.zeros((nrElems * nrLocal * nrLocal), dtype = np.float64)
-	b = np.zeros(nrNodes)
-	Poisson_3D_Cube = lib['Poisson_3D_Cube']
-	Poisson_3D_Cube.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
-									 c_void_p, c_void_p, c_void_p, c_void_p, c_int,
-									 c_void_p, c_void_p, c_void_p, c_void_p, c_void_p,)
-
-	c4n = c4n.flatten()
-	ind4e = ind4e.flatten()
-	n4e = n4e.flatten()
-
-	Poisson_3D_Cube.restype = None
-	Poisson_3D_Cube(c_void_p(n4e.ctypes.data),
-						 c_void_p(ind4e.ctypes.data),
-						 c_void_p(c4n.ctypes.data),
-						 c_int(nrElems),
-						 c_void_p(M_R.ctypes.data),
-						 c_void_p(Srr_R.ctypes.data),
-						 c_void_p(Sss_R.ctypes.data),
-						 c_void_p(Stt_R.ctypes.data),
-						 c_int(nrLocal),
-						 c_void_p(fval.ctypes.data),
-						 c_void_p(I.ctypes.data),
-						 c_void_p(J.ctypes.data),
-						 c_void_p(Alocal.ctypes.data),
-						 c_void_p(b.ctypes.data))
-
+	from os import listdir
 	from scipy.sparse import coo_matrix
 	from scipy.sparse.linalg import spsolve
-	STIMA_COO = coo_matrix((Alocal, (I, J)), shape = (nrNodes, nrNodes))
+	from scipy import sparse
+
+
+	nrElems = n4e.shape[0]
+	nrLocal = M_R.shape[0]
+	nrNodes = c4nNew.shape[0]
+	nrNbSide = ind4Nb.shape[0]
+
+	I = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.int32)
+	J = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.int32)
+	Alocal = np.zeros((nrElems * nrLocal * nrLocal), dtype=np.float64)
+	b = np.zeros(nrNodes)
+
+	f_val = f(c4nNew[ind4e.flatten(),0], c4nNew[ind4e.flatten(),1], c4nNew[ind4e.flatten(),2])
+	g_val = u_N(c4nNew[ind4Nb.flatten(),0], c4nNew[ind4Nb.flatten(),1], c4nNew[ind4Nb.flatten(),2])
+
+	Poison_3D = lib['Poisson_3D_Cube'] # need the extern!!
+	Poison_3D.argtypes = (c_void_p, c_void_p, c_void_p, c_void_p, c_int,
+						c_int, c_void_p, c_void_p,
+						c_void_p, c_void_p, c_void_p, 
+						c_int, c_int,
+						c_void_p, c_void_p,
+						c_void_p, c_void_p, c_void_p, c_void_p)
+	Poison_3D.restype = None
+	Poison_3D(c_void_p(n4e.ctypes.data), c_void_p(ind4e.ctypes.data),
+		c_void_p(ind4Nb.ctypes.data), c_void_p(c4nNew.ctypes.data), c_int(nrElems),
+		c_int(nrNbSide), c_void_p(M_R.ctypes.data), c_void_p(M2D_R.ctypes.data),
+		c_void_p(Srr_R.ctypes.data), c_void_p(Sss_R.ctypes.data), c_void_p(Stt_R.ctypes.data),
+		c_int(nrLocal), c_int(degree),
+		c_void_p(f_val.ctypes.data), c_void_p(g_val.ctypes.data),
+		c_void_p(I.ctypes.data), c_void_p(J.ctypes.data),
+		c_void_p(Alocal.ctypes.data), c_void_p(b.ctypes.data))
+
+	STIMA_COO = coo_matrix((Alocal, (I, J)), shape=(nrNodes, nrNodes))
 	STIMA_CSR = STIMA_COO.tocsr()
 
-	dof = np.setdiff1d(range(0,nrNodes), n4Db)
+	dof = np.setdiff1d(range(0,nrNodes), ind4Db)
 
 	x = np.zeros(nrNodes)
-	x[dof] = spsolve(STIMA_CSR[dof,:].tocsc()[:, dof].tocsr(), b[dof])
+	x[ind4Db] = u_D(c4nNew[ind4Db,0], c4nNew[ind4Db,1], c4nNew[ind4Db,2])
+	b = b - sparse.csr_matrix.dot(STIMA_CSR,x)
+	x[dof] = spsolve(STIMA_CSR[dof, :].tocsc()[:, dof].tocsr(), b[dof])
+	
 	return x
+
 
 def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, exact_uz, approx_u, degree, degree_i):
 	"""
