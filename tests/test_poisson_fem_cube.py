@@ -205,28 +205,67 @@ def test_solve():
 
 	npt.assert_almost_equal(x, ref_x, decimal=8)
 
-'''
-def test_computeError():
-	from mozart.mesh.cube import cube
-	from mozart.poisson.fem.cube import solve
-	from mozart.poisson.fem.cube import computeError
+def test_Error():
+	from mozart.poisson.fem.cube import getIndex, getMatrix, solve, Error, refineUniformRed
 	iter = 3
-	for degree in range(1,4):
-		f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
-		u_D = lambda x,y,z: 0*x
-		exact_u = lambda x,y,z: np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
-		exact_ux = lambda x,y,z: np.pi*np.cos(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
-		exact_uy = lambda x,y,z: np.pi*np.sin(np.pi*x)*np.cos(np.pi*y)*np.sin(np.pi*z)
-		exact_uz = lambda x,y,z: np.pi*np.sin(np.pi*x)*np.sin(np.pi*y)*np.cos(np.pi*z)
+
+	f = (lambda x, y, z: 3 * np.pi**2 * np.sin(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
+	u_D = (lambda x, y, z: x * 0)
+	u_exact = (lambda x, y, z: np.sin(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
+	u_N = (lambda x, y, z: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
+	ux = (lambda x, y, z: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
+	uy = (lambda x, y, z: np.pi * np.sin(np.pi * x) * np.cos(np.pi * y) * np.sin(np.pi * z))
+	uz = (lambda x, y, z: np.pi * np.sin(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z))
+
+	for N in range (1,4):
+		c4n = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.], 
+						[0., 0., 1.], [1., 0., 1.], [0., 1., 1.], [1., 1., 1.]])
+		n4e = np.array([[0, 1, 3, 2, 4, 5, 7, 6]])
+		n4fDb = np.array([[0, 1, 3, 2], [0, 1, 5, 4], [3, 2, 6, 7], [2, 0, 4, 6], [4, 5, 7, 6]])
+		n4fNb = np.array([[1, 3, 7, 5]])
+
+		M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(N)
+		L2error = np.zeros(iter, dtype = np.float64)
 		sH1error = np.zeros(iter, dtype = np.float64)
 		h = np.zeros(iter, dtype = np.float64)
 		for j in range(0,iter):
-			c4n, ind4e, n4e, n4Db = cube(0,1,0,1,0,1,2**(j+1),2**(j+1),2**(j+1),degree)
-			x = solve(c4n, ind4e, n4e, n4Db, f, u_D, degree)
-			sH1error[j] = computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, exact_uz, x, degree, degree+3)
-			h[j] = 1 / 2.0**(j+1)
-		ratesH1=(np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
-		npt.assert_array_less(degree-0.2, ratesH1[-1])
-		#self.assertTrue(np.abs(rateH1[-1]) > degree-0.2, \
-				#"Convergence rate : {0} when trying degree = {1}".format(np.abs(rateH1[-1]), degree))
-'''
+			c4n, n4e, n4fDb, n4fNb = refineUniformRed(c4n, n4e, n4fDb, n4fNb)
+			c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4fDb, n4fNb)
+			u = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Sss_R, Stt_R, M2D_R, f, u_D, u_N, N)
+			L2error[j], sH1error[j] = Error(c4n, n4e, ind4e, u, u_exact, ux, uy, uz, N, N+3)
+			h[j] = 0.5 ** (j+1)
+
+		rateL2 = (np.log(L2error[1:])-np.log(L2error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
+		ratesH1 = (np.log(sH1error[1:])-np.log(sH1error[0:-1]))/(np.log(h[1:])-np.log(h[0:-1]))
+		npt.assert_array_less(N+1-0.1, rateL2[-1])
+		npt.assert_array_less(N-0.1, ratesH1[-1])
+
+def test_refineUniformRed():
+	from mozart.poisson.fem.cube import refineUniformRed
+	c4n = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.], 
+					[0., 0., 1.], [1., 0., 1.], [0., 1., 1.], [1., 1., 1.]])
+	n4e = np.array([[0, 1, 3, 2, 4, 5, 7, 6]])
+	n4fDb = np.array([[0, 1, 3, 2], [0, 1, 5, 4], [3, 2, 6, 7], [2, 0, 4, 6], [4, 5, 7, 6]])
+	n4fNb = np.array([[1, 3, 7, 5]])
+	c4nNew, n4eNew, n4fDbNew, n4fNbNew = refineUniformRed(c4n, n4e, n4fDb, n4fNb)
+	ref_c4n = np.array([[ 0. ,  0. ,  0. ], [ 1. ,  0. ,  0. ], [ 0. ,  1. ,  0. ], [ 1. ,  1. ,  0. ], 
+						[ 0. ,  0. ,  1. ], [ 1. ,  0. ,  1. ], [ 0. ,  1. ,  1. ], [ 1. ,  1. ,  1. ], 
+						[ 0.5,  0. ,  0. ], [ 1. ,  0.5,  0. ], [ 0.5,  1. ,  0. ], [ 0. ,  0.5,  0. ], 
+						[ 0. ,  0. ,  0.5], [ 1. ,  0. ,  0.5], [ 1. ,  1. ,  0.5], [ 0. ,  1. ,  0.5], 
+						[ 0.5,  0. ,  1. ], [ 1. ,  0.5,  1. ], [ 0.5,  1. ,  1. ], [ 0. ,  0.5,  1. ], 
+						[ 0.5,  0.5,  0. ], [ 0.5,  0. ,  0.5], [ 1. ,  0.5,  0.5], [ 0.5,  1. ,  0.5], 
+						[ 0. ,  0.5,  0.5], [ 0.5,  0.5,  1. ], [ 0.5,  0.5,  0.5]], dtype = np.float64)
+	ref_n4e = np.array([[ 0,  8, 20, 11, 12, 21, 26, 24], [ 8,  1,  9, 20, 21, 13, 22, 26], 
+						[11, 20, 10,  2, 24, 26, 23, 15], [20,  9,  3, 10, 26, 22, 14, 23], 
+						[12, 21, 26, 24,  4, 16, 25, 19], [21, 13, 22, 26, 16,  5, 17, 25], 
+						[24, 26, 23, 15, 19, 25, 18,  6], [26, 22, 14, 23, 25, 17,  7, 18]], dtype = int)
+	ref_n4fDb = np.array([[ 0,  8, 20, 11], [ 8,  1,  9, 20], [11, 20, 10,  2], [20,  9,  3, 10], 
+						  [ 0,  8, 21, 12], [ 8,  1, 13, 21], [12, 21, 16,  4], [21, 13,  5, 16], 
+						  [ 3, 10, 23, 14], [10,  2, 15, 23], [14, 23, 18,  7], [23, 15,  6, 18], 
+						  [ 2, 11, 24, 15], [11,  0, 12, 24], [15, 24, 19,  6], [24, 12,  4, 19], 
+						  [ 4, 16, 25, 19], [16,  5, 17, 25], [19, 25, 18,  6], [25, 17,  7, 18]], dtype = int)
+	ref_n4fNb = np.array([[ 1,  9, 22, 13], [ 9,  3, 14, 22], [13, 22, 17,  5], [22, 14,  7, 17]], dtype = int)
+	npt.assert_almost_equal(c4nNew, ref_c4n, decimal=8)
+	npt.assert_almost_equal(n4eNew, ref_n4e, decimal=8)
+	npt.assert_almost_equal(n4fDbNew, ref_n4fDb, decimal=8)
+	npt.assert_almost_equal(n4fNbNew, ref_n4fNb, decimal=8)

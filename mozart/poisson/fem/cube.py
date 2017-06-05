@@ -7,7 +7,7 @@ from mozart.common.etc import prefix_by_os
 dllpath = path.join(mz.__path__[0], prefix_by_os(platform) + '_' + 'libmozart.so')
 lib = CDLL(dllpath)
 
-from mozart.poisson.fem.common import nJacobiP, DnJacobiP, VandermondeM1D, Dmatrix1D, RefNodes_Rec, RefNodes_Cube
+from mozart.poisson.fem.common import nJacobiP, DnJacobiP, VandermondeM1D, Dmatrix1D, RefNodes_Rec, RefNodes_Cube, Vandermonde3D_Cube, Dmatrices3D_Cube
 
 def compute_n4s(n4e):
 	"""
@@ -329,7 +329,10 @@ def getIndex(degree, c4n, n4e, n4fDb, n4fNb):
 	Iindex = np.setdiff1d(np.arange(0,nru),BDindex_F.flatten())
 	Iindex_F = np.setdiff1d(np.arange(0,(degree+1)**2), \
 		np.array([np.arange(0,degree+1), np.arange(degree,(degree+1)**2,degree+1), np.arange(0,degree*(degree+1)+1,degree+1), np.arange(degree*(degree+1),(degree+1)**2)]))
-	tmp = (np.matlib.reshape(np.arange(degree-2,-1,-1),degree-1,1) + np.matlib.repmat(np.arange(0,nrf,degree-1),degree-1,1).transpose()).flatten()
+	if degree < 2:
+		tmp = np.array([])
+	else:
+		tmp = (np.matlib.reshape(np.arange(degree-2,-1,-1),degree-1,1) + np.matlib.repmat(np.arange(0,nrf,degree-1),degree-1,1).transpose()).flatten()
 	faceNr2 = np.zeros(6*nrElems, dtype = int)
 	faceNr2[n4fInd]=1
 	F_ind = np.reshape(faceNr2,(nrElems,6))
@@ -456,7 +459,7 @@ def solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Sss_R, Stt_R, M2D_R, f
 		>>> f = (lambda x, y, z: 3 * np.pi**2 * np.sin(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
 		>>> u_D = (lambda x, y, z: x * 0)
 		>>> u_N = (lambda x, y, z: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
-		>>> x = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Sss_R, Stt_R, M2D_R, f, u_D, u_N)
+		>>> x = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Sss_R, Stt_R, M2D_R, f, u_D, u_N, N)
 		>>> x
 		array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
 				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
@@ -521,75 +524,105 @@ def solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Sss_R, Stt_R, M2D_R, f
 	return x
 
 
-def computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, exact_uz, approx_u, degree, degree_i):
+def Error(c4n, n4e, ind4e, u, u_exact, ux, uy, uz, degree, degree_i):
 	"""
-	Compute semi H^1-error between exact solution and approximate solution.
+	Refine a given mesh uniformly using the red refinement
 
-	Parameters
+	Paramters
 		- ``c4n`` (``float64 array``) : coordinates for nodes
-		- ``ind4e`` (``int32 array``) : indices for elements
 		- ``n4e`` (``int32 array``) : nodes for elements
-		- ``exact_u`` (``lambda``) : exact solution
-		- ``exact_ux`` (``lambda``) : derivative of exact solution
-		- ``exact_uy`` (``lambda``) : derivative of exact solution
-		- ``exact_uz`` (``lambda``) : derivative of exact solution
-		- ``approx_u`` (``float64 array``) : approximate solution
-		- ``degree`` (``int32``) : polynomial degree
-		- ``degree_i`` (``int32``) : polynomial degree for interpolation
+		- ``ind4e`` (``int32 array``) : indices on each element
+		- ``u`` (``float64 array``) : numerical solution
+		- ``u_exact`` (``lambda function``) : exact solution
+		- ``ux`` (``lambda function``) : derivative of the exact solution with respect to x
+		- ``uy`` (``lambda function``) : derivative of the exact solution with respect to y
+		- ``uz`` (``lambda function``) : derivative of the exact solution with respect to z
+		- ``degree`` (``int32``) : degree of polynomial
+		- ``degree_i`` (``int32``) : degree of polynomial for interpolation
 
 	Returns
-		- ``sH1error`` (``float64``) : semi H^1 error between exact solution and approximate solution.
+		- ``L2error`` (``float64 array``) : L2error between the numerical and the exact solutions
+		- ``sH1error`` (``float64 array``) : semi-H1error between the numerical and the exact solutions
 
 	Example
-		>>> from mozart.mesh.cube import cube
-		>>> c4n, ind4e, n4e, n4Db = cube(0,1,0,1,0,1,4,4,4,1)
-		>>> f = lambda x,y,z: 3.0*np.pi**2*np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
-		>>> u_D = lambda x,y,z: 0*x
-		>>> from mozart.poisson.fem.cube import solve
-		>>> x = solve(c4n, ind4e, n4e, n4Db, f, u_D, 1)
-		>>> from mozart.poisson.fem.cube import computeError
-		>>> exact_u = lambda x,y,z: np.sin(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
-		>>> exact_ux = lambda x,y,z: np.pi*np.cos(np.pi*x)*np.sin(np.pi*y)*np.sin(np.pi*z)
-		>>> exact_uy = lambda x,y,z: np.pi*np.sin(np.pi*x)*np.cos(np.pi*y)*np.sin(np.pi*z)
-		>>> exact_uz = lambda x,y,z: np.pi*np.sin(np.pi*x)*np.sin(np.pi*y)*np.cos(np.pi*z)
-		>>> sH1error = computeError(c4n, n4e, ind4e, exact_u, exact_ux, exact_uy, exact_uz, approx_u, 1, 3)
-		>>> sH1error
-		0.38357333319
+		>>> N = 3
+		>>> c4n = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.],
+							[0., 0., 1.], [1., 0., 1.], [0., 1., 1.], [1., 1., 1.]])
+		>>> n4e = np.array([[0, 1, 3, 2, 4, 5, 7, 6]])
+		>>> n4fDb = np.array([[0, 1, 3, 2], [0, 1, 5, 4], [2, 0, 4, 6], [4, 5, 7, 6]])
+		>>> n4fNb = np.array([[1, 3, 7, 5]])
+		>>> c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4fDb, n4fNb)
+		>>> M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(N)
+		>>> f = (lambda x, y, z: 3 * np.pi**2 * np.sin(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
+		>>> u_D = (lambda x, y, z: x * 0)
+		>>> u_exact = (lambda x, y, z: np.sin(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
+		>>> u_N = (lambda x, y, z: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
+		>>> ux = (lambda x, y, z: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
+		>>> uy = (lambda x, y, z: np.pi * np.sin(np.pi * x) * np.cos(np.pi * y) * np.sin(np.pi * z))
+		>>> uz = (lambda x, y, z: np.pi * np.sin(np.pi * x) * np.sin(np.pi * y) * np.cos(np.pi * z))
+		>>> u = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Sss_R, Stt_R, M2D_R, f, u_D, u_N, N)
+		>>> L2error, sH1error = Error(c4n, n4e, ind4e, u, u_exact, ux, uy, uz, N, N+3)
+		>>> L2error
+		array([ 0.08607183])
+		>>> sH2error
+		array([ 0.77150202])
 	"""
-	# L2error = 0
-	sH1error = 0
+	L2error = np.zeros(1, dtype = np.float64)
+	sH1error = np.zeros(1, dtype = np.float64)
 
-	M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(degree)
+	r, s, t = RefNodes_Cube(degree)
+	V = Vandermonde3D_Cube(degree, r, s, t)
+	Dr_R, Ds_R, Dt_R = Dmatrices3D_Cube(degree, r, s, t, V)
 
-	# r = np.linspace(-1, 1, degree + 1)
-	# V = VandermondeM1D(degree, r)
-	# Dr = Dmatrix1D(degree, r, V)
+	r_i, s_i, t_i = RefNodes_Cube(degree_i)
+	V_i = Vandermonde3D_Cube(degree_i, r_i, s_i, t_i)
+	invV_i = np.linalg.inv(V_i)
+	M_R = np.dot(np.transpose(invV_i),invV_i)
+	PM = Vandermonde3D_Cube(degree, r_i, s_i, t_i)
+	interpM = np.linalg.solve(V.transpose(), PM.transpose()).transpose()
 
-	# r_i = np.linspace(-1, 1, degree_i + 1)
-	# V_i = VandermondeM1D(degree_i, r_i)
-	# invV_i = np.linalg.inv(V_i)
-	# M_R = np.dot(np.transpose(invV_i), invV_i)
-	# PM = VandermondeM1D(degree, r_i)
-	# interpM = np.transpose(np.linalg.solve(np.transpose(V), np.transpose(PM)))
+	nrElems = n4e.shape[0]
+	nrLocal = r.shape[0]
+	nrLocal_i = r_i.shape[0]
 
-	for j in range(0,n4e.shape[0]):
-		xr = (c4n[n4e[j,1],0] - c4n[n4e[j,0],0]) / 2.0
-		ys = (c4n[n4e[j,3],1] - c4n[n4e[j,0],1]) / 2.0
-		zt = (c4n[n4e[j,4],2] - c4n[n4e[j,0],2]) / 2.0
-		Jacobi = xr * ys * zt
-		rx = 1.0 / xr
-		sy = 1.0 / ys
-		tz = 1.0 / zt
+	Nodes_x = np.outer((r_i+1)/2,c4n[n4e[:,1],0]-c4n[n4e[:,0],0]) \
+	   + np.outer((s_i+1)/2,c4n[n4e[:,3],0]-c4n[n4e[:,0],0]) + np.outer((t_i+1)/2,c4n[n4e[:,4],0]-c4n[n4e[:,0],0])
+	Nodes_y = np.outer((r_i+1)/2,c4n[n4e[:,1],1]-c4n[n4e[:,0],1]) \
+	   + np.outer((s_i+1)/2,c4n[n4e[:,3],1]-c4n[n4e[:,0],1]) + np.outer((t_i+1)/2,c4n[n4e[:,4],1]-c4n[n4e[:,0],1])
+	Nodes_z = np.outer((r_i+1)/2,c4n[n4e[:,1],2]-c4n[n4e[:,0],2]) \
+	   + np.outer((s_i+1)/2,c4n[n4e[:,3],2]-c4n[n4e[:,0],2]) + np.outer((t_i+1)/2,c4n[n4e[:,4],2]-c4n[n4e[:,0],2])
 
-		Dex = exact_ux(c4n[ind4e[j],0],c4n[ind4e[j],1],c4n[ind4e[j],2]) - rx*np.dot(Dr_R,approx_u[ind4e[j]])
-		Dey = exact_uy(c4n[ind4e[j],0],c4n[ind4e[j],1],c4n[ind4e[j],2]) - sy*np.dot(Ds_R,approx_u[ind4e[j]])
-		Dez = exact_uz(c4n[ind4e[j],0],c4n[ind4e[j],1],c4n[ind4e[j],2]) - tz*np.dot(Dt_R,approx_u[ind4e[j]])
-		sH1error += Jacobi*(np.dot(np.dot(np.transpose(Dex),M_R),Dex) + \
-							np.dot(np.dot(np.transpose(Dey),M_R),Dey) + \
-							np.dot(np.dot(np.transpose(Dez),M_R),Dez))
+	u_exact_val = u_exact(Nodes_x.flatten('F'), Nodes_y.flatten('F'), Nodes_z.flatten('F'))
+	ux_val = ux(Nodes_x.flatten('F'), Nodes_y.flatten('F'), Nodes_z.flatten('F'))
+	uy_val = uy(Nodes_x.flatten('F'), Nodes_y.flatten('F'), Nodes_z.flatten('F'))
+	uz_val = uz(Nodes_x.flatten('F'), Nodes_y.flatten('F'), Nodes_z.flatten('F'))
+	u_recon = u[ind4e]
 
+	Dr_R = Dr_R.flatten('F')
+	Ds_R = Ds_R.flatten('F')
+	Dt_R = Dt_R.flatten('F')
+
+	Error_3D = lib['Error_3D_Cube'] # need the extern!!
+	Error_3D.argtypes = (c_void_p, c_void_p, c_void_p, c_int,
+						c_void_p, c_void_p,
+						c_void_p, c_void_p, c_void_p,
+						c_int, c_int,
+						c_void_p, c_void_p, c_void_p, c_void_p, c_void_p,
+						c_void_p, c_void_p)
+	Error_3D.restype = None
+	Error_3D(c_void_p(n4e.ctypes.data), c_void_p(ind4e.ctypes.data),
+		c_void_p(c4n.ctypes.data), c_int(nrElems),
+		c_void_p(M_R.ctypes.data), c_void_p(interpM.ctypes.data),
+		c_void_p(Dr_R.ctypes.data), c_void_p(Ds_R.ctypes.data), c_void_p(Dt_R.ctypes.data),
+		c_int(nrLocal), c_int(nrLocal_i),
+		c_void_p(u_recon.ctypes.data), c_void_p(u_exact_val.ctypes.data),
+		c_void_p(ux_val.ctypes.data), c_void_p(uy_val.ctypes.data), c_void_p(uz_val.ctypes.data),
+		c_void_p(L2error.ctypes.data), c_void_p(sH1error.ctypes.data))
+
+	L2error = np.sqrt(L2error)
 	sH1error = np.sqrt(sH1error)
-	return sH1error
+
+	return (L2error, sH1error)
 
 def getMatrix(degree):
 	r = np.linspace(-1, 1, degree+1)
@@ -609,3 +642,135 @@ def getMatrix(degree):
 	Stt_R = np.dot(np.dot(np.transpose(Dt_R),M_R),Dt_R)
 
 	return (M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R)
+
+def refineUniformRed(c4n, n4e, n4fDb, n4fNb):
+	"""
+	Refine a given mesh uniformly using the red refinement
+
+	Paramters
+		- ``c4n`` (``float64 array``) : coordinates for elements
+		- ``n4e`` (``int32 array``) : nodes for elements
+		- ``n4fDb`` (``int32 array``) : nodes for faces on Dirichlet boundary
+		- ``n4fNb`` (``int32 array``) : nodes for faces on Neumann boundary
+
+	Returns
+		- ``c4nNew`` (``float64 array``) : coordinates for element obtained from red refinement
+		- ``n4eNew`` (``int32 array``) : nodes for element obtained from red refinement
+		- ``n4fDbNew`` (``int32 array``) : nodes for faces on Dirichlet boundary obtained from red refinement
+		- ``n4fNbNew`` (``int32 array``) : nodes for faces on Neumann boundary obtained from red refinement
+
+	Example
+		>>> c4n = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.],
+							[0., 0., 1.], [1., 0., 1.], [0., 1., 1.], [1., 1., 1.]])
+		>>> n4e = np.array([[0, 1, 3, 2, 4, 5, 7, 6]])
+		>>> n4fDb = np.array([[0, 1, 3, 2], [0, 1, 5, 4], [3, 2, 6, 7], [2, 0, 4, 6], [4, 5, 7, 6]])
+		>>> n4fNb = np.array([[1, 3, 7, 5]])
+		>>> c4nNew, n4eNew, n4fDbNew, n4fNbNew = refineUniformRed(c4n, n4e, n4fDb, n4fNb)
+		>>> c4nNew
+		array([[ 0. ,  0. ],
+		   [ 1. ,  0. ],
+		   [ 1. ,  1. ],
+		   [ 0. ,  1. ],
+		   [ 0.5,  0.5],
+		   [ 0. ,  0.5],
+		   [ 1. ,  0.5],
+		   [ 0.5,  0. ],
+		   [ 0.5,  1. ]])
+		>>> n4eNew
+		array([[1, 4, 7],
+		   [4, 3, 5],
+		   [5, 7, 4],
+		   [7, 5, 0],
+		   [3, 4, 8],
+		   [4, 1, 6],
+		   [6, 8, 4],
+		   [8, 6, 2]])
+		>>> n4fDbNew
+		array([[0, 7],
+		   [7, 1],
+		   [1, 6],
+		   [6, 2]])
+		>>>n4fNbNew
+		array([[2, 8],
+		   [8, 3],
+		   [3, 5],
+		   [5, 0]])
+	"""
+	nrNodes = c4n.shape[0]
+	nrElems = n4e.shape[0]
+	n4f = compute_n4f(n4e)
+	nrFaces = n4f.shape[0]
+
+	f4e = compute_f4e(n4e)
+
+	n4s = compute_n4s(n4e)
+	nrSides = n4s.shape[0]
+	
+	from scipy.sparse import coo_matrix
+	newNodes4s = coo_matrix((np.arange(0,nrSides)+nrNodes, (n4s[:,0], n4s[:,1])), shape=(nrNodes, nrNodes))
+	newNodes4s = newNodes4s.tocsr()
+	newNodes4s = newNodes4s + newNodes4s.transpose()
+
+	newNodes4f = nrNodes + nrSides + f4e
+
+	mid4s = (c4n[n4s[:,0],:] + c4n[n4s[:,1],:]) * 0.5
+	mid4f = (c4n[n4f[:,0],:] + c4n[n4f[:,1],:] + c4n[n4f[:,2],:] + c4n[n4f[:,3],:]) * 0.25
+	G4s = (c4n[n4e[:,0],:] + c4n[n4e[:,1],:] + c4n[n4e[:,2],:] + c4n[n4e[:,3],:] \
+		 + c4n[n4e[:,4],:] + c4n[n4e[:,5],:] + c4n[n4e[:,6],:] + c4n[n4e[:,7],:]) * 0.125
+	c4nNew = np.vstack((np.vstack((np.vstack((c4n, mid4s)),mid4f)),G4s))
+
+	n4eNew = np.zeros((8 * nrElems, 8), dtype=int)
+	for elem in range(0,nrElems):
+		nodes = n4e[elem,:]
+		newNodes = np.hstack((np.hstack((np.array([newNodes4s[nodes[0],nodes[1]], 
+			newNodes4s[nodes[1],nodes[2]], 
+			newNodes4s[nodes[2],nodes[3]],
+			newNodes4s[nodes[3],nodes[0]],
+			newNodes4s[nodes[0],nodes[4]],
+			newNodes4s[nodes[1],nodes[5]],
+			newNodes4s[nodes[2],nodes[6]],
+			newNodes4s[nodes[3],nodes[7]],
+			newNodes4s[nodes[4],nodes[5]],
+			newNodes4s[nodes[5],nodes[6]],
+			newNodes4s[nodes[6],nodes[7]],
+			newNodes4s[nodes[7],nodes[4]]]), newNodes4f[elem,:])),	np.array([nrNodes + nrSides + nrFaces + elem])))
+		n4eNew[8*elem + np.arange(0,8),:] = np.array([
+			[nodes[0], newNodes[0], newNodes[12], newNodes[3], newNodes[4], newNodes[13], newNodes[18], newNodes[16]],
+			[newNodes[0], nodes[1], newNodes[1], newNodes[12], newNodes[13], newNodes[5], newNodes[14], newNodes[18]],
+			[newNodes[3], newNodes[12], newNodes[2], nodes[3], newNodes[16], newNodes[18], newNodes[15], newNodes[7]],
+			[newNodes[12], newNodes[1], nodes[2], newNodes[2], newNodes[18], newNodes[14], newNodes[6], newNodes[15]],
+			[newNodes[4], newNodes[13], newNodes[18], newNodes[16], nodes[4], newNodes[8], newNodes[17], newNodes[11]],
+			[newNodes[13], newNodes[5], newNodes[14], newNodes[18], newNodes[8], nodes[5], newNodes[9], newNodes[17]],
+			[newNodes[16], newNodes[18], newNodes[15], newNodes[7], newNodes[11], newNodes[17], newNodes[10], nodes[7]],
+			[newNodes[18], newNodes[14], newNodes[6], newNodes[15], newNodes[17], newNodes[9], nodes[6], newNodes[10]],
+			])
+
+	n4fDbNew = np.zeros((4 * n4fDb.shape[0], 4), dtype = int)
+	for side in range(0, n4fDb.shape[0]):
+		nodes = n4fDb[side,:]
+		faceNum = np.nonzero(np.logical_and(np.logical_and(np.logical_and(n4f[:,0]==nodes[0], n4f[:,1] ==nodes[1]), 
+			n4f[:,2]==nodes[2]), n4f[:,3]==nodes[3])==True)
+		newNodes = np.hstack((np.array([newNodes4s[nodes[0], nodes[1]],
+			newNodes4s[nodes[1], nodes[2]],
+			newNodes4s[nodes[2], nodes[3]],
+			newNodes4s[nodes[3], nodes[0]]]), nrNodes + nrSides + faceNum[0]))
+		n4fDbNew[4*side + np.arange(0,4),:] = np.array([[nodes[0], newNodes[0], newNodes[4], newNodes[3]], 
+														[newNodes[0], nodes[1], newNodes[1], newNodes[4]], 
+														[newNodes[3], newNodes[4], newNodes[2], nodes[3]], 
+														[newNodes[4], newNodes[1], nodes[2], newNodes[2]]])
+
+	n4fNbNew = np.zeros((4 * n4fNb.shape[0], 4), dtype = int)
+	for side in range(0, n4fNb.shape[0]):
+		nodes = n4fNb[side,:]
+		faceNum = np.nonzero(np.logical_and(np.logical_and(np.logical_and(n4f[:,0]==nodes[0], n4f[:,1] ==nodes[1]), 
+			n4f[:,2]==nodes[2]), n4f[:,3]==nodes[3])==True)
+		newNodes = np.hstack((np.array([newNodes4s[nodes[0], nodes[1]],
+			newNodes4s[nodes[1], nodes[2]],
+			newNodes4s[nodes[2], nodes[3]],
+			newNodes4s[nodes[3], nodes[0]]]), nrNodes + nrSides + faceNum[0]))
+		n4fNbNew[4*side + np.arange(0,4),:] = np.array([[nodes[0], newNodes[0], newNodes[4], newNodes[3]], 
+														[newNodes[0], nodes[1], newNodes[1], newNodes[4]], 
+														[newNodes[3], newNodes[4], newNodes[2], nodes[3]], 
+														[newNodes[4], newNodes[1], nodes[2], newNodes[2]]])
+
+	return (c4nNew, n4eNew, n4fDbNew, n4fNbNew)
