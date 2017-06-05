@@ -335,7 +335,7 @@ def getIndex(degree, c4n, n4e, n4fDb, n4fNb):
 		tmp = (np.matlib.reshape(np.arange(degree-2,-1,-1),degree-1,1) + np.matlib.repmat(np.arange(0,nrf,degree-1),degree-1,1).transpose()).flatten()
 	faceNr2 = np.zeros(6*nrElems, dtype = int)
 	faceNr2[n4fInd]=1
-	F_ind = np.reshape(faceNr2,(nrElems,6))
+	F_ind = np.reshape(faceNr2,(6,nrElems)).transpose()
 	F_ind = F_ind[:,1:5]
 	F_ind = (np.outer(np.arange(0,nrf),F_ind) + np.outer(tmp,1-F_ind)).flatten('F')
 	F_ind = np.reshape(F_ind, (nrElems, 4*nrf))
@@ -452,7 +452,7 @@ def solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Sss_R, Stt_R, M2D_R, f
 		>>> c4n = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.],
 							[0., 0., 1.], [1., 0., 1.], [0., 1., 1.], [1., 1., 1.]])
 		>>> n4e = np.array([[0, 1, 3, 2, 4, 5, 7, 6]])
-		>>> n4fDb = np.array([[0, 1, 3, 2], [0, 1, 5, 4], [2, 0, 4, 6], [4, 5, 7, 6]])
+		>>> n4fDb = np.array([[0, 1, 3, 2], [0, 1, 5, 4], [3, 2, 6, 7], [2, 0, 4, 6], [4, 5, 7, 6]])
 		>>> n4fNb = np.array([[1, 3, 7, 5]])
 		>>> c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4fDb, n4fNb)
 		>>> M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(N)
@@ -460,20 +460,6 @@ def solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Sss_R, Stt_R, M2D_R, f
 		>>> u_D = (lambda x, y, z: x * 0)
 		>>> u_N = (lambda x, y, z: np.pi * np.cos(np.pi * x) * np.sin(np.pi * y) * np.sin(np.pi * z))
 		>>> x = solve(c4nNew, n4e, ind4e, ind4Db, ind4Nb, M_R, Srr_R, Sss_R, Stt_R, M2D_R, f, u_D, u_N, N)
-		>>> x
-		array([ 0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-				0.36673102,  0.36673102,  0.        ,  0.        ,  0.        ,
-				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-				0.06209753,  0.1873742 ,  0.06209753,  0.1873742 ,  0.61071588,
-				0.55509583,  0.61071588,  0.55509583,  0.        ,  0.        ,
-				0.        ,  0.        ,  0.        ,  0.        ,  0.        ,
-				0.        ,  0.67471301,  0.69313957,  0.77159936,  0.81732792,
-				0.67471301,  0.69313957,  0.77159936,  0.81732792])
 	"""
 	from os import listdir
 	from scipy.sparse import coo_matrix
@@ -549,7 +535,7 @@ def Error(c4n, n4e, ind4e, u, u_exact, ux, uy, uz, degree, degree_i):
 		>>> c4n = np.array([[0., 0., 0.], [1., 0., 0.], [0., 1., 0.], [1., 1., 0.],
 							[0., 0., 1.], [1., 0., 1.], [0., 1., 1.], [1., 1., 1.]])
 		>>> n4e = np.array([[0, 1, 3, 2, 4, 5, 7, 6]])
-		>>> n4fDb = np.array([[0, 1, 3, 2], [0, 1, 5, 4], [2, 0, 4, 6], [4, 5, 7, 6]])
+		>>> n4fDb = np.array([[0, 1, 3, 2], [0, 1, 5, 4], [3, 2, 6, 7], [2, 0, 4, 6], [4, 5, 7, 6]])
 		>>> n4fNb = np.array([[1, 3, 7, 5]])
 		>>> c4nNew, ind4e, ind4Db, ind4Nb = getIndex(N, c4n, n4e, n4fDb, n4fNb)
 		>>> M_R, M2D_R, Srr_R, Sss_R, Stt_R, Dr_R, Ds_R, Dt_R = getMatrix(N)
@@ -585,11 +571,11 @@ def Error(c4n, n4e, ind4e, u, u_exact, ux, uy, uz, degree, degree_i):
 	nrLocal = r.shape[0]
 	nrLocal_i = r_i.shape[0]
 
-	Nodes_x = np.outer((r_i+1)/2,c4n[n4e[:,1],0]-c4n[n4e[:,0],0]) \
+	Nodes_x = np.matlib.repmat(c4n[n4e[:,0],0],nrLocal_i,1) + np.outer((r_i+1)/2,c4n[n4e[:,1],0]-c4n[n4e[:,0],0]) \
 	   + np.outer((s_i+1)/2,c4n[n4e[:,3],0]-c4n[n4e[:,0],0]) + np.outer((t_i+1)/2,c4n[n4e[:,4],0]-c4n[n4e[:,0],0])
-	Nodes_y = np.outer((r_i+1)/2,c4n[n4e[:,1],1]-c4n[n4e[:,0],1]) \
+	Nodes_y = np.matlib.repmat(c4n[n4e[:,0],1],nrLocal_i,1) +np.outer((r_i+1)/2,c4n[n4e[:,1],1]-c4n[n4e[:,0],1]) \
 	   + np.outer((s_i+1)/2,c4n[n4e[:,3],1]-c4n[n4e[:,0],1]) + np.outer((t_i+1)/2,c4n[n4e[:,4],1]-c4n[n4e[:,0],1])
-	Nodes_z = np.outer((r_i+1)/2,c4n[n4e[:,1],2]-c4n[n4e[:,0],2]) \
+	Nodes_z = np.matlib.repmat(c4n[n4e[:,0],2],nrLocal_i,1) +np.outer((r_i+1)/2,c4n[n4e[:,1],2]-c4n[n4e[:,0],2]) \
 	   + np.outer((s_i+1)/2,c4n[n4e[:,3],2]-c4n[n4e[:,0],2]) + np.outer((t_i+1)/2,c4n[n4e[:,4],2]-c4n[n4e[:,0],2])
 
 	u_exact_val = u_exact(Nodes_x.flatten('F'), Nodes_y.flatten('F'), Nodes_z.flatten('F'))
